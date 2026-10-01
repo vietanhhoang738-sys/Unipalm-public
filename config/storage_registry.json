@@ -1,0 +1,125 @@
+{
+  "version": "2.0",
+  "processed_v2": {
+    "status": "PREPRODUCTION",
+    "drive_root_id": "PUBLIC_RESOURCE_001",
+    "drive_root_name": "03_processed_data_v2",
+    "namespace": "<shop_key>/<YYYY-MM>/<domain>/...",
+    "control_folder_id": "PUBLIC_RESOURCE_002",
+    "baseline_folder_id": "PUBLIC_RESOURCE_003",
+    "writer_policy": {
+      "requires_staging_qa_pass": true,
+      "requires_processed_qa_pass": true,
+      "write_legacy_processed": false,
+      "write_production_data_mart": false,
+      "write_ui": false,
+      "create_shop_partition_dynamically": true,
+      "overwrite_scope": "one shop + one period only",
+      "idempotency_key": "build_fingerprint",
+      "publish_mode": "atomic_partition_swap",
+      "same_fingerprint_action": "NOOP",
+      "unmanaged_existing_partition_action": "FAIL",
+      "verify_uploaded_bytes": "md5_and_size",
+      "preserve_previous_partition_until_swap": true,
+      "auth_mode": "user_oauth",
+      "oauth_secret_name": "GOOGLE_DRIVE_OAUTH_JSON"
+    },
+    "current_baseline": {
+      "period": "YYYY-MM",
+      "first_published_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "idempotency_noop_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "latest_business_refresh_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "durable_persistence_validated": false,
+      "auth_mode": "user_oauth",
+      "latest_idempotency_noop_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED"
+    },
+    "forbidden_drive_root_ids": [
+      "PUBLIC_RESOURCE_004",
+      "PUBLIC_RESOURCE_005"
+    ]
+  },
+  "semantic_v2": {
+    "status": "PREPRODUCTION",
+    "drive_root_id": "PUBLIC_RESOURCE_006",
+    "drive_root_name": "04_semantic_data_v2",
+    "namespace": "<YYYY-MM>/...",
+    "control_folder_id": "PUBLIC_RESOURCE_007",
+    "baseline_folder_id": "PUBLIC_RESOURCE_008",
+    "writer_policy": {
+      "requires_all_enabled_shops": true,
+      "requires_semantic_qa_pass": true,
+      "write_legacy_data_mart": false,
+      "write_production_data_mart": false,
+      "write_ui": false,
+      "overwrite_scope": "one portfolio period only",
+      "idempotency_key": "semantic_build_fingerprint",
+      "publish_mode": "atomic_partition_swap",
+      "same_fingerprint_action": "NOOP",
+      "unmanaged_existing_partition_action": "FAIL",
+      "verify_uploaded_bytes": "md5_and_size",
+      "preserve_previous_partition_until_swap": true,
+      "auth_mode": "user_oauth",
+      "oauth_secret_name": "GOOGLE_DRIVE_OAUTH_JSON"
+    },
+    "forbidden_drive_root_ids": [
+      "PUBLIC_RESOURCE_009",
+      "PUBLIC_RESOURCE_010",
+      "PUBLIC_RESOURCE_011"
+    ],
+    "current_baseline": {
+      "period": "YYYY-MM",
+      "semantic_build_fingerprint": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "first_published_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "idempotency_noop_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "durable_persistence_validated": false,
+      "baseline_drive_file_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "auth_mode": "user_oauth",
+      "latest_refresh_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "latest_idempotency_noop_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED"
+    }
+  },
+  "product_history_semantic_v1": {
+    "status": "PREPRODUCTION",
+    "parent_drive_root_id": "PUBLIC_RESOURCE_012",
+    "namespace_root_name": "_product_history_backfill",
+    "namespace": "_product_history_backfill/<shop_key>/<YYYY-MM>/...",
+    "source_precedence": "CANONICAL_SEMANTIC_V2_OVER_PRODUCT_HISTORY_BACKFILL",
+    "writer_policy": {
+      "requires_product_domain_qa_pass": true,
+      "requires_full_shop_staging_pass": false,
+      "full_shop_processed_promotion_implied": false,
+      "publish_canonical_portfolio_semantic": false,
+      "write_production_data_mart": false,
+      "write_production_ui": false,
+      "overwrite_scope": "one shop + one period only",
+      "idempotency_key": "productHistorySemanticFingerprint",
+      "publish_mode": "atomic_partition_swap",
+      "same_fingerprint_action": "NOOP",
+      "unmanaged_existing_partition_action": "FAIL",
+      "verify_uploaded_bytes": "md5_and_size",
+      "preserve_previous_partition_until_swap": true,
+      "auth_mode": "user_oauth",
+      "oauth_secret_name": "GOOGLE_DRIVE_OAUTH_JSON"
+    }
+  },
+  "ui_payload_v1": {
+    "status": "PREPRODUCTION",
+    "persistence_mode": "REVIEWED_BASELINE_ARTIFACT_ONLY",
+    "baseline_folder_id": "PUBLIC_RESOURCE_013",
+    "writer_policy": {
+      "requires_all_enabled_shops": true,
+      "requires_semantic_qa_pass": true,
+      "requires_payload_qa_pass": true,
+      "write_production_data_mart": false,
+      "write_production_ui": false,
+      "publish_legacy_payload": false
+    },
+    "current_baseline": {
+      "period": "YYYY-MM",
+      "payload_build_fingerprint": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "source_semantic_fingerprint": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "validated_run_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED",
+      "baseline_drive_file_id": "PUBLIC_SNAPSHOT_NOT_CONFIGURED"
+    }
+  }
+}

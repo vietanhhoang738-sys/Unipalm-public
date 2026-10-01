@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "evidence_name": "production_cutover_readiness_evidence",
+  "checks": {
+    "production_data_binding_validated": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "production_ui_binding_validated": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "deployment_dry_run_validated": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "rollback_drill_validated": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "legacy_rollback_runtime_verified": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "production_credentials_verified": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "monitoring_readiness_validated": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    },
+    "repository_deployment_guard_verified": {
+      "ready": false,
+      "evidence": "Not configured in the public source snapshot.",
+      "reviewedBy": "",
+      "reviewedAt": null
+    }
+  }
+}

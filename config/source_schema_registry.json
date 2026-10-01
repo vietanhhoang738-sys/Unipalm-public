@@ -1,0 +1,1026 @@
+{
+  "version": "1.5",
+  "policy": {
+    "matching": "exact_after_unicode_whitespace_case_normalization",
+    "fuzzy_matching": false,
+    "unknown_columns": "WARN",
+    "missing_required_fields": "FAIL",
+    "duplicate_aliases_for_same_canonical": "FAIL",
+    "column_order_affects_fingerprint": false
+  },
+  "contracts": {
+    "listing_catalog_machine": {
+      "required": [
+        "product_id",
+        "product_name",
+        "variation_id",
+        "variation_name",
+        "parent_sku",
+        "variation_sku",
+        "variation_price",
+        "variation_stock"
+      ],
+      "fields": {
+        "product_id": {
+          "aliases": [
+            "et_title_product_id"
+          ]
+        },
+        "product_name": {
+          "aliases": [
+            "et_title_product_name"
+          ]
+        },
+        "variation_id": {
+          "aliases": [
+            "et_title_variation_id"
+          ]
+        },
+        "variation_name": {
+          "aliases": [
+            "et_title_variation_name"
+          ]
+        },
+        "parent_sku": {
+          "aliases": [
+            "et_title_parent_sku"
+          ]
+        },
+        "variation_sku": {
+          "aliases": [
+            "et_title_variation_sku"
+          ]
+        },
+        "variation_price": {
+          "aliases": [
+            "et_title_variation_price"
+          ]
+        },
+        "variation_stock": {
+          "aliases": [
+            "et_title_variation_stock"
+          ]
+        },
+        "gtin": {
+          "aliases": [
+            "ps_gtin_code"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "ad5234ae306033dc6b96e7df03186f8fe24f65e4b1ca9900e88e71ad3a139e4f",
+        "e81318bfd66c144833ad3ee66e6ed372489d96580ff3ec276ea007173945b94f"
+      ],
+      "known_ignored_headers": [
+        "et_title_reason",
+        "ps_direct_listing_price.MY",
+        "ps_direct_listing_price.PH",
+        "ps_direct_listing_price.TH",
+        "ps_maximum_purchase_quantity",
+        "ps_maximum_purchase_quantity_end_date",
+        "ps_maximum_purchase_quantity_start_date",
+        "ps_maximum_purchase_quantity_time_period"
+      ]
+    },
+    "product_performance": {
+      "required": [
+        "item_id",
+        "product",
+        "variation_id",
+        "sku",
+        "parent_sku",
+        "placed_sales",
+        "confirmed_sales"
+      ],
+      "fields": {
+        "item_id": {
+          "aliases": [
+            "Item ID",
+            "Mã sản phẩm"
+          ]
+        },
+        "product": {
+          "aliases": [
+            "Product",
+            "Sản phẩm"
+          ]
+        },
+        "item_status": {
+          "aliases": [
+            "Current Item Status",
+            "Tình trạng sản phẩm hiện tại"
+          ]
+        },
+        "variation_id": {
+          "aliases": [
+            "Variation ID",
+            "Mã phân loại hàng"
+          ]
+        },
+        "variation_name": {
+          "aliases": [
+            "Variation Name",
+            "Tên Phân Loại",
+            "Tên phân loại"
+          ]
+        },
+        "variation_status": {
+          "aliases": [
+            "Current Variation Status",
+            "Trạng thái phân loại sản phẩm hiện tại"
+          ]
+        },
+        "sku": {
+          "aliases": [
+            "SKU",
+            "SKU phân loại"
+          ]
+        },
+        "parent_sku": {
+          "aliases": [
+            "Parent SKU",
+            "SKU sản phẩm"
+          ]
+        },
+        "placed_sales": {
+          "aliases": [
+            "Sales (Placed Order) (VND)",
+            "Doanh số (Đơn đã đặt) (VND)"
+          ]
+        },
+        "confirmed_sales": {
+          "aliases": [
+            "Sales (Confirmed Order) (VND)",
+            "Doanh số (Đơn đã xác nhận) (VND)"
+          ]
+        },
+        "product_impressions": {
+          "aliases": [
+            "Product Impression",
+            "Product Impressions",
+            "Lượt xem sản phẩm"
+          ]
+        },
+        "product_clicks": {
+          "aliases": [
+            "Product Clicks",
+            "Lượt nhấp vào sản phẩm"
+          ]
+        },
+        "ctr": {
+          "aliases": [
+            "CTR"
+          ]
+        },
+        "placed_order_cvr": {
+          "aliases": [
+            "Order Conversion Rate (Placed Order)",
+            "Tỷ lệ chuyển đổi đơn (Đơn đã đặt)"
+          ]
+        },
+        "confirmed_order_cvr": {
+          "aliases": [
+            "Order Conversion Rate (Confirmed Order)",
+            "Tỷ lệ chuyển đổi đơn (Đơn đã xác nhận)"
+          ]
+        },
+        "placed_orders": {
+          "aliases": [
+            "Placed Order",
+            "Đơn hàng đã đặt"
+          ]
+        },
+        "confirmed_orders": {
+          "aliases": [
+            "Confirmed Order",
+            "Đơn đã xác nhận"
+          ]
+        },
+        "placed_units": {
+          "aliases": [
+            "Units (Placed Order)",
+            "Sản phẩm (Đơn đã đặt)"
+          ]
+        },
+        "confirmed_units": {
+          "aliases": [
+            "Units (Confirmed Order)",
+            "Sản phẩm (Đơn đã xác nhận)"
+          ]
+        },
+        "placed_buyers": {
+          "aliases": [
+            "Buyers (Placed Order)",
+            "Người mua đã đặt hàng"
+          ]
+        },
+        "confirmed_buyers": {
+          "aliases": [
+            "Buyers (Confirmed Order)",
+            "Người mua có đơn đã xác nhận"
+          ]
+        },
+        "placed_cvr": {
+          "aliases": [
+            "Conversion Rate (Placed Order)",
+            "Tỷ lệ chuyển đổi (Đơn đã đặt)"
+          ]
+        },
+        "confirmed_cvr": {
+          "aliases": [
+            "Conversion Rate (Confirmed Order)",
+            "Tỷ lệ chuyển đổi (Đơn đã xác nhận)"
+          ]
+        },
+        "placed_aov": {
+          "aliases": [
+            "Sales per Order (Placed Order) (VND)",
+            "Doanh thu trên mỗi đơn (Đơn đã đặt) (VND)"
+          ]
+        },
+        "confirmed_aov": {
+          "aliases": [
+            "Sales per Order (Confirmed Order) (VND)",
+            "Doanh thu trên mỗi đơn (Đơn đã xác nhận) (VND)"
+          ]
+        },
+        "unique_impressions": {
+          "aliases": [
+            "Unique Product Impressions",
+            "Lượt hiển thị sản phẩm duy nhất"
+          ]
+        },
+        "unique_clicks": {
+          "aliases": [
+            "Unique Product Clicks",
+            "Lượt nhấp sản phẩm duy nhất"
+          ]
+        },
+        "product_visitors": {
+          "aliases": [
+            "Product Visitors (Visit)",
+            "Lượt truy cập sản phẩm"
+          ]
+        },
+        "page_views": {
+          "aliases": [
+            "Product Page Views",
+            "Lượt xem trang sản phẩm"
+          ]
+        },
+        "bounce_visitors": {
+          "aliases": [
+            "Product Bounce Visitors",
+            "Số lượng khách thoát trang sản phẩm"
+          ]
+        },
+        "bounce_rate": {
+          "aliases": [
+            "Product Bounce Rate",
+            "Tỷ lệ thoát Trang sản phẩm"
+          ]
+        },
+        "search_clicks": {
+          "aliases": [
+            "Search Clicks",
+            "Lượt click từ Trang tìm kiếm"
+          ]
+        },
+        "likes": {
+          "aliases": [
+            "Likes",
+            "Lượt thích"
+          ]
+        },
+        "atc_visitors": {
+          "aliases": [
+            "Product Visitors (Add to Cart)",
+            "Lượt truy cập sản phẩm (Thêm vào giỏ hàng)"
+          ]
+        },
+        "atc_units": {
+          "aliases": [
+            "Units (Add to Cart)",
+            "Sản phẩm (Thêm vào giỏ hàng)"
+          ]
+        },
+        "atc_cvr": {
+          "aliases": [
+            "Conversion Rate (Add to Cart)",
+            "Tỷ lệ chuyển đổi (theo lượt thêm vào giỏ hàng)"
+          ]
+        },
+        "placed_repeat_rate": {
+          "aliases": [
+            "Repeat Order Rate (Placed Order)",
+            "Tỷ lệ mua lại (Đơn đã đặt)"
+          ]
+        },
+        "confirmed_repeat_rate": {
+          "aliases": [
+            "Repeat Order Rate (Confirmed Order)",
+            "Tỷ lệ đặt hàng lặp lại (Đơn hàng đã được xác nhận)"
+          ]
+        },
+        "placed_repeat_days": {
+          "aliases": [
+            "Average Days to Repeat Order (Placed Order)",
+            "Số ngày trung bình mà Người mua quay lại đặt hàng (Đơn đã đặt)"
+          ]
+        },
+        "confirmed_repeat_days": {
+          "aliases": [
+            "Average Days to Repeat Order (Confirmed Order)",
+            "Số ngày trung bình để lặp lại đơn hàng (Đơn hàng đã được xác nhận)"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "f339466a3e6aa5879f6c1668f7e06def9cca7a9db26043b4b9db821db81dc4a9",
+        "8b7cde17a6b59b80f0018d56cd0af6aac7b87283c77a5ad1298cf2b0de627555"
+      ]
+    },
+    "business_insights_daily": {
+      "required": [
+        "date",
+        "sales",
+        "orders"
+      ],
+      "fields": {
+        "date": {
+          "aliases": [
+            "Date",
+            "Ngày"
+          ]
+        },
+        "sales": {
+          "aliases": [
+            "Sales (VND)",
+            "Tổng doanh số (VND)"
+          ]
+        },
+        "sales_ex_shopee_rebate": {
+          "aliases": [
+            "Sales (Shopee Rebate applied)",
+            "Sales (Shopee Rebate Applied)",
+            "Doanh số không bao gồm trợ giá bởi Shopee"
+          ]
+        },
+        "orders": {
+          "aliases": [
+            "Orders",
+            "Tổng số đơn hàng"
+          ]
+        },
+        "sales_per_order": {
+          "aliases": [
+            "Sales per Order",
+            "Doanh số trên mỗi đơn hàng"
+          ]
+        },
+        "product_clicks": {
+          "aliases": [
+            "Product Clicks",
+            "Lượt nhấp vào sản phẩm"
+          ]
+        },
+        "visitors": {
+          "aliases": [
+            "Visitors",
+            "Số lượt truy cập"
+          ]
+        },
+        "order_conversion_rate": {
+          "aliases": [
+            "Order Conversion Rate",
+            "Tỷ lệ chuyển đổi đơn hàng"
+          ]
+        },
+        "cancelled_orders": {
+          "aliases": [
+            "Cancelled Orders",
+            "Đơn đã hủy"
+          ]
+        },
+        "cancelled_sales": {
+          "aliases": [
+            "Cancelled Sales",
+            "Doanh số đơn hủy"
+          ]
+        },
+        "returned_orders": {
+          "aliases": [
+            "Returned/Refunded Orders",
+            "Đơn đã hoàn trả / hoàn tiền"
+          ]
+        },
+        "returned_sales": {
+          "aliases": [
+            "Returned/Refunded Sales",
+            "Doanh số các đơn Trả hàng/Hoàn tiền"
+          ]
+        },
+        "buyers": {
+          "aliases": [
+            "# of buyers",
+            "số người mua",
+            "Số người mua"
+          ]
+        },
+        "new_buyers": {
+          "aliases": [
+            "# of new buyers",
+            "số người mua mới",
+            "Số người mua mới"
+          ]
+        },
+        "existing_buyers": {
+          "aliases": [
+            "# of existing buyers",
+            "số người mua hiện tại",
+            "Số người mua hiện tại"
+          ]
+        },
+        "potential_buyers": {
+          "aliases": [
+            "# of potential buyers",
+            "số người mua tiềm năng",
+            "Số người mua tiềm năng"
+          ]
+        },
+        "repeat_purchase_rate": {
+          "aliases": [
+            "Repeat Purchase Rate",
+            "Tỉ lệ quay lại của người mua",
+            "Tỷ lệ quay lại của người mua"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "80358aca8f02a6b90b8d61962479140a1d902b3d856675092560d24cf485bbb5",
+        "5040c4a47ba0320c8a9ff8c13eb548d1a78002bb5a2e76e7639db9b3ecae46e7"
+      ]
+    },
+    "business_insights_traffic": {
+      "required": [
+        "traffic_source",
+        "impressions",
+        "clicks"
+      ],
+      "fields": {
+        "traffic_source": {
+          "aliases": [
+            "Traffic Source",
+            "Nguồn lưu lượng"
+          ]
+        },
+        "sales_ratio": {
+          "aliases": [
+            "Sales Ratio",
+            "Tỷ lệ doanh số"
+          ]
+        },
+        "sales": {
+          "aliases": [
+            "Sales (VND)",
+            "Doanh số (VND)"
+          ]
+        },
+        "impressions": {
+          "aliases": [
+            "Product Impressions",
+            "Lượt hiển thị sản phẩm",
+            "Live Views",
+            "Lượt xem Livestream",
+            "Video Views",
+            "Lượt xem Video",
+            "Content Views",
+            "Lượt xem nội dung"
+          ]
+        },
+        "clicks": {
+          "aliases": [
+            "Product Clicks",
+            "Lượt nhấp vào sản phẩm"
+          ]
+        },
+        "orders": {
+          "aliases": [
+            "Orders",
+            "Tổng số đơn hàng"
+          ]
+        },
+        "units": {
+          "aliases": [
+            "Units",
+            "Sản phẩm"
+          ]
+        },
+        "ctr": {
+          "aliases": [
+            "CTR"
+          ]
+        },
+        "cvr": {
+          "aliases": [
+            "Order Conversion Rate",
+            "Tỷ lệ chuyển đổi đơn hàng"
+          ]
+        },
+        "sales_per_order": {
+          "aliases": [
+            "Sales per Order",
+            "Doanh số trên mỗi đơn hàng"
+          ]
+        },
+        "buyers": {
+          "aliases": [
+            "Buyers",
+            "Người mua"
+          ]
+        },
+        "unique_impressions": {
+          "aliases": [
+            "Unique Product Impressions",
+            "Lượt hiển thị sản phẩm duy nhất",
+            "Live Viewers",
+            "Người xem Livestream",
+            "Video Viewers",
+            "Người xem Video",
+            "Content Viewers",
+            "Người xem nội dung"
+          ]
+        },
+        "unique_clicks": {
+          "aliases": [
+            "Unique Product Clicks",
+            "Lượt nhấp sản phẩm duy nhất"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "34e51e122ce5264bce143462fae7854150be9c596506b23ad7a2dbcd12795ddb",
+        "37fa49ac9a3c5983174d592083a268c3d8f24000d7610550082f8438f13a815f",
+        "5440348d8e2954a7bdac2600d4afc82244302994897baaa70833763f3c89e7e4",
+        "8cccae154e18efc66bbb2dccf93aa750a7877a23617caf9274c51ebce25844f6",
+        "8e27919a32aab7b94eb769089f899854c8b057b4937f204e25132aea926a5464",
+        "b7b5759cfedf90aca3f0205bf99ca5fc18dc5bd1dca7ecbde368560036cea9a9",
+        "c2b9848b379a22e37d1798a81c6376095b072776968872a1c2110bfedabb6ee6",
+        "e901cf9819d6fa11292839c8250dbde6a92f7aaff10dd54a20ceae69a9f9cf61"
+      ]
+    },
+    "orders": {
+      "required": [
+        "order_id",
+        "order_created_at",
+        "order_status",
+        "qty",
+        "item_buyer_payment",
+        "order_total_value",
+        "buyer_total_payment",
+        "fixed_fee",
+        "service_fee",
+        "transaction_fee"
+      ],
+      "fields": {
+        "order_id": {
+          "aliases": [
+            "Mã đơn hàng"
+          ]
+        },
+        "order_created_at": {
+          "aliases": [
+            "Ngày đặt hàng"
+          ]
+        },
+        "order_status": {
+          "aliases": [
+            "Trạng Thái Đơn Hàng"
+          ]
+        },
+        "cancel_reason": {
+          "aliases": [
+            "Lý do hủy"
+          ]
+        },
+        "ship_date": {
+          "aliases": [
+            "Ngày gửi hàng"
+          ]
+        },
+        "completed_at": {
+          "aliases": [
+            "Thời gian hoàn thành đơn hàng"
+          ]
+        },
+        "paid_at": {
+          "aliases": [
+            "Thời gian đơn hàng được thanh toán"
+          ]
+        },
+        "product_sku": {
+          "aliases": [
+            "SKU sản phẩm"
+          ]
+        },
+        "product_name": {
+          "aliases": [
+            "Tên sản phẩm"
+          ]
+        },
+        "variation_sku": {
+          "aliases": [
+            "SKU phân loại hàng"
+          ]
+        },
+        "variation_name": {
+          "aliases": [
+            "Tên phân loại hàng"
+          ]
+        },
+        "qty": {
+          "aliases": [
+            "Số lượng"
+          ]
+        },
+        "returned_qty": {
+          "aliases": [
+            "Số lượng sản phẩm được hoàn trả"
+          ]
+        },
+        "item_buyer_payment": {
+          "aliases": [
+            "Tổng số tiền Người mua thanh toán"
+          ]
+        },
+        "order_total_value": {
+          "aliases": [
+            "Tổng giá trị đơn hàng (VND)"
+          ]
+        },
+        "shop_voucher": {
+          "aliases": [
+            "Mã giảm giá của Shop"
+          ]
+        },
+        "shopee_voucher": {
+          "aliases": [
+            "Mã giảm giá của Shopee"
+          ]
+        },
+        "buyer_total_payment": {
+          "aliases": [
+            "Tổng số tiền người mua thanh toán"
+          ]
+        },
+        "fixed_fee": {
+          "aliases": [
+            "Phí cố định"
+          ]
+        },
+        "service_fee": {
+          "aliases": [
+            "Phí Dịch Vụ"
+          ]
+        },
+        "transaction_fee": {
+          "aliases": [
+            "Phí xử lý giao dịch"
+          ]
+        },
+        "buyer_username": {
+          "aliases": [
+            "Người Mua"
+          ]
+        },
+        "province": {
+          "aliases": [
+            "Tỉnh/Thành phố"
+          ]
+        },
+        "shopee_subsidy": {
+          "aliases": [
+            "Được Shopee trợ giá"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "fcf91d42b4828fb6ce47a23053bc8306bd4b07abb9e21188c79216b8284baee0",
+        "18205ed1289df43c0a3dfc6170b889062f9181c366235138d5dbbb791eb1ed18"
+      ],
+      "known_ignored_headers": [
+        "Chỉ tiêu Combo Khuyến Mãi",
+        "Cân nặng sản phẩm",
+        "Ghi chú",
+        "Giá ưu đãi",
+        "Giá gốc",
+        "Giảm giá từ Combo của Shop",
+        "Giảm giá từ combo Shopee",
+        "Hoàn Xu",
+        "Loại đơn hàng",
+        "Mã Kiện Hàng",
+        "Mã vận đơn",
+        "Ngày giao hàng dự kiến",
+        "Ngày giao hàng nội địa",
+        "Ngày hủy thành công",
+        "Ngày xuất hàng",
+        "Ngày xác minh ký quỹ",
+        "Người bán trợ giá",
+        "Nhận xét từ Người mua",
+        "Phí vận chuyển (dự kiến)",
+        "Phí vận chuyển mà người mua trả",
+        "Phí vận chuyển trả hàng (đơn Trả hàng/hoàn tiền)",
+        "Phí vận chuyển tài trợ bởi Shopee (dự kiến)",
+        "Phương thức giao hàng",
+        "Phương thức thanh toán",
+        "Quận",
+        "Quốc gia",
+        "Shopee Xu được hoàn",
+        "Số tiền được giảm khi thanh toán bằng thẻ Ghi nợ",
+        "Sản Phẩm Bán Chạy",
+        "Số điện thoại",
+        "Sở hữu bởi Shopee",
+        "TP / Quận / Huyện",
+        "Thời gian giao hàng",
+        "Tiền ký quỹ",
+        "Trade-in Bonus",
+        "Trade-in Bonus by Seller",
+        "Trade-in Discount",
+        "Trạng thái Trả hàng/Hoàn tiền",
+        "Tên Người nhận",
+        "Tổng cân nặng",
+        "Tổng số tiền được người bán trợ giá",
+        "Đơn Vị Vận Chuyển",
+        "Đơn hàng được xử lý bởi Shopee",
+        "Địa chỉ nhận hàng"
+      ]
+    },
+    "ads_metadata": {
+      "required": [
+        "shop_id",
+        "date_period"
+      ],
+      "fields": {
+        "user_name": {
+          "aliases": [
+            "User Name",
+            "Tên đăng nhập"
+          ]
+        },
+        "shop_name": {
+          "aliases": [
+            "Shop Name",
+            "Tên gian hàng"
+          ]
+        },
+        "shop_id": {
+          "aliases": [
+            "Shop ID",
+            "Mã Người bán"
+          ]
+        },
+        "report_creation_time": {
+          "aliases": [
+            "Report Creation Time",
+            "Thời gian tạo báo cáo"
+          ]
+        },
+        "date_period": {
+          "aliases": [
+            "Date Period",
+            "Khoảng thời gian"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "a0f88ad38ca5c6cfc7dcec7e3390b09d1e23f73cbd3547a9aded9af3b6143710",
+        "78552ffd8bc5ac5eee8904b40d66d6a199bcf4be3223db1f353d6869fd80ad29"
+      ]
+    },
+    "ads_rows": {
+      "required": [
+        "sequence",
+        "ad_name",
+        "product_id",
+        "impressions",
+        "clicks",
+        "gmv",
+        "expense"
+      ],
+      "fields": {
+        "sequence": {
+          "aliases": [
+            "Sequence",
+            "Thứ tự"
+          ]
+        },
+        "ad_name": {
+          "aliases": [
+            "Ad Name",
+            "Tên Dịch vụ Hiển thị"
+          ]
+        },
+        "status": {
+          "aliases": [
+            "Status",
+            "Trạng thái"
+          ]
+        },
+        "ads_type": {
+          "aliases": [
+            "Ads Type",
+            "Loại Dịch vụ Hiển thị"
+          ]
+        },
+        "product_id": {
+          "aliases": [
+            "Product ID",
+            "Mã sản phẩm"
+          ]
+        },
+        "creative": {
+          "aliases": [
+            "Creative",
+            "Nội dung Dịch vụ Hiển thị"
+          ]
+        },
+        "bidding_method": {
+          "aliases": [
+            "Bidding Method",
+            "Phương thức đấu thầu"
+          ]
+        },
+        "placement": {
+          "aliases": [
+            "Placement",
+            "Vị trí"
+          ]
+        },
+        "start_date": {
+          "aliases": [
+            "Start Date",
+            "Ngày bắt đầu"
+          ]
+        },
+        "end_date": {
+          "aliases": [
+            "End Date",
+            "Ngày kết thúc"
+          ]
+        },
+        "impressions": {
+          "aliases": [
+            "Impression",
+            "Số lượt xem"
+          ]
+        },
+        "clicks": {
+          "aliases": [
+            "Clicks",
+            "Số lượt click"
+          ]
+        },
+        "ctr": {
+          "aliases": [
+            "CTR",
+            "Tỷ Lệ Click",
+            "Tỷ lệ Click"
+          ]
+        },
+        "add_to_cart": {
+          "aliases": [
+            "Add to Cart",
+            "Thêm vào giỏ hàng"
+          ]
+        },
+        "add_to_cart_rate": {
+          "aliases": [
+            "Add to Cart Rate",
+            "Tỷ lệ Thêm vào giỏ hàng"
+          ]
+        },
+        "conversions": {
+          "aliases": [
+            "Conversions",
+            "Lượt chuyển đổi"
+          ]
+        },
+        "direct_conversions": {
+          "aliases": [
+            "Direct Conversions",
+            "Lượt chuyển đổi trực tiếp"
+          ]
+        },
+        "conversion_rate": {
+          "aliases": [
+            "Conversion Rate",
+            "Tỷ lệ chuyển đổi"
+          ]
+        },
+        "direct_conversion_rate": {
+          "aliases": [
+            "Direct Conversion Rate",
+            "Tỷ lệ chuyển đổi trực tiếp"
+          ]
+        },
+        "cost_per_conversion": {
+          "aliases": [
+            "Cost per Conversion",
+            "Chi phí cho mỗi lượt chuyển đổi"
+          ]
+        },
+        "cost_per_direct_conversion": {
+          "aliases": [
+            "Cost per Direct Conversion",
+            "Chi phí cho mỗi lượt chuyển đổi trực tiếp"
+          ]
+        },
+        "units_sold": {
+          "aliases": [
+            "Items Sold",
+            "Sản phẩm đã bán"
+          ]
+        },
+        "direct_units_sold": {
+          "aliases": [
+            "Direct Items Sold",
+            "Sản phẩm đã bán trực tiếp"
+          ]
+        },
+        "gmv": {
+          "aliases": [
+            "GMV",
+            "Doanh số"
+          ]
+        },
+        "direct_gmv": {
+          "aliases": [
+            "Direct GMV",
+            "Doanh số trực tiếp"
+          ]
+        },
+        "expense": {
+          "aliases": [
+            "Expense",
+            "Chi phí"
+          ]
+        },
+        "roas": {
+          "aliases": [
+            "ROAS"
+          ]
+        },
+        "direct_roas": {
+          "aliases": [
+            "Direct ROAS",
+            "ROAS trực tiếp"
+          ]
+        },
+        "acos": {
+          "aliases": [
+            "ACOS"
+          ]
+        },
+        "direct_acos": {
+          "aliases": [
+            "Direct ACOS",
+            "ACOS trực tiếp"
+          ]
+        },
+        "product_impressions": {
+          "aliases": [
+            "Product Impressions",
+            "Lượt xem Sản phẩm"
+          ]
+        },
+        "product_clicks": {
+          "aliases": [
+            "Product Clicks",
+            "Lượt clicks Sản phẩm"
+          ]
+        },
+        "product_ctr": {
+          "aliases": [
+            "Product CTR",
+            "Tỷ lệ Click Sản phẩm"
+          ]
+        },
+        "voucher_amount": {
+          "aliases": [
+            "Voucher Amount"
+          ]
+        },
+        "vouchered_sales": {
+          "aliases": [
+            "Vouchered Sales"
+          ]
+        }
+      },
+      "accepted_fingerprints": [
+        "c58e0ee397474449676373f7186a254551e8934264e978701e4a694366681d6c",
+        "026ab3c772c98c25addaa452dd6e81a19bcf6896e9aaa1dff6dfb83d965be058",
+        "6fecc7a5e5f8ad040b87e299f2368389c4c38e660fee69cdecd397fac60899e4"
+      ]
+    }
+  }
+}

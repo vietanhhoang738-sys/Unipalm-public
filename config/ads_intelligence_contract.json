@@ -1,0 +1,148 @@
+{
+  "version": "1.2",
+  "layer_name": "multi_shop_ads_intelligence_v1",
+  "status": "PREPRODUCTION",
+  "destination": "ads",
+  "source_policy": {
+    "trusted_history_source": "PUBLISHED_SEMANTIC_QA_PASS",
+    "canonical_shop_mart": "dm_ads_daily",
+    "canonical_product_mart": "dm_ads_product_daily",
+    "canonical_grain": "DAILY",
+    "canonical_shop_grain": ["shop_id", "data_date"],
+    "canonical_product_grain": ["shop_id", "data_date", "product_id"],
+    "canonical_source_precedence": "PUBLISHED_SEMANTIC_QA_PASS",
+    "legacy_ads_processed_is_not_authoritative": true
+  },
+  "scope_policy": {
+    "single_shop_only": true,
+    "cross_shop_compare_allowed": false,
+    "allowed_time_scopes": ["day", "week", "month", "year"],
+    "global_time_selector": true,
+    "selected_date_is_anchor": true,
+    "entity_scopes": ["shop", "product_group", "product"],
+    "entity_scope_cross_shop_forbidden": true,
+    "product_group_rule": "DETERMINISTIC_PRODUCT_NAME_CATEGORY_V1",
+    "scope_definitions": {
+      "day": "SELECTED_TRUSTED_DATE",
+      "week": "ROLLING_7D_ENDING_SELECTED_DATE",
+      "month": "CALENDAR_MONTH_TO_SELECTED_DATE",
+      "year": "CALENDAR_YEAR_TO_SELECTED_DATE_WITH_LIFECYCLE_AWARE_START"
+    }
+  },
+  "availability_policy": {
+    "requested_scope_requires_complete_trusted_source_coverage": true,
+    "day_requires_selected_date": true,
+    "week_requires_contiguous_days": 7,
+    "month_requires_month_start_to_selected_date": true,
+    "year_preexisting_shop_requires_january_to_selected_date": true,
+    "year_shop_launch_may_start_at_first_trusted_date": true,
+    "unavailable_scope_must_be_explicitly_disabled": true,
+    "partial_data_must_not_be_presented_as_complete_scope": true,
+    "benchmark_windows_days": [7, 30, 90, 180],
+    "benchmark_requires_contiguous_trusted_days": true,
+    "missing_benchmark_must_render_unavailable_not_zero": true
+  },
+  "aggregation_policy": {
+    "additive_fields": [
+      "impressions", "clicks", "add_to_cart", "conversions", "units_sold",
+      "attributed_sales", "ad_spend"
+    ],
+    "recomputed_ratios": {
+      "ctr": "clicks / impressions",
+      "cvr": "conversions / clicks",
+      "roas": "attributed_sales / ad_spend",
+      "cpc": "ad_spend / clicks",
+      "cpm": "ad_spend * 1000 / impressions",
+      "cpa": "ad_spend / conversions",
+      "acos": "ad_spend / attributed_sales",
+      "ads_aov": "attributed_sales / conversions"
+    },
+    "never_average_ratios": true,
+    "product_aggregation_identity": ["shop_id", "product_id"],
+    "product_group_rollup_recomputes_ratios_from_additive_facts": true
+  },
+  "comparison_policy": {
+    "method": "PREVIOUS_EQUAL_LENGTH_NON_OVERLAPPING",
+    "day": 1,
+    "week": 7,
+    "month": "MATCH_CURRENT_ELAPSED_DAY_COUNT_IN_PREVIOUS_MONTH",
+    "year": "MATCH_CURRENT_ELAPSED_DAY_COUNT_IMMEDIATELY_BEFORE_CURRENT_WINDOW_WHEN_TRUSTED",
+    "comparison_must_be_fully_trusted": true,
+    "missing_comparison_status": "INSUFFICIENT_COMPARISON_HISTORY"
+  },
+  "intelligence_policy": {
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "default_operational_window": "week",
+    "default_anchor": "LATEST_TRUSTED_DATE",
+    "driver_identity": "ROAS = Ads CVR × Ads AOV / CPC",
+    "driver_method": "EXACT_SHAPLEY_ON_BUSINESS_IDENTITY",
+    "driver_contribution_is_causal_claim": false,
+    "product_signal_min_spend_share": 0.03,
+    "product_signal_min_abs_roas_delta": 0.15,
+    "product_signal_max_count": 8,
+    "problem_definition": "ROAS_DOWN_WITH_MEANINGFUL_CURRENT_SPEND",
+    "opportunity_definition": "ROAS_UP_WITH_MEANINGFUL_CURRENT_SPEND",
+    "priority_components": ["spend_share", "roas_change", "sales_change", "confidence"],
+    "causal_claims_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false
+  },
+  "business_context_qualification": {
+    "enabled": true,
+    "mode": "DYNAMIC_ADS_CONTEXT_QUALIFICATION_V1",
+    "source": "EXPLICIT_SOURCE_BUSINESS_CONTEXT_CALENDAR",
+    "matching_eligible_only": true,
+    "qualifying_platforms": ["shopee"],
+    "qualifying_context_families": [
+      "DOUBLE_DAY_MEGA_SALE",
+      "MONTH_OPENING",
+      "MEMBER_DAY",
+      "MID_MONTH",
+      "PAYDAY",
+      "FESTIVAL_CAMPAIGN"
+    ],
+    "strong_directional_diagnosis_rule": "CONTEXT_COMPATIBLE_ONLY",
+    "base_evidence_preserved_when_blocked": true,
+    "context_different_blocks_strong_directional_diagnosis": true,
+    "context_unknown_blocks_strong_directional_diagnosis": true,
+    "causal_claims_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false
+  },
+  "presentation_policy": {
+    "data_first": true,
+    "intelligence_before_metrics": false,
+    "standalone_intelligence_section_position": "BOTTOM",
+    "embedded_intelligence_allowed": ["delta", "benchmark_state", "evidence_marker"],
+    "financial_analysis_visual_language": true,
+    "chart_heavy_destination": true,
+    "equation_hero": {
+      "enabled": true,
+      "three_equivalent_forms": true,
+      "forms": [
+        "ROAS = GMV_ADS / ADS_SPEND",
+        "ROAS = (ADS_AOV × CONVERSIONS) / (CPC × CLICKS)",
+        "ROAS = (ADS_AOV × IMPRESSIONS × CTR × CR) / (CPC × CLICKS)"
+      ],
+      "metric_nodes_interactive": true
+    },
+    "required_chart_zones": [
+      "PERFORMANCE_TREND",
+      "FUNNEL",
+      "COST_BENCHMARK",
+      "ENTITY_BREAKDOWN",
+      "CPC_ROAS_SCATTER"
+    ],
+    "raw_campaign_table_is_secondary": true,
+    "product_name_short_alias_allowed": true,
+    "operator_language_vietnamese_first": true,
+    "show_methodology_note_for_driver_attribution": true
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "publish_legacy_payload": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false
+  }
+}

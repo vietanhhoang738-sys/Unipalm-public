@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "snapshot_name": "unipalm-public-source-snapshot-v1",
+  "source_branch": "multi-shop-catalog-resolver",
+  "excluded_paths": [
+    "index.html",
+    ".github/workflows/public-snapshot-export.yml",
+    ".github/workflows/public-snapshot-preflight.yml"
+  ],
+  "reset_runtime_paths": [
+    "automation/pipeline_state.json",
+    "config/staging_request.json",
+    "ops/staging_request.json",
+    "ops/production_cutover_evidence.json"
+  ],
+  "pseudonymized_registry_paths": [
+    "config/shop_registry.json",
+    "config/storage_registry.json"
+  ],
+  "disabled_public_workflows": [
+    ".github/workflows/unipalm-pipeline.yml"
+  ],
+  "forbidden_public_literals": [
+    "https://example.invalid/",
+    "maintainer@example.invalid"
+  ],
+  "allowed_data_extensions": [],
+  "notes": [
+    "The public snapshot is source-complete but operations-empty.",
+    "No production index.html or live runtime state is exported.",
+    "Private export/preflight workflows are not included in the public snapshot.",
+    "Live identifiers are replaced only in the exported snapshot; the private source-of-truth remains unchanged.",
+    "Scheduled production execution is disabled in the exported snapshot."
+  ]
+}

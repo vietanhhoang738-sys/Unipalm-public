@@ -1,0 +1,109 @@
+name: RAW Ads Identity Audit
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - ".github/workflows/raw-ads-identity-audit.yml"
+  workflow_dispatch:
+    inputs:
+      shop_key:
+        description: "Registry shop key"
+        required: true
+        default: "syt_plus"
+        type: string
+      month:
+        description: "Target month YYYY-MM"
+        required: true
+        default: "2026-09"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      AUDIT_SHOP_KEY: ${{ inputs.shop_key || 'syt_plus' }}
+      AUDIT_MONTH: ${{ inputs.month || '2026-09' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+      - name: Audit RAW Ads embedded Shop IDs
+        shell: bash
+        run: |
+          mkdir -p raw_identity_audit
+          PYTHONPATH=automation python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from modules.shop_registry import load_shop_registry
+          from modules.multi_shop_staging import parse_ads_csv
+          from multi_shop_staging_runner_legacy import (
+              children, domain_month, download_bytes, drive_client, resolve_shop_raw_root,
+          )
+
+          shop_key=os.environ["AUDIT_SHOP_KEY"]
+          month=os.environ["AUDIT_MONTH"]
+          registry=load_shop_registry("config/shop_registry.json")
+          matches=[x for x in registry.get("shops",[]) if x.get("shop_key")==shop_key]
+          if len(matches)!=1:
+              raise SystemExit(f"shop_key must resolve once: {shop_key!r}")
+          shop=matches[0]
+          drive=drive_client()
+          root_id,resolution=resolve_shop_raw_root(drive,shop)
+          mid=domain_month(drive,root_id,"ads",month)
+          files=sorted(
+              [x for x in children(drive,mid) if str(x.get("name","")).lower().endswith(".csv")],
+              key=lambda x:(str(x.get("name","")),str(x.get("id",""))),
+          )
+          rows=[]
+          for f in files:
+              text=download_bytes(drive,f["id"]).decode("utf-8-sig")
+              try:
+                  _,meta=parse_ads_csv(
+                      text,
+                      expected_shopee_shop_id=str(shop["shopee_shop_id"]),
+                      shop_id=str(shop["shop_id"]),
+                      source_name=str(f.get("name","")),
+                  )
+                  rows.append({
+                      "status":"PASS","id":f["id"],"name":f["name"],
+                      "modifiedTime":f.get("modifiedTime"),
+                      "embeddedShopId":str(shop["shopee_shop_id"]),
+                      "dataDate":meta.get("data_date"),
+                  })
+              except Exception as exc:
+                  rows.append({
+                      "status":"FAIL","id":f["id"],"name":f["name"],
+                      "modifiedTime":f.get("modifiedTime"),"error":str(exc),
+                  })
+          result={
+              "shopKey":shop_key,
+              "expectedShopId":shop["shopee_shop_id"],
+              "month":month,
+              "resolvedRootId":root_id,
+              "rawRootResolution":resolution,
+              "fileCount":len(rows),
+              "failedCount":sum(1 for x in rows if x["status"]=="FAIL"),
+              "files":rows,
+          }
+          out=Path("raw_identity_audit")/f"{shop_key}_{month}.json"
+          out.write_text(json.dumps(result,ensure_ascii=False,indent=2,sort_keys=True),encoding="utf-8")
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+      - name: Upload RAW identity audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-ads-identity-audit-${{ env.AUDIT_SHOP_KEY }}-${{ env.AUDIT_MONTH }}
+          path: raw_identity_audit/
+          if-no-files-found: error
+          retention-days: 7

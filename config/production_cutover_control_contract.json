@@ -1,0 +1,99 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_production_cutover_control_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_ads_action_authorization_v1",
+  "cutover_control": {
+    "enabled": true,
+    "mode": "PRODUCTION_CUTOVER_PREPARATION_V1",
+    "action_authorization_source": "ads_action_authorization.json",
+    "native_summary_source": "multi_shop_native_v2_summary_<YYYY-MM>.json",
+    "readiness_evidence_source": "production_cutover_evidence.json",
+    "authorization_event_source": "production_cutover_authorization_events.json",
+    "require_all_shop_scope": true,
+    "required_native_composition_version": "native-v2-extension-composition-v1.3",
+    "required_native_extension": "ads_action_authorization",
+    "required_compatibility_bridge_count": 1,
+    "required_readiness_checks": [
+      "production_data_binding_validated",
+      "production_ui_binding_validated",
+      "deployment_dry_run_validated",
+      "rollback_drill_validated",
+      "legacy_rollback_runtime_verified",
+      "production_credentials_verified",
+      "monitoring_readiness_validated",
+      "repository_deployment_guard_verified"
+    ],
+    "required_legacy_repository_paths": [
+      ".github/workflows/unipalm-pipeline.yml",
+      ".github/workflows/product-ads-mart-maintenance.yml",
+      "automation/run_pipeline.py",
+      "automation/source_processor.py",
+      "automation/backfill_product_ads.py",
+      "automation/frozen_v14_template.html",
+      "automation/pipeline_state.json",
+      "config/legacy_pipeline_dependencies.json"
+    ],
+    "authorization": {
+      "append_only": true,
+      "actions": ["APPROVE_CUTOVER_PLAN", "REJECT_CUTOVER_PLAN", "REVOKE_CUTOVER_PLAN"],
+      "pending_actions": ["APPROVE_CUTOVER_PLAN", "REJECT_CUTOVER_PLAN"],
+      "approved_actions": ["REVOKE_CUTOVER_PLAN"],
+      "rejected_actions": [],
+      "revoked_actions": [],
+      "approval_status": "APPROVED_FOR_EXPLICIT_EXECUTION_MILESTONE",
+      "expected_ledger_fingerprint_required": true,
+      "cutover_plan_fingerprint_binding_required": true,
+      "deterministic_event_id": true,
+      "authorized_at_timezone_required": true,
+      "authorized_by_required": true,
+      "ledger_apply_requires_explicit_flag": true
+    },
+    "rollback_drill": {
+      "dry_run_only": true,
+      "required_steps": [
+        "CAPTURE_PRODUCTION_BASELINE",
+        "VERIFY_LEGACY_ROLLBACK_TARGET",
+        "VERIFY_NEW_ARTIFACT_LINEAGE",
+        "SIMULATE_BINDING_SWITCH",
+        "SIMULATE_HEALTH_CHECK_FAILURE",
+        "SIMULATE_ROLLBACK_TO_LEGACY",
+        "VERIFY_POST_ROLLBACK_BASELINE"
+      ],
+      "automatic_rollback_enabled": false,
+      "production_write_allowed": false
+    },
+    "executor_boundary": {
+      "authenticated_executor_required": true,
+      "authenticated_executor_bound": false,
+      "execution_enabled": false,
+      "dry_run_only": true,
+      "short_lived_session_required": true,
+      "max_session_ttl_seconds": 900,
+      "identity_claims_required": ["actor", "sessionId", "issuedAt", "expiresAt", "cutoverPlanFingerprint"],
+      "prepare_commit_separation_required": true,
+      "idempotency_key_required": true,
+      "audit_trail_required": true,
+      "rollback_plan_required": true,
+      "post_deploy_verification_required": true,
+      "automatic_cutover_enabled": false,
+      "automatic_rollback_enabled": false,
+      "provider_binding_enabled": false,
+      "platform_mutation_allowed": false,
+      "production_activation_enabled": false,
+      "execution_permit_issued": false
+    },
+    "production_activation_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "authenticated_executor_bound": false,
+    "execution_enabled": false,
+    "execution_permit_issued": false,
+    "automatic_cutover_enabled": false,
+    "automatic_rollback_enabled": false
+  }
+}

@@ -1,0 +1,220 @@
+name: Native V2 Composition Replay
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - ".github/workflows/native-v2-composition-replay.yml"
+      - "automation/multi_shop_native_v2_runner.py"
+      - "automation/modules/ui_v2_*.py"
+      - "automation/tests/test_ui_v2_*.py"
+      - "automation/command_center_v2_template.html"
+      - "config/ads_smart_issue_review_console_contract.json"
+      - "config/ads_alert_policy_ui_contract.json"
+      - "config/ads_action_authorization_ui_contract.json"
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful run containing real UI payload + Ads workflow/Alert/Action Authorization artifacts"
+        required: true
+        default: "36810351226"
+        type: string
+      month:
+        description: "Payload month YYYY-MM"
+        required: true
+        default: "2026-09"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay-native-composition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      REPLAY_RUN_ID: ${{ inputs.source_run_id || '36810351226' }}
+      REPLAY_MONTH: ${{ inputs.month || '2026-09' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+
+      - name: Download real UI payload from validated upstream run
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ui-payload-${{ env.REPLAY_MONTH }}
+          path: payload_artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.REPLAY_RUN_ID }}
+
+      - name: Download real Ads workflow, Alert Policy and Action Authorization
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ads-intelligence-${{ env.REPLAY_MONTH }}
+          path: ads_intelligence_artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.REPLAY_RUN_ID }}
+
+      - name: Build Native V2 through explicit extension composition
+        run: |
+          python automation/multi_shop_native_v2_runner.py \
+            --month "$REPLAY_MONTH" \
+            --payload-dir payload_artifacts \
+            --ads-intelligence-dir ads_intelligence_artifacts \
+            --review-console-contract config/ads_smart_issue_review_console_contract.json \
+            --alert-policy-ui-contract config/ads_alert_policy_ui_contract.json \
+            --action-authorization-ui-contract config/ads_action_authorization_ui_contract.json \
+            --output-dir native_v2_replay_artifacts \
+            --v2-template automation/command_center_v2_template.html
+
+      - name: Enforce composition replay invariants
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          month = os.environ["REPLAY_MONTH"]
+          summary = json.loads(
+              (Path("native_v2_replay_artifacts") / f"multi_shop_native_v2_summary_{month}.json").read_text(encoding="utf-8")
+          )
+          ads_dir = Path("ads_intelligence_artifacts") / month
+          workflow = json.loads((ads_dir / "ads_smart_issue_review_workflow.json").read_text(encoding="utf-8"))
+          alert = json.loads((ads_dir / "ads_alert_policy.json").read_text(encoding="utf-8"))
+          action = json.loads((ads_dir / "ads_action_authorization.json").read_text(encoding="utf-8"))
+
+          expected = {
+              "status": "PASS",
+              "native_v2_ready": True,
+              "native_extension_composition_ready": True,
+              "native_extension_composition_version": "native-v2-extension-composition-v1.3",
+              "native_extension_compatibility_bridge_count": 1,
+              "native_extension_lineage_ready": True,
+              "legacy_nested_wrapper_build_path_used": False,
+              "product_destination_ready": True,
+              "product_short_name_ready": True,
+              "ads_destination_ready": True,
+              "ads_financial_ui_ready": True,
+              "ads_financial_polish_ready": True,
+              "ads_dynamic_diagnosis_ui_ready": True,
+              "ads_diagnosis_consumes_qualified_signals_only": True,
+              "ads_diagnosis_persistence_ui_ready": True,
+              "ads_smart_issue_candidate_ui_ready": True,
+              "ads_smart_issue_registry_ui_ready": True,
+              "ads_smart_issue_review_console_ui_ready": True,
+              "ads_smart_issue_review_console_ui_version": "ads-smart-issue-review-console-ui-v1",
+              "ads_smart_issue_review_console_read_only": True,
+              "ads_smart_issue_alert_policy_ui_ready": True,
+              "ads_smart_issue_alert_policy_ui_version": "ads-smart-issue-alert-policy-ui-v1",
+              "ads_smart_issue_alert_policy_read_only": True,
+              "ads_smart_issue_alert_delivery_enabled": False,
+              "ads_smart_issue_alert_automatic_delivery_enabled": False,
+              "ads_smart_issue_alert_provider_binding_enabled": False,
+              "ads_action_authorization_ui_ready": True,
+              "ads_action_authorization_ui_version": "ads-action-authorization-ui-v1",
+              "ads_action_authorization_read_only": True,
+              "ads_action_authorization_authenticated_executor_bound": False,
+              "ads_action_authorization_execution_enabled": False,
+              "ads_action_authorization_provider_binding_enabled": False,
+              "ads_action_authorization_platform_mutation_allowed": False,
+              "ads_action_authorization_production_activation_enabled": False,
+              "ads_smart_issue_automatic_alerts_enabled": False,
+              "ads_smart_issue_automatic_actions_enabled": False,
+              "native_patch_version": "native-ads-financial-v38",
+          }
+          failed = []
+          for key, value in expected.items():
+              if summary.get(key) != value:
+                  failed.append(f"{key}: expected {value!r}, got {summary.get(key)!r}")
+
+          lineage_checks = {
+              "ads_smart_issue_review_workflow_fingerprint": workflow.get("workflowFingerprint"),
+              "ads_smart_issue_operator_ledger_fingerprint": workflow.get("operatorLedgerFingerprint"),
+              "ads_smart_issue_alert_policy_fingerprint": alert.get("alertPolicyFingerprint"),
+              "ads_smart_issue_alert_delivery_ledger_fingerprint": alert.get("deliveryLedgerFingerprint"),
+              "ads_action_authorization_fingerprint": action.get("actionAuthorizationFingerprint"),
+              "ads_action_authorization_ledger_fingerprint": action.get("authorizationLedgerFingerprint"),
+              "ads_action_authorization_proposal_count": action.get("proposalCount"),
+              "ads_action_authorization_suppressed_issue_count": action.get("suppressedIssueCount"),
+              "ads_action_authorization_state_counts": action.get("authorizationStateCounts"),
+          }
+          for key, value in lineage_checks.items():
+              if summary.get(key) != value:
+                  failed.append(f"{key}: summary/sidecar mismatch {summary.get(key)!r} != {value!r}")
+
+          if action.get("sourceReviewWorkflowFingerprint") != workflow.get("workflowFingerprint"):
+              failed.append("Action Authorization -> Review Workflow lineage mismatch")
+          if alert.get("sourceReviewWorkflowFingerprint") != workflow.get("workflowFingerprint"):
+              failed.append("Alert Policy -> Review Workflow lineage mismatch")
+          if action.get("sourceAlertPolicyFingerprint") != alert.get("alertPolicyFingerprint"):
+              failed.append("Action Authorization -> Alert Policy lineage mismatch")
+          if action.get("sourceRegistryFingerprint") != workflow.get("sourceRegistryFingerprint"):
+              failed.append("Action Authorization -> Registry lineage mismatch")
+          if action.get("adsIntelligenceFingerprint") != alert.get("adsIntelligenceFingerprint"):
+              failed.append("Action Authorization -> Ads lineage mismatch")
+
+          execution = action.get("executionBoundary") or {}
+          if execution.get("authenticatedExecutorRequired") is not True or execution.get("dryRunOnly") is not True:
+              failed.append(f"Action Authorization execution boundary requirement mismatch: {execution!r}")
+          for key in ("authenticatedExecutorBound", "executionEnabled", "providerBindingEnabled", "platformMutationAllowed", "productionActivationEnabled"):
+              if execution.get(key) is not False:
+                  failed.append(f"unsafe Action Authorization execution flag {key}={execution.get(key)!r}")
+
+          ids = summary.get("native_extension_ids") or []
+          if len(ids) != 13 or len(ids) != len(set(ids)) or ids[-1] != "ads_action_authorization":
+              failed.append(f"native_extension_ids invalid: {ids!r}")
+          markers = summary.get("native_extension_lineage_markers") or []
+          required_markers = {
+              "native-v2-extension-composition-v1.3",
+              "native-v2-extension-composition-v1.2",
+              "native-v2-extension-composition-v1.1",
+              "native-v2-extension-composition-v1",
+              "native-product-intelligence-v36-short-names",
+              "native-ads-intelligence-v37",
+              "native-ads-financial-v38",
+              "ads-diagnosis-persistence-ui-v1",
+              "ads-smart-issue-candidate-ui-v1",
+              "ads-smart-issue-registry-ui-v1",
+              "ads-smart-issue-review-console-ui-v1",
+              "ads-smart-issue-alert-policy-ui-v1",
+              "ads-action-authorization-ui-v1",
+          }
+          missing_markers = sorted(required_markers - set(markers))
+          if missing_markers:
+              failed.append(f"native_extension_lineage_markers missing: {missing_markers!r}")
+          if len(markers) != len(set(markers)):
+              failed.append(f"native_extension_lineage_markers contain duplicates: {markers!r}")
+          if failed:
+              raise SystemExit("Composition replay gate failed:\n- " + "\n- ".join(failed))
+          print(json.dumps({
+              "status": "PASS",
+              "source_run_id": os.environ["REPLAY_RUN_ID"],
+              "month": month,
+              "composition_version": summary["native_extension_composition_version"],
+              "extension_count": len(ids),
+              "lineage_marker_count": len(markers),
+              "review_console_read_only": summary["ads_smart_issue_review_console_read_only"],
+              "alert_policy_read_only": summary["ads_smart_issue_alert_policy_read_only"],
+              "action_authorization_read_only": summary["ads_action_authorization_read_only"],
+              "action_execution_enabled": summary["ads_action_authorization_execution_enabled"],
+              "compatibility_bridge_count": summary["native_extension_compatibility_bridge_count"],
+              "legacy_nested_wrapper_build_path_used": summary["legacy_nested_wrapper_build_path_used"],
+              "native_build_fingerprint": summary["native_build_fingerprint"],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Upload replay evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-v2-composition-replay-${{ env.REPLAY_MONTH }}
+          path: native_v2_replay_artifacts/
+          if-no-files-found: error
+          retention-days: 14

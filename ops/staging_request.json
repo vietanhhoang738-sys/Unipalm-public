@@ -1,0 +1,8 @@
+{
+  "shop_key": "all",
+  "month": "YYYY-MM",
+  "mode": "normal",
+  "requested_at": null,
+  "reason": "Public snapshot template; configure a private staging request before execution.",
+  "validation_revision": "public-snapshot-template"
+}

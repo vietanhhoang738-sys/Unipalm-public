@@ -1,0 +1,5 @@
+{
+  "version": "1.0",
+  "ledger_name": "production_cutover_authorization_events",
+  "events": []
+}

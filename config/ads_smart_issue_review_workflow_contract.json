@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_ads_smart_issue_operator_review_workflow_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_ads_smart_issue_registry_v1",
+  "operator_review_workflow_policy": {
+    "enabled": true,
+    "mode": "SMART_ISSUE_OPERATOR_REVIEW_WORKFLOW_V1",
+    "input_source": "ads_smart_issue_registry.json",
+    "review_ledger_source": "ads_smart_issue_review_events.json",
+    "append_only": true,
+    "explicit_human_review_required": true,
+    "expected_ledger_fingerprint_required": true,
+    "deterministic_event_id": true,
+    "reviewed_at_timezone_required": true,
+    "reviewed_by_required": true,
+    "ledger_apply_requires_explicit_flag": true,
+    "candidate_actions_by_review_state": {
+      "PENDING_REVIEW": ["PROMOTE", "DEFER", "DISMISS"],
+      "DEFERRED": ["PROMOTE", "DEFER", "DISMISS"],
+      "DISMISSED": ["PROMOTE", "DEFER", "DISMISS"],
+      "REOPEN_REVIEW_REQUIRED": ["REOPEN"]
+    },
+    "issue_actions_by_state": {
+      "OPEN": ["ACKNOWLEDGE", "MONITOR", "RESOLVE"],
+      "ACKNOWLEDGED": ["MONITOR", "RESOLVE"],
+      "MONITORING": ["MONITOR", "RESOLVE"],
+      "RESOLVED": ["REOPEN"]
+    },
+    "automatic_promotion_enabled": false,
+    "automatic_state_transition_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "automatic_promotion_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false
+  }
+}

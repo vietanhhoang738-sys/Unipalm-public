@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "status": "PREPRODUCTION_UI_CONTRACT",
+  "review_console_policy": {
+    "enabled": true,
+    "input_source": "ads_smart_issue_review_workflow.json",
+    "presentation_only": true,
+    "read_only": true,
+    "command_preview_only": true,
+    "explicit_human_review_required": true,
+    "available_actions_from_workflow_only": true,
+    "selected_shop_only": true,
+    "workflow_fingerprint_required": true,
+    "registry_fingerprint_match_required": true,
+    "operator_ledger_fingerprint_required": true,
+    "ui_writes_review_ledger": false,
+    "automatic_promotion_enabled": false,
+    "automatic_state_transition_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false,
+    "production_activation_enabled": false
+  }
+}

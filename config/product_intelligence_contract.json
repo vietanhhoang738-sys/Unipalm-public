@@ -1,0 +1,113 @@
+{
+  "version": "1.3",
+  "layer_name": "multi_shop_product_intelligence_v1",
+  "status": "PREPRODUCTION",
+  "source_policy": {
+    "trusted_history_sources": [
+      "PUBLISHED_SEMANTIC_QA_PASS",
+      "PRODUCT_HISTORY_SEMANTIC_QA_PASS"
+    ],
+    "canonical_source_precedence": "PUBLISHED_SEMANTIC_QA_PASS",
+    "historical_backfill_only_when_canonical_month_missing": true,
+    "canonical_mart": "dm_product_monthly",
+    "canonical_grain": ["shop_id", "data_month", "product_id"],
+    "supporting_shop_metric_source": "BUSINESS_INSIGHTS_SHOP_LEVEL",
+    "supporting_shop_metric_grain": ["shop_id", "data_month"],
+    "supporting_ads_mart": "dm_ads_product_daily",
+    "supporting_daily_ads_role": "AGGREGATED_SUPPORT_ONLY",
+    "daily_or_weekly_product_scope_forbidden": true
+  },
+  "scope_policy": {
+    "single_shop_only": true,
+    "cross_shop_compare_allowed": false,
+    "cross_shop_product_merge_allowed": false,
+    "product_identity": ["shop_id", "product_id"]
+  },
+  "horizons": {
+    "order": ["oneMonth", "threeMonths", "sixMonths", "year"],
+    "oneMonth": {"required_contiguous_months": 1},
+    "threeMonths": {"required_contiguous_months": 3},
+    "sixMonths": {"required_contiguous_months": 6},
+    "year": {
+      "policy": "CALENDAR_YEAR_TO_AS_OF_WITH_LIFECYCLE_AWARE_START",
+      "preexisting_shop_requires_january_to_as_of": true,
+      "shop_launch_may_start_at_first_trusted_launch_month": true
+    }
+  },
+  "aggregation_policy": {
+    "field_scope": "WITHIN_ONE_PRODUCT_ACROSS_MONTHS_ONLY",
+    "additive_fields": [
+      "placed_gmv", "placed_orders", "confirmed_gmv", "confirmed_orders",
+      "product_views", "product_clicks", "product_visits", "product_page_views",
+      "page_bounces", "add_to_cart_visits", "add_to_cart_units", "confirmed_units",
+      "ads_impressions", "ads_clicks", "ads_conversions", "ads_units_sold",
+      "ads_attributed_sales", "ads_spend"
+    ],
+    "product_level_additive_fields": [
+      "placed_gmv", "placed_orders", "confirmed_gmv", "confirmed_orders",
+      "product_views", "product_clicks", "product_visits", "product_page_views",
+      "page_bounces", "add_to_cart_visits", "add_to_cart_units", "confirmed_units",
+      "ads_impressions", "ads_clicks", "ads_conversions", "ads_units_sold",
+      "ads_attributed_sales", "ads_spend"
+    ],
+    "recomputed_ratios": {
+      "placed_aov": "placed_gmv / placed_orders",
+      "confirmed_aov": "confirmed_gmv / confirmed_orders",
+      "ctr": "product_clicks / product_views",
+      "bounce_rate": "page_bounces / product_visits",
+      "atc_rate": "add_to_cart_visits / product_visits",
+      "ads_ctr": "ads_clicks / ads_impressions",
+      "ads_cvr": "ads_conversions / ads_clicks",
+      "roas": "ads_attributed_sales / ads_spend"
+    },
+    "product_level_recomputed_ratios": {
+      "placed_aov": "placed_gmv / placed_orders",
+      "confirmed_aov": "confirmed_gmv / confirmed_orders",
+      "ctr": "product_clicks / product_views",
+      "bounce_rate": "page_bounces / product_visits",
+      "atc_rate": "add_to_cart_visits / product_visits",
+      "ads_ctr": "ads_clicks / ads_impressions",
+      "ads_cvr": "ads_conversions / ads_clicks",
+      "roas": "ads_attributed_sales / ads_spend"
+    },
+    "never_average_ratios": true,
+    "multi_month_non_additive_fields": ["confirmed_buyers", "repeat_order_rate", "avg_days_to_repeat"],
+    "multi_month_non_additive_policy": "LATEST_MONTH_CONTEXT_ONLY"
+  },
+  "shop_summary_policy": {
+    "placed_orders_source": "BUSINESS_INSIGHTS_PLACED_STAGE",
+    "confirmed_orders_source": "BUSINESS_INSIGHTS_CONFIRMED_STAGE",
+    "placed_aov_formula": "sum(BI placed_gmv) / sum(BI placed_orders)",
+    "confirmed_aov_formula": "sum(BI confirmed_gmv) / sum(BI confirmed_orders)",
+    "product_order_occurrences_are_shop_orders": false,
+    "cross_product_order_counts_additive": false,
+    "zero_gmv_product_occurrences_excluded_from_shop_order_denominator_by_construction": true,
+    "missing_bi_metric_action": "FAIL_CLOSED_NO_PRODUCT_ORDER_FALLBACK",
+    "audit_fields": ["productOrderOccurrences", "productConfirmedOrderOccurrences", "shopMetricSource", "orderSemantics"]
+  },
+  "intelligence_policy": {
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "structural_signal_method": "RECENT_3_COMPLETE_MONTHS_VS_PRIOR_3_COMPLETE_MONTHS",
+    "minimum_complete_months_for_structural_signal": 6,
+    "structural_baseline_end": "MONTH_BEFORE_AS_OF",
+    "current_partial_month_role": "CORROBORATING_ONLY",
+    "driver_identity": "GMV = Product Clicks × CVR × AOV",
+    "driver_method": "EXACT_SHAPLEY_ON_BUSINESS_IDENTITY",
+    "driver_contribution_is_causal_claim": false,
+    "insufficient_history_status": "INSUFFICIENT_HISTORY",
+    "insufficient_operating_history_status": "INSUFFICIENT_OPERATING_HISTORY",
+    "fabricate_signal_when_insufficient": false,
+    "problem_opportunity_ranking": true,
+    "priority_components": ["impact", "deviation", "persistence", "confidence"],
+    "causal_claims_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "publish_legacy_payload": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false
+  }
+}

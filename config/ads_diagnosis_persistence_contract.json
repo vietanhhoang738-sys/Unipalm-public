@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_ads_diagnosis_persistence_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_ads_dynamic_diagnosis_v1",
+  "diagnosis_persistence_policy": {
+    "enabled": true,
+    "mode": "DIAGNOSIS_PERSISTENCE_MULTI_WINDOW_V1",
+    "input_source": "dynamicDiagnosis.items",
+    "scope_mode": "SAME_SCOPE_ONLY",
+    "context_signature_mode": "SAME_CURRENT_CONTEXT_SIGNATURE",
+    "independence_rule": "NON_OVERLAPPING_WINDOWS_ONLY",
+    "eligible_diagnosis_statuses": [
+      "READY",
+      "NO_MATERIAL_DIAGNOSIS"
+    ],
+    "blocked_context_windows_excluded": true,
+    "no_material_compatible_window_counts_as_miss": true,
+    "lookback_observations": 3,
+    "minimum_support_windows": 2,
+    "minimum_support_ratio": 0.6666666667,
+    "conflict_rule": "OPPOSITE_KIND_IN_LOOKBACK_BLOCKS_CONFIRMATION",
+    "confirmation_states": [
+      "CONFIRMED",
+      "ONE_OFF",
+      "CONFLICTED",
+      "FIRST_OBSERVATION"
+    ],
+    "same_product_same_kind_required": true,
+    "cross_scope_confirmation_allowed": false,
+    "overlapping_window_confirmation_allowed": false,
+    "smart_issue_candidate_generation_enabled": false,
+    "causal_claims_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "smart_issue_candidate_generation_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false
+  }
+}

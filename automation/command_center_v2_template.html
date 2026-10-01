@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<title>Unipalm Command Center V2 — D2</title>
+<style>
+:root{
+  --bg:#f5f7f6;--surface:#ffffff;--line:#dde3e0;--ink:#111111;--text:#1a1d1b;
+  --muted:#747b78;--muted2:#98a09c;--navy:#0b0d0c;--navy2:#171a18;--blue:#045433;
+  --green:#045433;--green-bg:#eaf4ef;--red:#d43a3a;--red-bg:#fff0f0;
+  --amber:#d98b16;--amber-bg:#fff7e8;--soft:#f9fbfa;--shadow:0 1px 2px rgba(4,84,51,.035);
+}
+*{box-sizing:border-box} html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;background:var(--bg)} body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:"Inter","SF Pro Display","Segoe UI",Arial,sans-serif;font-optical-sizing:auto;overflow-x:hidden;width:100%} button{font:inherit;color:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:200px minmax(0,1fr);width:80%;min-width:0;transform:scale(1.25);transform-origin:top left}
+.sidebar{background:#ffffff;color:var(--text);padding:26px 20px 24px;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh;border-right:1px solid var(--line);width:200px;min-width:200px}
+.brand-lockup{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:8px;padding-bottom:4px}.brand-mark{display:flex;align-items:center;justify-content:center;width:100%;height:82px}.brand-mark img{display:block;width:112px;max-height:72px;height:auto;object-fit:contain}.sidebar-pin{position:absolute;right:-4px;top:-4px;width:30px;height:30px;border-radius:9px;border:1px solid rgba(4,84,51,.22);background:#fff;color:#045433;display:grid;place-items:center;cursor:pointer;transition:.16s;z-index:3}.sidebar-pin:hover{background:#eaf4ef}.sidebar-pin.pinned{background:#045433;color:#fff;border-color:#045433}.sidebar-pin svg{width:15px;height:15px;display:block}.sidebar-hover-zone{position:fixed;left:0;top:0;bottom:0;width:16px;z-index:55;display:none;pointer-events:auto}.app.sidebar-unpinned{grid-template-columns:minmax(0,1fr)}.app.sidebar-unpinned .main{grid-column:1 / -1;justify-self:center;width:min(100%,1380px);max-width:1380px;margin-inline:auto;padding-left:44px;padding-right:44px}.app.sidebar-unpinned .sidebar{position:fixed;left:0;top:0;bottom:0;width:200px;min-width:200px;z-index:60;transform:translateX(-100%);transition:transform .2s ease,box-shadow .2s ease;box-shadow:none}.app.sidebar-unpinned.sidebar-peek .sidebar,.app.sidebar-unpinned .sidebar:hover{transform:translateX(0);box-shadow:18px 0 42px rgba(17,24,20,.16)}.app.sidebar-unpinned .sidebar-hover-zone{display:block}.app.sidebar-unpinned > .main{grid-column:1 / -1!important}
+.nav{display:grid;gap:10px;margin-top:30px}.nav button{border:0;background:transparent;color:#5f6964;text-align:left;padding:12px 12px;border-radius:10px;font-size:11px;cursor:pointer}.nav button:hover{background:#eef5f1;color:#045433}.nav button.active{background:#045433;color:#fff;font-weight:700}
+.side-data{margin-top:auto;color:#7b847f;font-size:9px;line-height:1.7}.side-data b{display:block;color:#045433;margin:8px 0 4px;font-size:9px}
+.main{grid-column:2;padding:38px 40px 42px;max-width:1380px;width:100%;min-width:0;margin:0 auto;justify-self:center}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:28px;margin-bottom:28px;width:100%;min-width:0}.header>div:first-child{flex:1 1 auto;min-width:0}.header-actions{flex:0 0 auto}.header-actions{display:flex;align-items:center;gap:10px;white-space:nowrap}.theme-btn{margin-top:2px;height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}.theme-btn:hover{border-color:#7ea48f;color:#045433}.theme-btn svg{width:14px;height:14px;display:block}
+.header h1{margin:0;font-size:36px;line-height:1.08;font-weight:700;letter-spacing:-.045em;color:var(--ink);white-space:nowrap}.header p{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+.health-pill{margin-top:2px;padding:9px 18px;border-radius:999px;background:var(--green-bg);color:#045433;font-size:10px;font-weight:700;white-space:nowrap}
+.health-pill:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px}
+.period-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;width:100%;min-width:0}
+.period-card,.card,.kpi,.product-signal,.data-source{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.period-card{border-radius:18px;padding:20px 22px;min-height:150px;min-width:0;text-align:left;cursor:pointer;transition:.14s;position:relative}
+.period-card:hover{transform:translateY(-1px);border-color:#bcc8c1}.period-card.active{border-color:#4c886e;box-shadow:0 0 0 2px rgba(4,84,51,.08)}
+.period-title{font-size:11px;color:var(--muted);font-weight:600}.period-value{font-size:31px;color:var(--ink);font-weight:700;letter-spacing:-.035em;margin-top:14px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.period-delta{font-size:11px;font-weight:700;margin-top:14px}.up{color:var(--green)}.down{color:var(--red)}.neutral{color:var(--muted)}
+.period-compare{font-size:10px;color:var(--muted2);margin-left:20px;font-weight:500}.period-note{font-size:10px;color:var(--muted);margin-top:13px;line-height:1.45}
+.pulse{display:block;width:100%;min-width:0;margin-top:26px;border-radius:17px;background:linear-gradient(135deg,#045433 0%,#063f2a 100%);padding:22px 24px;color:#fff;position:relative;min-height:196px;border:1px solid #045433;overflow:hidden}
+.pulse-label{font-size:10px;color:#c8ded3;font-weight:700;letter-spacing:.02em}.pulse h2{margin:15px 190px 9px 0;font-size:23px;line-height:1.28;font-weight:700;letter-spacing:-.025em}.pulse p{margin:0 190px 0 0;font-size:11.5px;color:#d5e6de;line-height:1.55}.pulse .good{color:#b7e0cc;font-weight:600;margin-top:10px}.pulse-insights{display:grid;gap:4px;margin:10px 190px 0 0;color:#fff;font-size:11.5px;line-height:1.5}.pulse-insight{display:grid;grid-template-columns:10px 1fr;gap:7px}.pulse-insight:before{content:"•";color:#b7e0cc}.pulse-action{margin:12px 190px 0 0;padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.1);font-size:11px;line-height:1.5;color:#fff}.pulse-action b{margin-right:7px;color:#b7e0cc}
+.confidence{position:absolute;right:24px;top:20px;padding:9px 16px;background:#ffffff;color:#045433;border-radius:999px;font-size:10px;font-weight:700;white-space:nowrap}
+.selection{display:inline-flex;margin-top:20px;background:#eaf4ef;color:#045433;padding:8px 13px;border-radius:999px;font-size:9.5px;font-weight:700}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;margin-top:14px;width:100%;min-width:0}
+.kpi{border-radius:16px;padding:17px 15px;min-height:118px;min-width:0}.kpi .label{font-size:10px;color:var(--muted);font-weight:600}.kpi .value{font-size:24px;color:var(--ink);font-weight:700;margin-top:17px;letter-spacing:-.025em;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}.kpi .delta{font-size:10px;font-weight:700;margin-top:17px}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,.94fr);gap:20px;margin-top:30px;width:100%;min-width:0}.card{border-radius:17px;padding:21px;min-width:0}
+.card h3{margin:0;font-size:19px;color:var(--ink);letter-spacing:-.02em}.card-sub{margin-top:6px;color:var(--muted2);font-size:10px;line-height:1.45}
+.driver-list{margin-top:25px;display:grid;gap:24px}.driver-row{display:grid;grid-template-columns:108px 78px minmax(0,1fr) 150px;gap:14px;align-items:center;font-size:10px;min-width:0}
+.driver-row b{font-size:10px}.effect{font-weight:700}.driver-note{color:var(--muted)}.track{height:7px;background:#e3e9ef;border-radius:999px;overflow:hidden}.track i{display:block;height:100%;border-radius:999px;background:var(--green)}.track i.neg{background:var(--red)}
+.support{border-top:1px solid var(--line);margin-top:22px;padding-top:13px;font-size:9px}.support b{color:#045433;margin-right:14px}.support span{color:var(--text)}
+.issue-list{display:grid;gap:11px;margin-top:20px}.issue{border-radius:12px;padding:12px 12px;display:grid;grid-template-columns:56px 1.35fr 1fr 112px;gap:12px;align-items:center;font-size:9px}
+.issue.high{background:var(--red-bg)}.issue.med{background:var(--amber-bg)}.issue.info{background:var(--green-bg)}
+.severity{background:#fff;border-radius:999px;padding:8px 10px;text-align:center;font-weight:700}.sev-high{color:var(--red)}.sev-med{color:var(--amber)}.sev-info{color:var(--green)}
+.issue-title{font-weight:700;color:var(--text)}.issue-sub{color:var(--muted);margin-top:4px}.issue-meta{color:var(--muted2);font-size:8px}.issue-action{border:0;background:transparent;color:var(--blue);font-size:8.5px;font-weight:700;cursor:pointer;text-align:right}.issue-action:disabled{opacity:.55;cursor:default}.issue-empty{border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);font-size:10px;line-height:1.5;background:var(--soft)}
+.section-title{margin:30px 0 14px}.section-title h3{margin:0;font-size:19px;color:var(--ink)}.section-title p{margin:7px 0 0;color:var(--muted2);font-size:10px}
+.signal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%;min-width:0}.product-signal{border-radius:16px;padding:19px 20px;min-height:142px;min-width:0}.product-signal.problem{background:#fff1f1}.product-signal.opportunity{background:#eef7f2}
+.signal-type{font-size:9px;font-weight:700}.problem .signal-type{color:var(--red)}.opportunity .signal-type{color:var(--green)}.signal-name{font-size:12px;font-weight:700;margin-top:14px;color:var(--ink)}.signal-main{font-size:9px;margin-top:10px}.signal-meta{font-size:8px;color:var(--muted2);margin-top:8px}.signal-link{border:0;background:transparent;padding:0;color:var(--blue);font-size:8.5px;font-weight:700;margin-top:12px;cursor:pointer}
+.data-health{margin-top:32px}.data-health .card{padding:17px}.data-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:16px;width:100%;min-width:0}.data-source{border-radius:10px;padding:12px;background:#fbfcfb;border-color:#edf1ef}.data-name{font-size:9px;font-weight:700}.data-date{font-size:8px;color:var(--muted2);margin-top:8px}.data-bottom{display:flex;justify-content:space-between;gap:7px;margin-top:11px;font-size:8px}.pass{color:var(--green);font-weight:700}.warn{color:var(--amber);font-weight:700}.conf{color:var(--blue);font-weight:650}.health-pill.degraded{background:var(--amber-bg);color:var(--amber)}.health-pill.degraded:before{background:var(--amber)}
+.drawer-backdrop{position:fixed;inset:0;width:100vw;height:100vh;background:rgba(4,84,51,.20);display:none;place-items:center;z-index:1000;padding:24px;backdrop-filter:blur(1.5px)}.drawer-backdrop.open{display:grid}.drawer{position:relative;min-height:0;max-height:min(86vh,880px);width:min(720px,88vw);background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px 24px 28px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:auto;overscroll-behavior:contain}
+.drawer-close{position:absolute;right:16px;top:16px;border:0;background:#f4f6f8;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;z-index:2}.drawer-head{padding-right:78px}.drawer-eyebrow{font-size:11px;color:var(--muted);font-weight:650}.drawer h2{font-size:22px;margin:14px 0 10px;color:var(--ink);letter-spacing:-.025em}.alert-open{position:absolute;right:70px;top:25px;background:#fff0f0;color:var(--red);padding:9px 17px;border-radius:999px;font-size:10px;font-weight:700}.drawer-alert{font-size:14px;color:var(--red);font-weight:700}.drawer-meta{font-size:9px;color:var(--muted);margin-top:14px;line-height:1.9}.drawer hr{border:0;border-top:1px solid var(--line);margin:20px 0}.drawer h3{font-size:15px;color:var(--ink);margin:22px 0 14px}.evidence{display:grid;gap:14px}.evidence-row{display:grid;grid-template-columns:130px 92px 1fr;gap:14px;align-items:center;font-size:9.5px}.evidence-row .label{color:var(--muted);font-weight:650}.evidence-row .actual{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}.evidence-row .explain{color:var(--muted)}
+.chartbox{margin-top:6px}.chartbox svg{width:100%;height:150px;display:block}.band-label{font-size:9px;color:var(--muted);margin-top:4px}.chart-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:8.5px;color:var(--muted)}.legend-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:var(--blue)}.legend-band{display:inline-block;width:14px;height:7px;border-radius:3px;margin-right:5px;background:#dfeee6}.alert-open.opportunity{background:#e8f7ee;color:#045433}.drawer-kicker{font-size:9px;color:var(--muted);margin-top:6px}.drawer-context{margin-top:12px;padding:10px 12px;border-radius:9px;background:var(--soft);font-size:9px;color:var(--muted);line-height:1.55}
+.diag-list{display:grid;gap:14px}.diag{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}.diag-num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#eaf4ef;color:var(--blue);font-size:10px;font-weight:700}.diag:first-child .diag-num{background:var(--red);color:#fff}.diag-title{font-size:10.5px;font-weight:700}.diag-sub{font-size:9px;color:var(--muted);margin-top:6px}.next{font-size:9.5px;line-height:1.7}.drawer-footer{margin-top:26px;color:var(--blue);font-size:8.5px;font-weight:700}.drawer-summary{margin:14px 0 2px;padding:12px 14px;border-radius:12px;background:var(--green-bg);color:var(--text);font-size:10px;line-height:1.6}.hyp-list{display:grid;gap:10px}.hyp{border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:var(--soft)}.hyp-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.hyp-title{font-size:10px;font-weight:750;line-height:1.4}.hyp-level{font-size:8px;font-weight:700;color:var(--blue);white-space:nowrap}.hyp-basis,.hyp-check{font-size:8.8px;color:var(--muted);line-height:1.55;margin-top:6px}.hyp-check b{color:var(--text)}
+
+body[data-theme="dark"]{
+  --bg:#090b0a;--surface:#111512;--line:#29312c;--ink:#ffffff;--text:#f3f6f4;
+  --muted:#a7b0ab;--muted2:#7f8a84;--navy:#ffffff;--navy2:#e8eeea;--blue:#63b38a;
+  --green:#1d8a5d;--green-bg:#11241a;--red:#f16b6b;--red-bg:#2c1717;
+  --amber:#e6a63d;--amber-bg:#2d2414;--soft:#0e120f;--shadow:0 1px 2px rgba(0,0,0,.25);
+  background:#090b0a;color:var(--text);color-scheme:dark
+}
+body[data-theme="dark"] .sidebar{background:#090b0a;color:#fff;border-right-color:#253029}
+body[data-theme="dark"] .brand-mark img{filter:brightness(0) invert(1)}
+body[data-theme="dark"] .sidebar-pin{background:#111512;color:#d7e8de;border-color:#355343}
+body[data-theme="dark"] .sidebar-pin:hover{background:#17231c}
+body[data-theme="dark"] .sidebar-pin.pinned{background:#045433;color:#fff;border-color:#045433}
+body[data-theme="dark"] .nav button{color:#c7cfca}
+body[data-theme="dark"] .nav button:hover{background:#122018;color:#fff}
+body[data-theme="dark"] .nav button.active{background:#045433;color:#fff}
+body[data-theme="dark"] .side-data{color:#818d86}
+body[data-theme="dark"] .side-data b{color:#7fc19e}
+body[data-theme="dark"] .main{background:#090b0a}
+body[data-theme="dark"] .theme-btn{background:#111512;color:#fff;border-color:#29312c}
+body[data-theme="dark"] .theme-btn:hover{border-color:#557864;color:#b8ddc9}
+body[data-theme="dark"] .health-pill{background:#11241a;color:#9bd0b4}
+body[data-theme="dark"] .period-card,
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .kpi,
+body[data-theme="dark"] .data-source,
+body[data-theme="dark"] .drawer{background:#111512;border-color:#29312c;color:#f3f6f4}
+body[data-theme="dark"] .period-card:hover{border-color:#456250}
+body[data-theme="dark"] .period-card.active{border-color:#2d8b61;box-shadow:0 0 0 2px rgba(45,139,97,.16)}
+body[data-theme="dark"] .selection{background:#11241a;color:#9bd0b4}
+body[data-theme="dark"] .confidence{background:#090b0a;color:#d8eee2}
+body[data-theme="dark"] .track{background:#29312c}
+body[data-theme="dark"] .issue.high{background:#2c1717}
+body[data-theme="dark"] .issue.med{background:#2d2414}
+body[data-theme="dark"] .issue.info{background:#11241a}
+body[data-theme="dark"] .severity{background:#171c19}
+body[data-theme="dark"] .product-signal.problem{background:#2a1717;border-color:#533030}
+body[data-theme="dark"] .product-signal.opportunity{background:#102319;border-color:#294a37}
+body[data-theme="dark"] .data-source{background:#0e120f;border-color:#222a25}
+body[data-theme="dark"] .drawer-close{background:#1a211d;color:#fff}
+body[data-theme="dark"] .alert-open{background:#2c1717;color:#ff8b8b}body[data-theme="dark"] .alert-open.opportunity{background:#11241a;color:#9bd0b4}body[data-theme="dark"] .legend-band{background:#163023}
+body[data-theme="dark"] .diag-num{background:#153023;color:#9bd0b4}
+body[data-theme="dark"] .diag:first-child .diag-num{background:#c83d3d;color:#fff}
+body[data-theme="dark"] .drawer-backdrop{background:rgba(0,0,0,.56)}
+body[data-theme="dark"] .pulse{background:linear-gradient(135deg,#045433 0%,#033d26 100%);border-color:#176e4b}
+body[data-theme="dark"] .pulse-label{color:#c6e0d2}
+body[data-theme="dark"] .pulse p{color:#d8e8df}
+body[data-theme="dark"] .pulse .good{color:#b7e0cc}
+body[data-theme="dark"] .drawer h2,
+body[data-theme="dark"] .drawer h3,
+body[data-theme="dark"] .card h3,
+body[data-theme="dark"] .section-title h3,
+body[data-theme="dark"] .header h1,
+body[data-theme="dark"] .period-value,
+body[data-theme="dark"] .kpi .value,
+body[data-theme="dark"] .signal-name{color:#fff}
+body[data-theme="dark"] .issue-title,
+body[data-theme="dark"] .driver-row b,
+body[data-theme="dark"] .signal-main,
+body[data-theme="dark"] .support span,
+body[data-theme="dark"] .evidence-row .actual,
+body[data-theme="dark"] .diag-title,
+body[data-theme="dark"] .next{color:#f3f6f4}
+
+@media(max-width:1180px){.drawer-backdrop{padding:16px}.drawer{width:min(680px,92vw);max-height:88vh}.app{transform:none;width:100%;grid-template-columns:1fr}.sidebar{display:none}.sidebar-hover-zone{display:none!important}.main,.app.sidebar-unpinned .main{grid-column:1;width:100%;max-width:none;padding:28px 22px}.header h1{white-space:normal}.period-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.signal-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}.data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.header{flex-direction:column}.header-actions{width:100%;justify-content:flex-start}.period-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pulse h2,.pulse p,.pulse-insights,.pulse-action{margin-right:0}.confidence{position:static;display:inline-block;margin-top:14px}.driver-row{grid-template-columns:90px 70px 1fr}.driver-row .track{grid-column:1/-1}.issue{grid-template-columns:50px 1fr}.issue-meta,.issue-action{grid-column:2}.data-grid{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand-lockup">
+      <button class="sidebar-pin pinned" id="sidebarPin" type="button" aria-label="Tự ẩn hoặc ghim Sidebar" title="Tự ẩn Sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v3l-1.5 2v3l2 2v1H13v5l-1 1-1-1v-5H7.5v-1l2-2V9L8 7V4Z" fill="currentColor"/></svg>
+      </button>
+      <div class="brand-mark"><img src="data:image/png;base64,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" alt="Unipalm"></div>
+      
+    </div>
+    <nav class="nav">
+      <button class="active">Command Center</button><button>Đơn hàng</button><button>Sản phẩm</button><button>Quảng cáo</button><button>Khách hàng</button><button>Báo cáo</button>
+    </nav>
+    <div class="side-data" id="sideData">DỮ LIỆU<b>Đang đọc dữ liệu…</b></div>
+  </aside>
+  <div class="sidebar-hover-zone" id="sidebarHoverZone" aria-hidden="true"></div>
+
+  <main class="main">
+    <div class="header">
+      <div><h1>Command Center</h1><p>Đọc shop theo 3 nhịp: hôm qua · 7 ngày gần nhất · tháng này</p></div>
+      <div class="header-actions">
+        <button class="theme-btn" id="themeToggle" type="button" aria-label="Chuyển giao diện sáng tối">
+          <svg id="themeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8 8 0 0 1 8.8 3.6 8.5 8.5 0 1 0 20.4 15.2Z" fill="currentColor"/></svg>
+          <span id="themeLabel">Giao diện tối</span>
+        </button>
+        <div class="health-pill" id="healthPill">Dữ liệu đạt chuẩn</div>
+      </div>
+    </div>
+
+    <div class="period-grid" id="periodGrid"></div>
+
+    <section class="pulse">
+      <div class="pulse-label">Diễn biến kinh doanh</div>
+      <h2 id="pulseTitle"></h2>
+      <p id="pulseDetail"></p>
+      <div class="pulse-insights" id="pulseInsights"></div>
+      <div class="pulse-action" id="pulseAction"></div>
+      <p class="good" id="pulseGuard"></p>
+      <div class="confidence" id="pulseConfidence"></div>
+    </section>
+
+    <div class="selection" id="selectionPill"></div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="content-grid">
+      <section class="card">
+        <h3 id="whyTitle"></h3>
+        <div class="card-sub">Các yếu tố chính làm doanh số thay đổi, đã quy đổi ra giá trị ước tính.</div>
+        <div class="driver-list" id="driverList"></div>
+        <div class="support"><b>Cơ sở phân tích</b><span id="supportSignal"></span></div>
+      </section>
+
+      <section class="card">
+        <h3>Cần xử lý</h3>
+        <div class="card-sub">Chỉ hiển thị khi dữ liệu đủ tin cậy và mức biến động cần được kiểm tra.</div>
+        <div class="issue-list" id="issueList"></div>
+      </section>
+    </div>
+
+    <div class="section-title" id="productSignalTitle"><h3>Cơ hội / Vấn đề · theo sản phẩm</h3><p>Chỉ hiển thị tín hiệu có đủ dữ liệu lịch sử và độ tin cậy cao.</p></div>
+    <div class="signal-grid" id="signalGrid"></div>
+
+    <section class="data-health">
+      <div class="card">
+        <h3>Sức khỏe dữ liệu</h3>
+        <div class="card-sub">Hệ thống chỉ phân tích khi dữ liệu đã được cập nhật và vượt kiểm tra chất lượng.</div>
+        <div class="data-grid" id="dataGrid"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
+  <aside class="drawer" id="diagnosticDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <button class="drawer-close" id="drawerClose" aria-label="Đóng">×</button>
+    <div id="drawerContent"></div>
+  </aside>
+</div>
+
+<script>
+/*__UNIPALM_DATA__*/
+const LIVE_PAYLOAD=window.UNIPALM_DATA||null;
+const LIVE_CC=LIVE_PAYLOAD&&LIVE_PAYLOAD.commandCenter&&LIVE_PAYLOAD.commandCenter.status==="READY"?LIVE_PAYLOAD.commandCenter:null;
+const IS_LIVE=!!LIVE_CC;
+if(!IS_LIVE){
+  document.body.innerHTML='<div style="font-family:Inter,Segoe UI,Arial,sans-serif;max-width:720px;margin:14vh auto;padding:28px;border:1px solid #dfe5e1;border-radius:20px;background:#fff"><h2 style="margin:0 0 10px;color:#045433">Command Center chưa nhận được dữ liệu</h2><p style="color:#66716b;line-height:1.6">UI V2 không sử dụng mock data trong production. Hãy kiểm tra Data Mart / payload adapter trước khi mở lại dashboard.</p></div>';
+  throw new Error("Command Center V2 production payload unavailable");
+}
+
+const vi1=new Intl.NumberFormat("vi-VN",{maximumFractionDigits:1,minimumFractionDigits:0});
+const vi0=new Intl.NumberFormat("vi-VN",{maximumFractionDigits:0});
+
+function moneyFull(v){
+  return vi0.format(Number(v||0))+" đ";
+}
+function money(v){
+  const n=Number(v||0),a=Math.abs(n),sign=n<0?"-":"";
+  if(a>=1000000000)return sign+vi1.format(a/1000000000)+"tỷ đ";
+  if(a>=1000000)return sign+vi1.format(a/1000000)+"tr đ";
+  return sign+vi0.format(a)+" đ";
+}
+function signedMoney(v){const n=Number(v||0);return (n>0?"+":"")+money(n)}
+function pct(v){
+  if(v===null||v===undefined||!Number.isFinite(Number(v)))return "—";
+  const n=Number(v)*100;return (n>0?"+":"")+vi1.format(n)+"%";
+}
+function pp(v){
+  if(v===null||v===undefined||!Number.isFinite(Number(v)))return "—";
+  const n=Number(v)*100;return (n>0?"+":"")+vi1.format(n)+"đ";
+}
+function rate(v){return vi1.format(Number(v||0)*100)+"%"}
+function roas(v){return vi1.format(Number(v||0))+"x"}
+function intv(v){return vi0.format(Number(v||0))}
+function fmtDate(iso){if(!iso)return "";const parts=String(iso).slice(0,10).split("-");return parts[2]+"/"+parts[1]}
+function fmtRange(s,e){return fmtDate(s)+(s===e?"":"–"+fmtDate(e))}
+function tone(v){return Number(v||0)>=0?"up":"down"}
+function compareText(key,p){
+  if(key==="yesterday")return "so với ngày "+fmtDate(p.previous&&p.previous.end);
+  return "so với kỳ "+fmtRange(p.previous&&p.previous.start,p.previous&&p.previous.end);
+}
+function periodNote(key){
+  if(key==="yesterday")return "Cả ngày · Doanh số đơn đã đặt";
+  if(key==="last7")return "7 ngày trọn vẹn gần nhất";
+  return "Từ đầu tháng · so sánh cùng số ngày";
+}
+function horizonName(key){
+  if(key==="yesterday")return "Hôm qua";
+  if(key==="last7")return "7 ngày gần nhất";
+  return "Tháng này · MTD";
+}
+function driverLabel(key){
+  if(key==="productClicks")return "Lượt nhấp vào sản phẩm";
+  if(key==="cvr")return "Tỷ lệ chuyển đổi";
+  return "AOV";
+}
+function moneyWords(v){
+  return money(Math.abs(Number(v||0)));
+}
+function periodSubject(key,cur){
+  if(key==="yesterday")return "Doanh số ngày "+fmtDate(cur.end);
+  if(key==="last7")return "Doanh số 7 ngày gần nhất";
+  return "Doanh số tháng này";
+}
+function driverInsight(x,overallDelta){
+  const label=driverLabel(x.key),effect=Number(x.effectValue||0),change=Number(x.deltaPct||0);
+  const movement=change>=0?"tăng":"giảm";
+  if(effect<0)return label+" "+movement+", làm doanh số giảm ước tính "+moneyWords(effect)+".";
+  if(Number(overallDelta||0)<0)return label+" "+movement+", bù lại khoảng "+moneyWords(effect)+".";
+  return label+" "+movement+", đóng góp khoảng "+moneyWords(effect)+" vào doanh số.";
+}
+function recommendedCheck(drivers){
+  const keys=drivers.slice(0,2).map(function(x){return x.key});
+  if(keys.includes("productClicks")&&keys.includes("cvr"))return "Ưu tiên rà soát nguồn truy cập và các sản phẩm có lượt nhấp hoặc tỷ lệ chuyển đổi giảm mạnh.";
+  if(keys[0]==="cvr")return "Rà soát các sản phẩm giảm chuyển đổi, giá bán, ưu đãi và các bước trước khi đặt hàng.";
+  if(keys[0]==="productClicks")return "Rà soát nguồn truy cập và các sản phẩm mất nhiều lượt nhấp nhất.";
+  if(keys[0]==="aov")return "Rà soát cơ cấu sản phẩm, mức giá và chương trình mua kèm đang làm thay đổi giá trị đơn hàng.";
+  return "Theo dõi thêm một kỳ dữ liệu trước khi thay đổi vận hành.";
+}
+function adaptLivePeriod(key,p){
+  const cur=p.current||{},prev=p.previous||{},d=p.delta||{},drivers=(p.drivers&&p.drivers.drivers)||[];
+  const top=drivers[0],second=drivers[1];
+  const verb=Number(d.gmv||0)>=0?"tăng":"giảm";
+  const pulse=periodSubject(key,cur)+" "+verb+" "+vi1.format(Math.abs(Number(d.gmv||0))*100)+"% "+compareText(key,p)+".";
+  const detail="GMV đạt "+moneyWords(cur.gmv)+", "+verb+" khoảng "+moneyWords(Number(cur.gmv||0)-Number(prev.gmv||0))+".";
+  const insights=drivers.slice(0,3).map(function(x){return driverInsight(x,d.gmv)});
+  const issueCount=Number(p.smartIssues&&p.smartIssues.count||0);
+  const guard=p.context&&p.context.distorted
+    ? p.context.note
+    : issueCount>0
+      ? "Có "+issueCount+" tín hiệu cần được kiểm tra thêm."
+      : "So sánh dựa trên hai kỳ đủ dữ liệu; chưa đủ bằng chứng để kết luận đây là biến động bất thường.";
+  const conf=p.diagnosis&&p.diagnosis.confidence;
+  const confidence=p.comparisonAvailable===false?"Chưa đủ kỳ so sánh":"Đủ dữ liệu so sánh";
+  return {
+    title:(LIVE_CC.labels&&LIVE_CC.labels[key])||horizonName(key),
+    value:moneyFull(cur.gmv),
+    delta:pct(d.gmv),
+    compare:compareText(key,p),
+    note:periodNote(key),
+    tone:tone(d.gmv),
+    pulse:pulse,
+    detail:detail,
+    insights:insights,
+    action:recommendedCheck(drivers),
+    guard:guard,
+    confidence:confidence,
+    why:"Vì sao GMV "+horizonName(key).toLowerCase()+" thay đổi?",
+    kpis:[
+      ["GMV đơn đã đặt",money(cur.gmv),pct(d.gmv),tone(d.gmv)],
+      ["Đơn hàng",intv(cur.orders),pct(d.orders),tone(d.orders)],
+      ["Tỷ lệ chuyển đổi",rate(cur.cvr),pp(Number(cur.cvr||0)-Number(prev.cvr||0)),tone(Number(cur.cvr||0)-Number(prev.cvr||0))],
+      ["AOV",money(cur.aov),pct(d.aov),tone(d.aov)],
+      ["ROAS Ads",roas(cur.roas),(Number(cur.roas||0)-Number(prev.roas||0)>=0?"+":"")+vi1.format(Number(cur.roas||0)-Number(prev.roas||0))+"x",tone(Number(cur.roas||0)-Number(prev.roas||0))],
+      ["Chi tiêu Ads",money(cur.adsSpend),pct(d.adsSpend),tone(d.adsSpend)]
+    ],
+    drivers:drivers.map(function(x){
+      return [
+        driverLabel(x.key),
+        signedMoney(x.effectValue),
+        (Number(x.deltaPct||0)>=0?"Tăng ":"Giảm ")+vi1.format(Math.abs(Number(x.deltaPct||0))*100)+"%",
+        Math.max(4,Math.round(Number(x.shareOfAbsoluteEffects||0)*100)),
+        x.direction==="negative"?"neg":"pos"
+      ];
+    }),
+    support:p.context&&p.context.distorted
+      ? p.context.note
+      : p.drivers&&p.drivers.clickBridge
+        ? "Lượt truy cập "+pct(p.drivers.clickBridge.visits&&p.drivers.clickBridge.visits.deltaPct)+
+          "; tỷ lệ nhấp "+pct(p.drivers.clickBridge.derivedClickRate&&p.drivers.clickBridge.derivedClickRate.deltaPct)+
+          "; lượt nhấp vào sản phẩm "+pct(p.drivers.clickBridge.productClicks&&p.drivers.clickBridge.productClicks.deltaPct)+"."
+        : top
+          ? "Ba yếu tố trên giải thích đầy đủ phần thay đổi doanh số giữa hai kỳ."
+          : "Chưa đủ dữ liệu để xác định các yếu tố tác động.",
+    raw:p
+  };
+}
+
+const periods=Object.fromEntries(["yesterday","last7","mtd"].map(function(k){return [k,adaptLivePeriod(k,LIVE_CC.periods[k])] }));
+
+function liveIssuesFor(key){
+  if(!IS_LIVE)return [];
+  const xs=(LIVE_CC.periods&&LIVE_CC.periods[key]&&LIVE_CC.periods[key].smartIssues&&LIVE_CC.periods[key].smartIssues.issues)||[];
+  return xs.map(function(x){
+    const sev=x.severity||"Med";
+    return {
+      sev:sev,
+      cls:sev.toLowerCase()==="high"?"high":"med",
+      tone:sev.toLowerCase()==="high"?"sev-high":"sev-med",
+      title:x.label+" · toàn shop",
+      sub:x.summary||x.evidence||"Chỉ số khác mức thường thấy và cần được kiểm tra",
+      meta:(x.persistence&&x.persistence.lowDays?x.persistence.lowDays+" ngày thấp hơn mức thường thấy · ":"")+"độ tin cậy "+vi0.format(Number(x.confidenceScore||0)*100)+"% · điểm tín hiệu "+vi0.format(x.score||0),
+      action:"Mở chẩn đoán →",
+      drawer:true,
+      anomalyId:x.anomalyId,
+      raw:x
+    };
+  });
+}
+function liveDataSources(){
+  const src=(LIVE_PAYLOAD.health&&LIVE_PAYLOAD.health.sources)||[];
+  const rows=src.map(function(x){
+    const status=x.status==="ready"?"PASS":x.status==="disabled"?"OFF":"CAVEAT";
+    return [
+      x.name||"Nguồn dữ liệu",
+      x.range||"—",
+      status,
+      Number(x.months||0)>0?vi0.format(x.months)+" tệp nguồn":(x.note||"")
+    ];
+  });
+  const fh=LIVE_CC.featureHealth||{};
+  if(fh.productAdsMart){
+    rows.push([
+      "Dữ liệu quảng cáo theo sản phẩm",
+      fh.productAdsMart.status==="READY"?"Theo ngày và sản phẩm · gộp tất cả chiến dịch":"Tạm giảm cấp",
+      fh.productAdsMart.status==="READY"?"PASS":"DEGRADED",
+      fh.productAdsMart.status==="READY"?intv(fh.productAdsMart.rows||0)+" dòng dữ liệu":String(fh.productAdsMart.reason||"Kiểm tra quy trình duy trì dữ liệu")
+    ]);
+  }
+  if(fh.productIntelligence){
+    rows.push([
+      "Phân tích sản phẩm",
+      "Tín hiệu · Mức ưu tiên · Chẩn đoán",
+      fh.productIntelligence.status==="READY"?"PASS":"DEGRADED",
+      fh.productIntelligence.status==="READY"
+        ? intv(fh.productIntelligence.candidateCount||0)+" tín hiệu đủ chuẩn"
+        : String(fh.productIntelligence.reason||"Core dashboard vẫn hoạt động")
+    ]);
+  }
+  return rows;
+}
+
+let selected="yesterday";
+const periodGrid=document.getElementById("periodGrid");
+const kpiGrid=document.getElementById("kpiGrid");
+const driverList=document.getElementById("driverList");
+const issueList=document.getElementById("issueList");
+const signalGrid=document.getElementById("signalGrid");
+const dataGrid=document.getElementById("dataGrid");
+
+function renderPeriods(){
+  periodGrid.innerHTML=Object.entries(periods).map(function(entry){
+    const key=entry[0],p=entry[1];
+    return '<button class="period-card '+(selected===key?'active':'')+'" data-period="'+key+'">'+
+      '<div class="period-title">'+p.title+'</div>'+
+      '<div class="period-value">'+p.value+'</div>'+
+      '<div><span class="period-delta '+p.tone+'">'+p.delta+'</span><span class="period-compare">'+p.compare+'</span></div>'+
+      '<div class="period-note">'+p.note+'</div></button>';
+  }).join("");
+  periodGrid.querySelectorAll("[data-period]").forEach(function(b){b.onclick=function(){selected=b.dataset.period;render()}});
+}
+function renderIssues(){
+  const issues=liveIssuesFor(selected);
+  if(!issues.length){
+    issueList.innerHTML='<div class="issue-empty">Không có vấn đề nào đạt ngưỡng cần xử lý trong kỳ đang xem.</div>';
+    return;
+  }
+  issueList.innerHTML=issues.map(function(i,idx){
+    return '<div class="issue '+i.cls+'">'+
+      '<span class="severity '+i.tone+'">'+i.sev+'</span>'+
+      '<div><div class="issue-title">'+i.title+'</div><div class="issue-sub">'+i.sub+'</div></div>'+
+      '<div class="issue-meta">'+i.meta+'</div>'+
+      '<button class="issue-action" data-issue="'+idx+'" '+(i.drawer?'':'disabled')+'>'+i.action+'</button></div>';
+  }).join("");
+  issueList.querySelectorAll("[data-issue]").forEach(function(b){
+    b.onclick=function(){
+      const item=issues[Number(b.dataset.issue)];
+      if(item&&item.drawer){
+        if(IS_LIVE&&item.raw)openDiagnosticDrawer("shop_issue",item.raw);
+        else openDiagnosticDrawer("mock",item);
+      }
+    };
+  });
+}
+function render(){
+  const p=periods[selected];
+  renderPeriods();
+  document.getElementById("pulseTitle").textContent=p.pulse;
+  document.getElementById("pulseDetail").textContent=p.detail;
+  document.getElementById("pulseInsights").innerHTML=(p.insights||[]).map(function(x){return '<div class="pulse-insight">'+x+'</div>'}).join("");
+  document.getElementById("pulseAction").innerHTML='<b>Nên kiểm tra</b>'+p.action;
+  document.getElementById("pulseGuard").textContent=p.guard;
+  document.getElementById("pulseConfidence").textContent=p.confidence;
+  document.getElementById("selectionPill").textContent="Đang xem: "+p.title;
+  document.getElementById("whyTitle").textContent=p.why;
+  kpiGrid.innerHTML=p.kpis.map(function(k){
+    return '<div class="kpi"><div class="label">'+k[0]+'</div><div class="value">'+k[1]+'</div><div class="delta '+k[3]+'">'+k[2]+'</div></div>';
+  }).join("");
+  driverList.innerHTML=p.drivers.map(function(d){
+    return '<div class="driver-row"><b>'+d[0]+'</b><span class="effect '+(d[4]==="neg"?"down":"up")+'">'+d[1]+'</span><span class="driver-note">'+d[2]+'</span><span class="track"><i class="'+(d[4]==="neg"?"neg":"")+'" style="width:'+d[3]+'%"></i></span></div>';
+  }).join("");
+  document.getElementById("supportSignal").textContent=p.support;
+  renderIssues();
+}
+
+if(IS_LIVE){
+  const productSignals=(LIVE_CC.productSignals&&LIVE_CC.productSignals.signals)||[];
+  if(productSignals.length){
+    document.getElementById("productSignalTitle").hidden=false;
+    signalGrid.hidden=false;
+    signalGrid.innerHTML=productSignals.map(function(s,idx){
+      const cls=s.type==="Vấn đề"?"problem":"opportunity";
+      const typeCount=s.type==="Vấn đề"
+        ? Number(LIVE_CC.productSignals&&LIVE_CC.productSignals.problemCount||1)
+        : Number(LIVE_CC.productSignals&&LIVE_CC.productSignals.opportunityCount||1);
+      const rankText=s.rankWithinType
+        ? "Ưu tiên #"+s.rankWithinType+(typeCount>1?"/"+typeCount:"")
+        : "Đã qua ngưỡng ưu tiên";
+      const meta=rankText+" · Điểm ưu tiên "+vi0.format(Number(s.priorityScore||0))+
+        " · Độ tin cậy "+vi0.format(Number(s.confidence||0)*100)+"%"+
+        (s.currentMtd&&s.currentMtd.paceDelta!==null&&s.currentMtd.paceDelta!==undefined?" · MTD "+pct(s.currentMtd.paceDelta):"");
+      return '<div class="product-signal '+cls+'">'+
+        '<div class="signal-type">'+s.type+'</div>'+
+        '<div class="signal-name">'+s.productName+'</div>'+
+        '<div class="signal-main">'+s.summary+'</div>'+
+        '<div class="signal-meta">'+s.evidence+'<br>'+meta+'</div>'+
+        '<button class="signal-link" data-live-signal="'+idx+'">'+s.action+' →</button></div>';
+    }).join("");
+    signalGrid.querySelectorAll("[data-live-signal]").forEach(function(b){
+      b.onclick=function(){
+        const s=productSignals[Number(b.dataset.liveSignal)];
+        if(s)openDiagnosticDrawer("product_signal",s);
+      };
+    });
+  }else{
+    document.getElementById("productSignalTitle").hidden=true;
+    signalGrid.hidden=true;
+  }
+  const loaded=(LIVE_PAYLOAD.meta&&LIVE_PAYLOAD.meta.loadedEnd)||LIVE_CC.latestCompleteDate;
+  const loadedStart=(LIVE_PAYLOAD.meta&&LIVE_PAYLOAD.meta.loadedStart)||"";
+  const side=document.getElementById("sideData");
+  if(side)side.innerHTML='DỮ LIỆU<b>Đã cập nhật đến '+fmtDate(loaded)+'</b>Lỗi dữ liệu lõi: 0<br>Phạm vi: '+fmtDate(loadedStart)+' → '+fmtDate(loaded);
+  const fh=LIVE_CC.featureHealth||{};
+  const degraded=Object.values(fh).filter(function(x){return x&&x.status==="DEGRADED";});
+  const hp=document.getElementById("healthPill");
+  if(hp){
+    hp.textContent=degraded.length?"Dữ liệu lõi đạt chuẩn · "+degraded.length+" mô-đun cần lưu ý":"Dữ liệu đạt chuẩn";
+    hp.classList.toggle("degraded",degraded.length>0);
+    hp.title=degraded.map(function(x){return x.reason||"Tính năng bổ sung đang thiếu dữ liệu";}).join(" · ");
+  }
+}
+
+dataGrid.innerHTML=liveDataSources().map(function(d){
+  const statusLabel={PASS:"Đạt",DEGRADED:"Cần lưu ý",CAVEAT:"Cần lưu ý",OFF:"Tắt"}[d[2]]||d[2];
+  return '<div class="data-source"><div class="data-name">'+d[0]+'</div><div class="data-date">'+d[1]+'</div><div class="data-bottom"><span class="'+(d[2]==="PASS"?"pass":d[2]==="DEGRADED"||d[2]==="CAVEAT"?"warn":"neutral")+'">'+statusLabel+'</span><span class="conf">'+d[3]+'</span></div></div>';
+}).join("");
+
+const backdrop=document.getElementById("drawerBackdrop");
+const drawerContent=document.getElementById("drawerContent");
+let currentDrawerModel=null;
+
+function esc(v){
+  return String(v===null||v===undefined?"":v).replace(/[&<>"']/g,function(ch){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch];
+  });
+}
+function metricValue(metric,v){
+  if(v===null||v===undefined||!Number.isFinite(Number(v)))return "—";
+  if(metric==="cvr"||metric==="productClickRate")return rate(v);
+  if(metric==="aov"||metric==="gmv")return money(v);
+  return intv(v);
+}
+function shopDrawerModel(issue){
+  const diag=issue.diagnostic||{};
+  const metric=issue.metric||"";
+  const series=diag.series||[];
+  const last=series.length?series[series.length-1]:null;
+  const actual=last?last.actual:null;
+  const expected=last&&last.expected!==null&&last.expected!==undefined?last.expected:null;
+  const p10=last&&last.p10!==null&&last.p10!==undefined?last.p10:null;
+  const p90=last&&last.p90!==null&&last.p90!==undefined?last.p90:null;
+  const persistence=issue.persistence||{};
+  const evid=[
+    {label:"Giá trị thực tế · "+(issue.label||metric),actual:metricValue(metric,actual),explain:expected!==null?"Trung vị tham chiếu "+metricValue(metric,expected):"Chưa đủ mức tham chiếu lịch sử"},
+    {label:"Biến động kỳ",actual:pct(issue.metricDelta),explain:"So với kỳ đối chiếu đang xem"},
+    {label:"Ảnh hưởng đến GMV",actual:"-"+money(issue.impactValue||0).replace("-",""),explain:"Mức đóng góp ước tính"},
+    {label:"Thời gian kéo dài",actual:(persistence.lowDays||0)+" ngày",explain:(persistence.consecutiveTailDays||0)+" ngày liên tiếp ở cuối kỳ"}
+  ];
+  const diagItems=[
+    {title:(issue.label||metric)+" đang thấp hơn vùng tham chiếu lịch sử",sub:"Trạng thái tham chiếu "+esc(issue.baselineStatus||"")+
+      " · độ lệch chuẩn hóa "+vi1.format(Number(issue.baselineRobustZ||0))+" · "+intv(issue.historicalSampleSize||0)+" kỳ mẫu"},
+    {title:"Ảnh hưởng đến GMV đạt ngưỡng cần theo dõi",sub:"Mức ảnh hưởng "+vi0.format(Number(issue.impactScore||0)*100)+"% · xếp hạng yếu tố #"+intv(issue.driverRank||0)},
+    {title:issue.context&&issue.context.distorted?"Hai kỳ có khác biệt về chương trình bán hàng hoặc lịch":"Không có khác biệt bối cảnh đáng kể",
+      sub:diag.contextNote||"Bối cảnh lịch sử đã được kiểm tra trước khi tạo tín hiệu."}
+  ];
+  return {
+    kind:"shop_issue",
+    statusClass:"",
+    statusText:"Vấn đề đang theo dõi",
+    eyebrow:"Chẩn đoán vận hành",
+    title:issue.label+" · toàn shop",
+    alert:issue.summary||issue.evidence||"Chỉ số khác mức thường thấy và cần được kiểm tra",
+    meta:"Mã theo dõi: "+issue.anomalyId+"<br>Điểm tín hiệu "+vi0.format(issue.score||0)+" · độ tin cậy "+vi0.format(Number(issue.confidenceScore||0)*100)+"%",
+    evidence:evid,
+    chartTitle:diag.chartTitle||"Diễn biến 30 ngày",
+    chartType:diag.chartType||"daily_expected_band",
+    series:series,
+    chartLabel:"Thực tế so với vùng kỳ vọng lịch sử",
+    diagnosis:diagItems,
+    nextChecks:diag.nextChecks||[],
+    footer:"Mã theo dõi được giữ nguyên qua các lần cập nhật; tín hiệu sẽ tự đóng khi không còn đạt ngưỡng cần kiểm tra."
+  };
+}
+function productDrawerModel(s){
+  const diag=s.diagnostic||{};
+  const d=s.deltas||{},recent=s.recent||{},previous=s.previous||{};
+  const opportunity=s.type==="Cơ hội";
+  const root=s.rootCause||{};
+  const findings=diag.observedFindings||root.observedFindings||[];
+  const hypotheses=diag.hypotheses||root.hypotheses||[];
+  const pc=s.priorityComponents||{};
+  const evid=[
+    {label:"Mức ưu tiên",actual:"#"+intv(s.rankWithinType||1)+" · "+vi0.format(Number(s.priorityScore||0))+"/100",explain:"Xếp hạng trong nhóm "+(s.type||"tín hiệu")},
+    {label:"Ảnh hưởng GMV",actual:money(Math.abs(Number(s.structuralImpactValue||0))),explain:vi1.format(Number(s.structuralImpactShare||0)*100)+"% GMV sản phẩm của shop trong cửa sổ gần nhất"},
+    {label:"Độ lệch xu hướng",actual:vi0.format(Number(pc.deviation||0)*100)+"/100",explain:"Mức biến động so với lịch sử 3 tháng đối chiếu"},
+    {label:"Độ bền tín hiệu",actual:vi0.format(Number(pc.persistence||0)*100)+"/100",explain:(s.persistenceMonths||0)+" tháng liên tiếp · có xét MTD"},
+    {label:"Độ tin cậy",actual:vi0.format(Number(pc.confidence||s.confidence||0)*100)+"%",explain:"Độ đầy đủ lịch sử và mức đồng thuận của các tín hiệu"},
+    {label:"Doanh số",actual:pct(d.gmv),explain:money(recent.gmv)+" vs "+money(previous.gmv)},
+    {label:"Đơn hàng",actual:pct(d.orders),explain:intv(recent.orders)+" vs "+intv(previous.orders)},
+    {label:"Lượt xem sản phẩm",actual:pct(d.views),explain:"Độ phủ/khả năng được nhìn thấy"},
+    {label:"Lượt nhấp vào sản phẩm",actual:pct(d.clicks),explain:"CTR "+pct(d.ctr)},
+    {label:"Tỷ lệ chuyển đổi (CVR)",actual:pct(d.cvr),explain:rate(recent.cvr)+" vs "+rate(previous.cvr)},
+    {label:"AOV",actual:pct(d.aov),explain:money(recent.aov)+" so với "+money(previous.aov)}
+  ];
+  const obs=findings.map(function(x){
+    return {title:x.title,sub:x.evidence+" "+x.meaning};
+  });
+  if(!obs.length){
+    obs.push({title:(opportunity?"Tín hiệu tăng trưởng":"Tín hiệu suy yếu")+" có tính cấu trúc",sub:"So sánh 3 tháng gần nhất với 3 tháng trước; độ tin cậy "+vi0.format(Number(s.confidence||0)*100)+"%."});
+  }
+  const ads=s.adsSupport||{};
+  if(ads.status==="READY"){
+    if(ads.spendAvailable){
+      evid.push(
+        {label:"Hiển thị Ads",actual:pct(ads.impressionsDelta),explain:"Gộp tất cả chiến dịch · "+intv(ads.current&&ads.current.impressions)+" so với "+intv(ads.previous&&ads.previous.impressions)},
+        {label:"Chi tiêu Ads",actual:pct(ads.spendDelta),explain:"Gộp tất cả chiến dịch · "+money(ads.current&&ads.current.spend)+" so với "+money(ads.previous&&ads.previous.spend)},
+        {label:"ROAS Ads",actual:pct(ads.roasDelta),explain:"3 tháng gần nhất so với 3 tháng trước · "+roas(ads.current&&ads.current.roas)+" so với "+roas(ads.previous&&ads.previous.roas)}
+      );
+    }else{
+      obs.push({
+        title:"Quảng cáo sản phẩm: chỉ đủ dữ liệu về mức tiếp cận, chưa có chi phí/ROAS",
+        sub:"Hiển thị "+pct(ads.impressionsDelta)+" · lượt nhấp "+pct(ads.clicksDelta)+" · doanh số quy đổi "+pct(ads.salesDelta)+"."
+      });
+    }
+  }
+  return {
+    kind:"product_signal",
+    statusClass:opportunity?"opportunity":"",
+    statusText:opportunity?"Cơ hội đang theo dõi":"Vấn đề đang theo dõi",
+    eyebrow:"Chẩn đoán sản phẩm",
+    title:s.productName,
+    alert:s.summary,
+    meta:"Seller SKU: "+esc(s.sellerSku||"—")+" · Mã SP Shopee: "+esc(s.productId||"—")+
+      "<br>Mã tín hiệu: "+esc(s.signalId||"—")+" · Ưu tiên #"+intv(s.rankWithinType||1)+" · Điểm ưu tiên "+vi0.format(Number(s.priorityScore||0))+"",
+    quickConclusion:diag.quickConclusion||root.quickConclusion||"",
+    evidence:evid,
+    chartTitle:diag.chartTitle||"Diễn biến 6 tháng",
+    chartType:diag.chartType||"monthly_product_history",
+    series:diag.series||[],
+    chartLabel:"Doanh số đơn đã đặt theo tháng hoàn chỉnh",
+    diagnosis:obs,
+    hypotheses:hypotheses,
+    nextChecks:diag.nextChecks||[],
+    footer:"Kết luận dựa trên dữ liệu lịch sử của sản phẩm. Các nguyên nhân chưa có dữ liệu trực tiếp được giữ ở dạng giả thuyết để kiểm tra, không coi là kết luận."
+  };
+}
+function mockDrawerModel(item){
+  return {
+    kind:"mock",statusClass:"",statusText:"Prototype",
+    title:item.title||item.name||"Diagnostic",
+    alert:item.sub||item.main||"Mock diagnostic",
+    meta:"Bản xem trước · chưa có mã theo dõi thật",
+    evidence:[{label:"Trạng thái",actual:item.sev||item.type||"—",explain:item.meta||""}],
+    chartTitle:"Diễn biến",chartType:"none",series:[],chartLabel:"Mock data",
+    diagnosis:[{title:"Đây là fallback prototype",sub:"Live mode sẽ thay bằng evidence thật từ engine."}],
+    nextChecks:["Rebuild Data Mart và mở live payload để xem chẩn đoán thật."],
+    footer:"Mock drawer chỉ dùng khi không có window.UNIPALM_DATA."
+  };
+}
+function renderDrawer(model){
+  currentDrawerModel=model;
+  const evidence=(model.evidence||[]).map(function(e){
+    return '<div class="evidence-row"><div class="label">'+esc(e.label)+'</div><div class="actual">'+esc(e.actual)+'</div><div class="explain">'+esc(e.explain)+'</div></div>';
+  }).join("");
+  const diagnosis=(model.diagnosis||[]).map(function(d,idx){
+    return '<div class="diag"><div class="diag-num">'+(idx+1)+'</div><div><div class="diag-title">'+esc(d.title)+'</div><div class="diag-sub">'+esc(d.sub)+'</div></div></div>';
+  }).join("");
+  const hypotheses=(model.hypotheses||[]).map(function(h){
+    return '<div class="hyp"><div class="hyp-top"><div class="hyp-title">'+esc(h.title)+'</div><div class="hyp-level">'+esc(h.level||"Giả thuyết")+'</div></div>'+
+      '<div class="hyp-basis">'+esc(h.basis||"")+'</div>'+
+      '<div class="hyp-check"><b>Cách kiểm tra:</b> '+esc(h.check||"")+'</div></div>';
+  }).join("");
+  const checks=(model.nextChecks||[]).map(function(x){return '<div>• '+esc(x)+'</div>';}).join("");
+  drawerContent.innerHTML=
+    '<div class="alert-open '+esc(model.statusClass||"")+'">'+esc(model.statusText||"Đang theo dõi")+'</div>'+
+    '<div class="drawer-head"><div class="drawer-eyebrow">'+esc(model.eyebrow||"Chẩn đoán")+'</div>'+
+    '<h2 id="drawerTitle">'+esc(model.title)+'</h2>'+
+    '<div class="drawer-alert">'+esc(model.alert||"")+'</div>'+
+    '<div class="drawer-meta">'+model.meta+'</div></div>'+
+    (model.quickConclusion?'<div class="drawer-summary"><b>Kết luận nhanh:</b> '+esc(model.quickConclusion)+'</div>':'')+
+    '<hr><h3>Bằng chứng chính</h3><div class="evidence">'+evidence+'</div>'+
+    '<h3>'+esc(model.chartTitle||"Diễn biến")+'</h3>'+
+    '<div class="chartbox"><svg id="diagChart" viewBox="0 0 520 150" preserveAspectRatio="none"></svg><div class="chart-legend" id="diagLegend"></div><div class="band-label">'+esc(model.chartLabel||"")+'</div></div>'+
+    '<h3>Kết luận từ dữ liệu</h3><div class="diag-list">'+diagnosis+'</div>'+
+    (hypotheses?'<h3>Giả thuyết cần kiểm tra</h3><div class="hyp-list">'+hypotheses+'</div>':'')+
+    '<h3>Ưu tiên kiểm tra tiếp</h3><div class="next">'+checks+'</div>'+
+    '<div class="drawer-footer">'+esc(model.footer||"")+'</div>';
+  drawDiagnosticChart(model);
+}
+function openDiagnosticDrawer(kind,data){
+  const model=kind==="shop_issue"?shopDrawerModel(data):kind==="product_signal"?productDrawerModel(data):mockDrawerModel(data);
+  renderDrawer(model);
+  backdrop.classList.add("open");backdrop.setAttribute("aria-hidden","false");document.documentElement.style.overflow="hidden";document.body.style.overflow="hidden";
+}
+function closeDrawer(){backdrop.classList.remove("open");backdrop.setAttribute("aria-hidden","true");document.documentElement.style.overflow="";document.body.style.overflow=""}
+document.getElementById("drawerClose").onclick=closeDrawer;
+backdrop.onclick=function(e){if(e.target===backdrop)closeDrawer()};
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeDrawer()});
+
+const appRoot=document.querySelector(".app");
+const sidebar=document.querySelector(".sidebar");
+const sidebarPin=document.getElementById("sidebarPin");
+const sidebarHoverZone=document.getElementById("sidebarHoverZone");
+let peekTimer=null;
+
+function applySidebarMode(pinned){
+  appRoot.classList.toggle("sidebar-unpinned",!pinned);
+  appRoot.classList.remove("sidebar-peek");
+  sidebarPin.classList.toggle("pinned",pinned);
+  sidebarPin.title=pinned?"Tự ẩn Sidebar":"Ghim Sidebar";
+  sidebarPin.setAttribute("aria-label",sidebarPin.title);
+  localStorage.setItem("unipalmV2SidebarPinned",pinned?"1":"0");
+}
+const savedPinned=localStorage.getItem("unipalmV2SidebarPinned");
+applySidebarMode(savedPinned===null ? true : savedPinned==="1");
+sidebarPin.onclick=()=>applySidebarMode(appRoot.classList.contains("sidebar-unpinned"));
+function openSidebarPeek(){
+  if(!appRoot.classList.contains("sidebar-unpinned")) return;
+  clearTimeout(peekTimer);appRoot.classList.add("sidebar-peek");
+}
+function closeSidebarPeekSoon(){
+  if(!appRoot.classList.contains("sidebar-unpinned")) return;
+  clearTimeout(peekTimer);peekTimer=setTimeout(()=>appRoot.classList.remove("sidebar-peek"),120);
+}
+sidebarHoverZone.addEventListener("mouseenter",openSidebarPeek);
+sidebar.addEventListener("mouseenter",openSidebarPeek);
+sidebar.addEventListener("mouseleave",closeSidebarPeekSoon);
+
+const themeToggle=document.getElementById("themeToggle");
+const themeLabel=document.getElementById("themeLabel");
+const themeIcon=document.getElementById("themeIcon");
+function applyTheme(theme){
+  document.body.dataset.theme=theme;
+  localStorage.setItem("unipalmV2Theme",theme);
+  const dark=theme==="dark";
+  themeLabel.textContent=dark?"Giao diện sáng":"Giao diện tối";
+  themeIcon.innerHTML=dark
+    ? '<path d="M12 4V2m0 20v-2M4 12H2m20 0h-2m-2.34-5.66 1.42-1.42M4.92 19.08l1.42-1.42m0-11.32L4.92 4.92m14.16 14.16-1.42-1.42M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+    : '<path d="M20.4 15.2A8 8 0 0 1 8.8 3.6 8.5 8.5 0 1 0 20.4 15.2Z" fill="currentColor"/>';
+  drawDiagnosticChart();
+}
+applyTheme(localStorage.getItem("unipalmV2Theme")||"light");
+themeToggle.onclick=()=>applyTheme(document.body.dataset.theme==="dark"?"light":"dark");
+
+function drawDiagnosticChart(model){
+  const svg=document.getElementById("diagChart");
+  const legend=document.getElementById("diagLegend");
+  if(!svg)return;
+  const dark=document.body.dataset.theme==="dark";
+  const W=520,H=150,padX=20,padTop=14,padBottom=30;
+  const grid=dark?"#2c3731":"#dfe5ec";
+  const primary=dark?"#58a87f":"#045433";
+  const negative=dark?"#f16b6b":"#d43a3a";
+  const muted=dark?"#819087":"#9aa7b0";
+  const band=dark?"#163023":"#dfeee6";
+  const m=model||currentDrawerModel;
+  if(!m||m.chartType==="none"||!(m.series||[]).length){
+    svg.innerHTML='<text x="20" y="72" fill="'+muted+'" font-size="11">Chưa có series đủ điều kiện để vẽ chart.</text>';
+    if(legend)legend.innerHTML="";
+    return;
+  }
+
+  if(m.chartType==="daily_expected_band"){
+    const s=m.series||[];
+    const nums=[];
+    s.forEach(function(r){["actual","p10","p90","expected"].forEach(function(k){if(r[k]!==null&&r[k]!==undefined&&Number.isFinite(Number(r[k])))nums.push(Number(r[k]));});});
+    let min=Math.min.apply(null,nums),max=Math.max.apply(null,nums);
+    if(!Number.isFinite(min)||!Number.isFinite(max)||min===max){min=0;max=Math.max(1,max||1);}
+    const span=max-min;min-=span*.12;max+=span*.12;
+    const X=function(i){return padX+(s.length===1?0:i*(W-padX*2)/(s.length-1));};
+    const Y=function(v){return padTop+(max-Number(v))/(max-min)*(H-padTop-padBottom);};
+    let html='<line x1="'+padX+'" y1="'+(H-padBottom)+'" x2="'+(W-padX)+'" y2="'+(H-padBottom)+'" stroke="'+grid+'"/>';
+    const bandRows=s.filter(function(r){return r.p10!==null&&r.p10!==undefined&&r.p90!==null&&r.p90!==undefined;});
+    if(bandRows.length>=2){
+      const top=s.map(function(r,i){return r.p90!==null&&r.p90!==undefined?X(i)+','+Y(r.p90):null;}).filter(Boolean);
+      const bottom=s.map(function(r,i){return r.p10!==null&&r.p10!==undefined?X(i)+','+Y(r.p10):null;}).filter(Boolean).reverse();
+      if(top.length>=2&&bottom.length>=2)html+='<polygon points="'+top.concat(bottom).join(" ")+'" fill="'+band+'" opacity=".72"/>';
+    }
+    const actualPts=s.map(function(r,i){return X(i)+','+Y(r.actual);}).join(" ");
+    html+='<polyline fill="none" stroke="'+primary+'" stroke-width="2" points="'+actualPts+'"/>';
+    s.forEach(function(r,i){html+='<circle cx="'+X(i)+'" cy="'+Y(r.actual)+'" r="3.4" fill="'+(r.status==="LOW"?negative:primary)+'"/>';});
+    svg.innerHTML=html;
+    if(legend)legend.innerHTML='<span><i class="legend-dot"></i>Actual</span><span><i class="legend-band"></i>Expected P10–P90</span>';
+    return;
+  }
+
+  if(m.chartType==="monthly_product_history"){
+    const s=m.series||[];
+    const vals=s.map(function(r){return Number(r.gmv||0);});
+    const max=Math.max.apply(null,vals.concat([1]));
+    const X=function(i){return padX+i*(W-padX*2)/Math.max(1,s.length-1);};
+    const Y=function(v){return padTop+(max-Number(v))/max*(H-padTop-padBottom);};
+    let html='<line x1="'+padX+'" y1="'+(H-padBottom)+'" x2="'+(W-padX)+'" y2="'+(H-padBottom)+'" stroke="'+grid+'"/>';
+    html+='<polyline fill="none" stroke="'+primary+'" stroke-width="2.2" points="'+s.map(function(r,i){return X(i)+','+Y(r.gmv);}).join(" ")+'"/>';
+    s.forEach(function(r,i){
+      const isRecent=i>=Math.max(0,s.length-3);
+      html+='<circle cx="'+X(i)+'" cy="'+Y(r.gmv)+'" r="4" fill="'+(isRecent?primary:muted)+'"/>';
+      html+='<text x="'+X(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="'+muted+'" font-size="8">'+esc(String(r.month||"").slice(5))+'</text>';
+    });
+    svg.innerHTML=html;
+    if(legend)legend.innerHTML='<span><i class="legend-dot"></i>Placed GMV</span><span>3 điểm cuối = recent window</span>';
+  }
+}
+render();
+</script>
+</body>
+</html>

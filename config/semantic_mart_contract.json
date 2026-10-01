@@ -1,0 +1,89 @@
+{
+  "version": "1.2",
+  "layer_name": "multi_shop_semantic_v1",
+  "safety": {
+    "production_data_mart_write": false,
+    "production_ui_write": false,
+    "legacy_data_mart_write": false
+  },
+  "source_layer": "multi_shop_processed_v1",
+  "common_daily_domains": [
+    "orders",
+    "ads",
+    "business_insights"
+  ],
+  "marts": {
+    "dim_shop": {
+      "grain": [
+        "shop_id"
+      ]
+    },
+    "dm_shop_daily": {
+      "grain": [
+        "shop_id",
+        "data_date"
+      ]
+    },
+    "dm_commercial_stage_daily": {
+      "grain": [
+        "shop_id",
+        "data_date",
+        "order_stage"
+      ]
+    },
+    "dm_ads_daily": {
+      "grain": [
+        "shop_id",
+        "data_date"
+      ]
+    },
+    "dm_ads_product_daily": {
+      "grain": [
+        "shop_id",
+        "data_date",
+        "product_id"
+      ]
+    },
+    "dm_product_monthly": {
+      "grain": [
+        "shop_id",
+        "data_month",
+        "product_id"
+      ]
+    },
+    "dm_traffic_source_daily": {
+      "grain": [
+        "shop_id",
+        "data_date",
+        "order_stage",
+        "channel_group",
+        "traffic_source"
+      ]
+    },
+    "dm_order_quality_daily": {
+      "grain": [
+        "shop_id",
+        "data_date"
+      ]
+    }
+  },
+  "kpi_policy": {
+    "ratios": "recompute_from_additive_numerators_denominators",
+    "total_aov": "total_gmv / total_orders",
+    "total_cvr": "total_orders / total_product_clicks",
+    "total_roas": "total_attributed_ads_sales / total_ads_spend",
+    "never_average_ratios": true
+  },
+  "identity_policy": {
+    "product_join": [
+      "shop_id",
+      "product_id"
+    ],
+    "catalog_join": [
+      "shop_id",
+      "product_id"
+    ],
+    "cross_shop_product_id_join_forbidden": true,
+    "sku_prefix_inference_forbidden": true
+  }
+}

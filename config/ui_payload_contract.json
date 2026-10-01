@@ -1,0 +1,427 @@
+{
+  "version": "1.15",
+  "layer_name": "multi_shop_ui_payload_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_semantic_v1",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "canonical_commercial_stage": "placed",
+  "canonical_scope_requirement": "all_enabled_shops",
+  "scope_modes": {
+    "portfolio": {
+      "alignment": "intersection_of_shop_common_reliable_windows",
+      "product_scope": "not_supported",
+      "ratio_policy": "recompute_from_additive_numerators_denominators"
+    },
+    "shop": {
+      "alignment": "shop_common_reliable_window",
+      "product_scope": "supported",
+      "ratio_policy": "recompute_from_additive_numerators_denominators"
+    },
+    "compare": {
+      "alignment": "pairwise_intersection_of_common_reliable_windows",
+      "comparison_direction": "right_vs_left",
+      "ranking_or_winner": false,
+      "ratio_policy": "recompute_before_compare",
+      "horizons": [
+        "latestDay",
+        "last7",
+        "mtd"
+      ],
+      "default_horizon": "mtd",
+      "product_policy": {
+        "ads_product_daily": "aligned_per_horizon_shop_scoped",
+        "business_product_mtd": "source_mtd_not_horizon_aligned",
+        "cross_shop_identity_merge": false
+      },
+      "horizon_contract": "required_no_pair_level_mtd_aliases"
+    }
+  },
+  "headline_kpis": [
+    "placedGmv",
+    "placedOrders",
+    "productClicks",
+    "placedAov",
+    "placedCvr",
+    "adsSpend",
+    "adsAttributedSales",
+    "roas",
+    "cancelledSales",
+    "netSalesAfterCancel",
+    "orderFees",
+    "totalPlatformCostRatio"
+  ],
+  "product_policy": {
+    "identity": [
+      "shop_id",
+      "product_id"
+    ],
+    "cross_shop_product_id_merge": false,
+    "portfolio_product_aggregation": false,
+    "reason": "Product ID is shop-local and current Product Performance lacks an exact daily cutoff for safe cross-shop alignment."
+  },
+  "non_additive_policy": {
+    "portfolio_omit": [
+      "visits",
+      "buyers",
+      "newBuyers",
+      "existingBuyers",
+      "uniqueImpressions",
+      "uniqueClicks"
+    ],
+    "reason": "Cross-shop or multi-day uniqueness cannot be preserved by summation."
+  },
+  "capability_defaults": {
+    "multiShopSelector": true,
+    "portfolioScope": true,
+    "pairwiseCompare": true,
+    "shopProductView": true,
+    "crossShopProductAggregation": false,
+    "customerLifetime": false,
+    "historicalIntelligence6m": false,
+    "todayMatchedHour": false,
+    "productionUiBinding": false,
+    "compareMultiHorizon": true,
+    "compareRevenueQuality": true,
+    "compareCostEfficiency": true,
+    "compareAdsPerformance": true,
+    "compareTrafficMix": true,
+    "compareAdsProductPerformance": true,
+    "compareBusinessProductMtd": true,
+    "historicalComparatorContext": true,
+    "historicalAlerts": false,
+    "historicalDiagnosis": false,
+    "businessContextCalendar": false,
+    "contextMatchedBaseline": false,
+    "contextComparatorQualification": true,
+    "anomalyEligibilityGuardrails": true,
+    "anomalyDetection": false,
+    "anomalyDetectionFoundation": true,
+    "anomalySeverityConfidence": true,
+    "anomalySeverity": false,
+    "driverAttributionFoundation": true,
+    "diagnosis": false,
+    "smartIssuesFoundation": true,
+    "smartIssues": false,
+    "operatorActionPolicyFoundation": true,
+    "operatorActions": false,
+    "productionCutoverShadowMode": true,
+    "productionCutover": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "publish_legacy_payload": false
+  },
+  "selector_policy": {
+    "default_scope": "portfolio",
+    "shop_order": "SHOP_REGISTRY_ORDER",
+    "scope_modes": [
+      "portfolio",
+      "shop",
+      "compare"
+    ]
+  },
+  "scope_semantics": {
+    "portfolio": {
+      "alignment": "ALL_ENABLED_SHOPS_COMMON_RELIABLE_INTERSECTION",
+      "daily_shop_requirement": "ALL_ENABLED_SHOPS_PRESENT_EACH_DAY",
+      "additive_fields": [
+        "placedGmv",
+        "placedOrders",
+        "productClicks",
+        "confirmedGmv",
+        "confirmedOrders",
+        "paidGmv",
+        "paidOrders",
+        "cancelledOrders",
+        "cancelledSales",
+        "returnedRefundedOrders",
+        "returnedRefundedSales",
+        "netSalesAfterCancel",
+        "adsImpressions",
+        "adsClicks",
+        "adsConversions",
+        "adsAttributedSales",
+        "adsSpend",
+        "fixedFee",
+        "serviceFee",
+        "transactionFee",
+        "orderFees"
+      ],
+      "recomputed_ratios": {
+        "placedAov": "placedGmv / placedOrders",
+        "placedCvr": "placedOrders / productClicks",
+        "roas": "adsAttributedSales / adsSpend",
+        "totalPlatformCostRatio": "(orderFees + adsSpend) / netSalesAfterCancel"
+      },
+      "forbidden_total_fields": [
+        "visits",
+        "buyers",
+        "newBuyers",
+        "existingBuyers",
+        "potentialBuyers",
+        "uniqueImpressions",
+        "uniqueClicks"
+      ],
+      "latest_complete_day_visible_label": "Ngày gần nhất",
+      "comparison_window_policy": "REQUIRE_COMPLETE_CURRENT_AND_PREVIOUS_WINDOWS"
+    },
+    "shop": {
+      "alignment": "SHOP_COMMON_RELIABLE_WINDOW",
+      "daily_unique_fields": [
+        "visits",
+        "buyers",
+        "newBuyers",
+        "existingBuyers",
+        "potentialBuyers"
+      ],
+      "multi_day_unique_policy": "DAILY_ONLY_DO_NOT_SUM",
+      "headline_unique_policy": "OMIT",
+      "additive_period_fields": [
+        "placedGmv",
+        "placedOrders",
+        "productClicks",
+        "confirmedGmv",
+        "confirmedOrders",
+        "paidGmv",
+        "paidOrders",
+        "cancelledOrders",
+        "cancelledSales",
+        "returnedRefundedOrders",
+        "returnedRefundedSales",
+        "netSalesAfterCancel",
+        "adsImpressions",
+        "adsClicks",
+        "adsConversions",
+        "adsAttributedSales",
+        "adsSpend",
+        "fixedFee",
+        "serviceFee",
+        "transactionFee",
+        "orderFees"
+      ],
+      "recomputed_ratios": {
+        "placedAov": "placedGmv / placedOrders",
+        "placedCvr": "placedOrders / productClicks",
+        "roas": "adsAttributedSales / adsSpend",
+        "totalPlatformCostRatio": "(orderFees + adsSpend) / netSalesAfterCancel"
+      },
+      "funnel": {
+        "primary_conversion_metric": "placedCvr",
+        "numerator": "placedOrders",
+        "denominator": "productClicks",
+        "visits_bridge_policy": "DAILY_ONLY_SUPPORTING_SIGNAL"
+      },
+      "traffic": {
+        "aggregation": "ADDITIVE_FIELDS_ONLY",
+        "additive_fields": [
+          "sales",
+          "impressions",
+          "clicks",
+          "attributedOrders",
+          "attributedUnits"
+        ],
+        "forbidden_multi_day_unique_fields": [
+          "buyers",
+          "uniqueImpressions",
+          "uniqueClicks"
+        ],
+        "ratio_policy": "RECOMPUTE_FROM_ADDITIVE_COMPONENTS"
+      },
+      "product": {
+        "alignment": "SOURCE_MTD_SHOP_SCOPE_ONLY",
+        "product_identity": [
+          "shop_id",
+          "product_id"
+        ],
+        "cross_shop_identity_merge": false,
+        "day_7d_derivation": false
+      },
+      "latest_complete_day_visible_label": "Ngày gần nhất",
+      "partial_window_visible_policy": "LABEL_OBSERVED_DAYS_NOT_REQUESTED_HORIZON",
+      "comparison_window_policy": "REQUIRE_COMPLETE_CURRENT_AND_PREVIOUS_WINDOWS"
+    }
+  },
+  "historical_comparator_binding": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "scopes": [
+      "portfolio",
+      "shop"
+    ],
+    "allowed_comparators": [
+      "previousDay",
+      "previous7d",
+      "previousMonthMtd",
+      "sameWeekday",
+      "sameDayOfMonth"
+    ],
+    "factual_context_only": true,
+    "preserve_status": true,
+    "expose_coverage_and_samples": true,
+    "forbidden_claims": [
+      "anomaly",
+      "severity",
+      "alert",
+      "diagnosis",
+      "context_matched_causality"
+    ]
+  },
+  "business_context_binding": {
+    "source": "multi_shop_business_context_v1 via multi_shop_historical_intelligence_v1",
+    "scopes": [
+      "portfolio",
+      "shop"
+    ],
+    "explicit_source_only": true,
+    "context_matching_enabled": false,
+    "alerting_enabled": false,
+    "diagnosis_enabled": false,
+    "exact_campaign_dates_require_official_source": true,
+    "industry_analytics_exact_date_matching_forbidden": true
+  },
+  "context_comparator_qualification": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "statuses": [
+      "CONTEXT_COMPATIBLE",
+      "CONTEXT_DIFFERENT",
+      "CONTEXT_UNKNOWN"
+    ],
+    "visible_in": [
+      "portfolio",
+      "shop"
+    ],
+    "factual_only": true,
+    "exact_matching_events_only": true,
+    "broad_market_season_decision_role": "NONE",
+    "context_matched_baseline_enabled": false,
+    "causal_claims_enabled": false,
+    "alerting_enabled": false,
+    "diagnosis_enabled": false
+  },
+  "context_matched_historical_baseline": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "comparators": [
+      "sameWeekday",
+      "sameDayOfMonth"
+    ],
+    "statuses": [
+      "READY",
+      "INSUFFICIENT_CONTEXT_MATCHED_HISTORY"
+    ],
+    "preserve_all_history_baseline": true,
+    "silent_fallback_forbidden": true,
+    "statistics_only_when_ready": true,
+    "causal_claims_enabled": false,
+    "alerting_enabled": false,
+    "diagnosis_enabled": false
+  },
+  "anomaly_eligibility_guardrails": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "statuses": [
+      "ANOMALY_ELIGIBLE",
+      "ANOMALY_BLOCKED"
+    ],
+    "expose_reason_codes": true,
+    "anomaly_detection_enabled": false,
+    "severity_enabled": false,
+    "alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "anomaly_detection_foundation": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "statuses": [
+      "NORMAL",
+      "DEVIATION_CANDIDATE",
+      "NOT_EVALUATED"
+    ],
+    "method": "MODIFIED_Z_SCORE_MAD",
+    "detector_runs_only_when_eligible": true,
+    "no_score_when_not_evaluated": true,
+    "deviation_candidate_is_not_alert": true,
+    "operational_anomaly_detection_enabled": false,
+    "severity_enabled": false,
+    "alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "anomaly_severity_confidence": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "source_state": "DEVIATION_CANDIDATE_ONLY",
+    "non_candidate_status": "NOT_ASSESSED",
+    "severity_levels": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "confidence_levels": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "business_impact_claim": false,
+    "automatic_alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "driver_attribution_foundation": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "statuses": [
+      "ATTRIBUTED",
+      "ASSOCIATION_ONLY",
+      "NOT_DIAGNOSED"
+    ],
+    "minimum_confidence_level": "MEDIUM",
+    "attribution_method": "EXACT_SHAPLEY_ON_BUSINESS_IDENTITY",
+    "identity_contribution_is_causal_claim": false,
+    "operational_diagnosis_enabled": false,
+    "automatic_alerts_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "smart_issues_foundation": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "statuses": [
+      "ISSUE_READY",
+      "NO_ISSUE"
+    ],
+    "surface": "LATEST_TRUSTED_OBSERVATION",
+    "automatic_alerts_enabled": false,
+    "action_recommendations_enabled": false,
+    "operational_diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "operator_action_policy_foundation": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_REVIEW_OPTIONS_ONLY",
+    "statuses": [
+      "ACTION_OPTIONS_READY",
+      "NO_ACTION_OPTIONS"
+    ],
+    "requires_human_review": true,
+    "platform_mutation_allowed": false,
+    "automatic_execution_enabled": false,
+    "automatic_alerts_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "production_cutover_shadow_mode_v1": {
+    "source": "multi_shop_historical_intelligence_v1",
+    "mode": "PREPRODUCTION_OBSERVE_ONLY",
+    "statuses": [
+      "SHADOW_OBSERVING",
+      "READY_FOR_HUMAN_CUTOVER_REVIEW",
+      "CUTOVER_BLOCKED"
+    ],
+    "expose_readiness_gates": true,
+    "expose_issue_action_transitions": true,
+    "approved_visual_baseline_run": 216,
+    "cutover_requires_explicit_human_approval": true,
+    "automatic_cutover_enabled": false,
+    "production_activation_enabled": false,
+    "production_writes_enabled": false,
+    "platform_mutation_allowed": false
+  }
+}

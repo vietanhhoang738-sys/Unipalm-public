@@ -1,0 +1,68 @@
+{
+  "version": "1.1",
+  "layer_name": "multi_shop_business_context_v1",
+  "status": "PREPRODUCTION",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "market": "VN",
+  "source_policy": {
+    "explicit_source_only": true,
+    "allowed_source_tiers": [
+      "A1_PLATFORM_SELLER_OFFICIAL",
+      "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "B1_GOVERNMENT_OFFICIAL",
+      "C1_INDUSTRY_ANALYTICS"
+    ],
+    "exact_date_matching_tiers": [
+      "A1_PLATFORM_SELLER_OFFICIAL",
+      "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "B1_GOVERNMENT_OFFICIAL"
+    ],
+    "industry_analytics_role": "MARKET_SEASON_CONTEXT_ONLY",
+    "search_snippet_only_forbidden": true,
+    "inferred_from_metric_movement_forbidden": true
+  },
+  "scope_types": [
+    "PLATFORM",
+    "MARKET",
+    "SHOP"
+  ],
+  "context_types": [
+    "MEGA_SALE",
+    "MID_MONTH_SALE",
+    "PAYDAY_SALE",
+    "PLATFORM_PROGRAM",
+    "HOLIDAY",
+    "MARKET_SEASON"
+  ],
+  "context_families": [
+    "DOUBLE_DAY_MEGA_SALE",
+    "MID_MONTH",
+    "PAYDAY",
+    "LIVE_COMMERCE_PROGRAM",
+    "PUBLIC_HOLIDAY",
+    "BACK_TO_SCHOOL",
+    "SUMMER_SEASON",
+    "FESTIVAL_CAMPAIGN",
+    "MONTH_OPENING",
+    "MEMBER_DAY"
+  ],
+  "statuses": [
+    "VERIFIED_OFFICIAL",
+    "VERIFIED_ANALYTICS",
+    "SOURCE_REFERENCE_ONLY"
+  ],
+  "safety": {
+    "enable_alerts": false,
+    "enable_diagnosis": false,
+    "infer_campaign_from_metrics": false,
+    "write_production_data_mart": false,
+    "modify_production_ui": false
+  },
+  "refresh_policy": {
+    "monthly_review_required": true,
+    "calendar_review_date_field": "checked_at",
+    "block_if_review_month_precedes_as_of_period": true,
+    "official_platform_sources_first": true,
+    "stale_calendar_behavior": "FAIL_CLOSED"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_ads_smart_issue_alert_policy_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_ads_smart_issue_operator_review_workflow_v1",
+  "alert_policy": {
+    "enabled": true,
+    "mode": "SMART_ISSUE_ALERT_POLICY_V1",
+    "input_source": "ads_smart_issue_review_workflow.json",
+    "delivery_event_source": "ads_alert_delivery_events.json",
+    "human_promoted_issue_required": true,
+    "candidate_alerting_enabled": false,
+    "eligible_kinds": ["PROBLEM"],
+    "eligible_issue_states": ["OPEN"],
+    "suppressed_issue_states": ["ACKNOWLEDGED", "MONITORING", "RESOLVED"],
+    "trigger_actions": ["PROMOTE", "REOPEN"],
+    "repeated_reminders_enabled": false,
+    "severity": {
+      "HIGH": {
+        "priority_tiers": ["HIGH"],
+        "minimum_priority_score": 75,
+        "recommended_channel_classes": ["COMMAND_CENTER", "OPERATOR_NOTIFICATION"],
+        "cooldown_hours": 24
+      },
+      "MEDIUM": {
+        "priority_tiers": ["MEDIUM"],
+        "minimum_priority_score": 55,
+        "recommended_channel_classes": ["COMMAND_CENTER"],
+        "cooldown_hours": 72
+      }
+    },
+    "deduplication": {
+      "alert_key_fields": ["shopId", "issueId", "triggerEventId", "severity"],
+      "delivery_dedupe_fields": ["alertKey", "channelClass"],
+      "one_intent_per_alert_key": true,
+      "delivered_event_suppresses_same_alert_key_channel": true,
+      "only_delivered_events_start_cooldown": true,
+      "cooldown_scope": ["shopId", "issueId", "channelClass"],
+      "reopen_bypasses_previous_epoch_cooldown": true
+    },
+    "delivery": {
+      "enabled": false,
+      "automatic_delivery_enabled": false,
+      "provider_binding_enabled": false,
+      "command_center_is_presentation_only": true
+    },
+    "automatic_issue_promotion_enabled": false,
+    "automatic_issue_transition_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false,
+    "production_activation_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "automatic_delivery_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false
+  }
+}

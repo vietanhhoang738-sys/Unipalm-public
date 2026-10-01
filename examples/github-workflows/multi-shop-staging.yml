@@ -1,0 +1,524 @@
+name: Multi-Shop Core CI & Staging QA
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - "automation/modules/**"
+      - "automation/multi_shop_staging_runner.py"
+      - "automation/multi_shop_processed_runner.py"
+      - "automation/multi_shop_drive_writer.py"
+      - "automation/multi_shop_semantic_runner.py"
+      - "automation/multi_shop_semantic_drive_writer.py"
+      - "automation/multi_shop_payload_runner.py"
+      - "automation/multi_shop_native_v2_runner.py"
+      - "automation/multi_shop_history_runner.py"
+      - "automation/multi_shop_product_intelligence_runner.py"
+      - "automation/multi_shop_ads_intelligence_runner.py"
+      - "automation/multi_shop_ads_action_authorization_runner.py"
+      - "automation/ads_action_authorization_command.py"
+      - "automation/multi_shop_product_history_backfill_runner.py"
+      - "automation/multi_shop_context_runner.py"
+      - "automation/command_center_v2_template.html"
+      - "automation/validate_ui_v2_template.py"
+      - "automation/source_processor.py"
+      - "automation/run_pipeline.py"
+      - "automation/backfill_product_ads.py"
+      - "automation/tests/**"
+      - "automation/requirements.txt"
+      - "config/shop_registry.json"
+      - "config/source_schema_registry.json"
+      - "config/processed_layer_contract.json"
+      - "config/storage_registry.json"
+      - "config/semantic_mart_contract.json"
+      - "config/ui_payload_contract.json"
+      - "config/ui_v2_presentation_contract.json"
+      - "config/destination_scope_contract.json"
+      - "config/product_intelligence_contract.json"
+      - "config/ads_intelligence_contract.json"
+      - "config/ads_action_authorization_contract.json"
+      - "config/product_history_backfill_contract.json"
+      - "config/historical_intelligence_contract.json"
+      - "config/business_context_contract.json"
+      - "config/business_context_calendar.json"
+      - "config/staging_request.json"
+      - "ops/ads_action_authorization_events.json"
+      - ".github/workflows/multi-shop-staging.yml"
+  workflow_dispatch:
+    inputs:
+      shop_key:
+        description: "Registry shop key, or all"
+        required: true
+        default: "all"
+        type: string
+      month:
+        description: "Target month YYYY-MM"
+        required: true
+        default: "2026-09"
+        type: string
+      mode:
+        description: "normal or product_history_backfill"
+        required: true
+        default: "normal"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+      - name: Compile multi-shop runtime
+        run: |
+          python -m py_compile automation/modules/shop_registry.py
+          python -m py_compile automation/modules/catalog_resolver.py
+          python -m py_compile automation/modules/ads_product_mart.py
+          python -m py_compile automation/modules/ads_intelligence.py
+          python -m py_compile automation/modules/ads_action_authorization.py
+          python -m py_compile automation/modules/multi_shop_staging.py
+          python -m py_compile automation/modules/pipeline_state.py
+          python -m py_compile automation/modules/processed_layer.py
+          python -m py_compile automation/modules/drive_partition_writer.py
+          python -m py_compile automation/modules/drive_auth.py
+          python -m py_compile automation/modules/semantic_mart.py
+          python -m py_compile automation/modules/semantic_drive_writer.py
+          python -m py_compile automation/modules/semantic_payload.py
+          python -m py_compile automation/modules/semantic_product_payload.py
+          python -m py_compile automation/modules/semantic_ads_payload.py
+          python -m py_compile automation/modules/product_ranking.py
+          python -m py_compile automation/modules/product_history_semantic.py
+          python -m py_compile automation/modules/product_history_drive_writer.py
+          python -m py_compile automation/modules/product_intelligence.py
+          python -m py_compile automation/modules/ui_v2_compat.py
+          python -m py_compile automation/modules/ui_v2_native.py
+          python -m py_compile automation/modules/ui_v2_native_review.py
+          python -m py_compile automation/modules/ui_v2_operator_copy_review.py
+          python -m py_compile automation/modules/ui_v2_product_destination.py
+          python -m py_compile automation/modules/ui_v2_product_compact_signals.py
+          python -m py_compile automation/modules/ui_v2_product_short_names.py
+          python -m py_compile automation/modules/ui_v2_ads_destination.py
+          python -m py_compile automation/modules/historical_intelligence.py
+          python -m py_compile automation/modules/business_context_calendar.py
+          python -m py_compile automation/modules/schema_registry.py
+          python -m py_compile automation/multi_shop_staging_runner.py
+          python -m py_compile automation/multi_shop_processed_runner.py
+          python -m py_compile automation/multi_shop_drive_writer.py
+          python -m py_compile automation/multi_shop_semantic_runner.py
+          python -m py_compile automation/multi_shop_semantic_drive_writer.py
+          python -m py_compile automation/multi_shop_payload_runner.py
+          python -m py_compile automation/multi_shop_native_v2_runner.py
+          python -m py_compile automation/multi_shop_history_runner.py
+          python -m py_compile automation/multi_shop_product_intelligence_runner.py
+          python -m py_compile automation/multi_shop_ads_intelligence_runner.py
+          python -m py_compile automation/multi_shop_ads_action_authorization_runner.py
+          python -m py_compile automation/ads_action_authorization_command.py
+          python -m py_compile automation/multi_shop_product_history_backfill_runner.py
+          python -m py_compile automation/multi_shop_context_runner.py
+          python -m py_compile automation/bootstrap_drive_oauth.py
+          python -m py_compile automation/source_processor.py
+          python -m py_compile automation/run_pipeline.py
+      - name: Validate production V2 template foundation
+        run: python automation/validate_ui_v2_template.py
+      - name: Run repository unit tests
+        working-directory: automation
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+  staging:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[staging]'))
+    needs: core-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      GOOGLE_DRIVE_OAUTH_JSON: ${{ secrets.GOOGLE_DRIVE_OAUTH_JSON }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+      - name: Resolve staging request
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SHOP_KEY="${{ inputs.shop_key }}"
+            MONTH="${{ inputs.month }}"
+            MODE="${{ inputs.mode }}"
+          else
+            SHOP_KEY="$(python -c 'import json; print(json.load(open("config/staging_request.json"))["shop_key"])')"
+            MONTH="$(python -c 'import json; print(json.load(open("config/staging_request.json"))["month"])')"
+            MODE="$(python -c 'import json; d=json.load(open("config/staging_request.json")); print(d.get("mode") or ("product_history_backfill" if str(d.get("validation_revision","")).startswith("product-history-backfill") else "normal"))')"
+          fi
+          if [ "$MODE" != "normal" ] && [ "$MODE" != "product_history_backfill" ]; then
+            echo "Unsupported STAGING_MODE=$MODE" >&2
+            exit 2
+          fi
+          if [ "$MODE" = "product_history_backfill" ] && [ "$SHOP_KEY" = "all" ]; then
+            echo "Product history backfill requires one explicit shop_key" >&2
+            exit 2
+          fi
+          echo "STAGING_SHOP_KEY=$SHOP_KEY" >> "$GITHUB_ENV"
+          echo "STAGING_MONTH=$MONTH" >> "$GITHUB_ENV"
+          echo "STAGING_MODE=$MODE" >> "$GITHUB_ENV"
+          echo "Resolved staging request: mode=$MODE shop_key=$SHOP_KEY month=$MONTH"
+
+      - name: Run read-only ingestion and staging QA
+        id: stage
+        continue-on-error: true
+        shell: bash
+        run: |
+          ARGS=(
+            --month "$STAGING_MONTH"
+            --registry config/shop_registry.json
+            --output-dir staging_artifacts
+          )
+          if [ "$STAGING_SHOP_KEY" != "all" ]; then
+            ARGS+=(--shop-key "$STAGING_SHOP_KEY")
+          fi
+          python automation/multi_shop_staging_runner.py "${ARGS[@]}"
+
+      - name: Upload per-shop staging evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-staging-${{ env.STAGING_SHOP_KEY }}-${{ env.STAGING_MONTH }}
+          path: staging_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Build and publish Product history semantic backfill
+        if: always() && env.STAGING_MODE == 'product_history_backfill' && env.STAGING_SHOP_KEY != 'all'
+        id: product_history_backfill
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_product_history_backfill_runner.py \
+            --month "$STAGING_MONTH" \
+            --shop-key "$STAGING_SHOP_KEY" \
+            --registry config/shop_registry.json \
+            --staging-dir staging_artifacts \
+            --output-dir product_history_artifacts \
+            --contract config/product_history_backfill_contract.json \
+            --storage-registry config/storage_registry.json \
+            --run-id "${{ github.run_id }}-${{ github.run_attempt }}"
+
+      - name: Upload Product history semantic evidence
+        if: always() && env.STAGING_MODE == 'product_history_backfill'
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-history-${{ env.STAGING_SHOP_KEY }}-${{ env.STAGING_MONTH }}
+          path: product_history_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Build shop-scoped processed/control candidate
+        if: env.STAGING_MODE == 'normal' && steps.stage.outcome == 'success'
+        id: processed
+        continue-on-error: true
+        shell: bash
+        run: |
+          ARGS=(
+            --month "$STAGING_MONTH"
+            --staging-dir staging_artifacts
+            --output-dir processed_artifacts
+            --contract config/processed_layer_contract.json
+            --run-id "${{ github.run_id }}"
+            --pipeline-version "processed-layer-v1"
+          )
+          if [ "$STAGING_SHOP_KEY" != "all" ]; then
+            ARGS+=(--shop-key "$STAGING_SHOP_KEY")
+          fi
+          python automation/multi_shop_processed_runner.py "${ARGS[@]}"
+
+      - name: Publish processed v2 partitions to pre-production Drive
+        if: env.STAGING_MODE == 'normal' && steps.stage.outcome == 'success' && steps.processed.outcome == 'success'
+        id: drive_writer
+        continue-on-error: true
+        shell: bash
+        run: |
+          ARGS=(
+            --month "$STAGING_MONTH"
+            --processed-dir processed_artifacts
+            --storage-registry config/storage_registry.json
+            --run-id "${{ github.run_id }}"
+          )
+          if [ "$STAGING_SHOP_KEY" != "all" ]; then
+            ARGS+=(--shop-key "$STAGING_SHOP_KEY")
+          fi
+          python automation/multi_shop_drive_writer.py "${ARGS[@]}"
+
+      - name: Build multi-shop semantic mart candidate
+        if: env.STAGING_MODE == 'normal' && steps.stage.outcome == 'success' && steps.processed.outcome == 'success' && steps.drive_writer.outcome == 'success'
+        id: semantic
+        continue-on-error: true
+        shell: bash
+        run: |
+          ARGS=(
+            --month "$STAGING_MONTH"
+            --processed-dir processed_artifacts
+            --output-dir semantic_artifacts
+            --registry config/shop_registry.json
+            --contract config/semantic_mart_contract.json
+          )
+          if [ "$STAGING_SHOP_KEY" != "all" ]; then
+            ARGS+=(--shop-key "$STAGING_SHOP_KEY")
+          fi
+          python automation/multi_shop_semantic_runner.py "${ARGS[@]}"
+
+      - name: Publish semantic v2 portfolio to pre-production Drive
+        if: env.STAGING_MODE == 'normal' && steps.semantic.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: semantic_drive_writer
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_semantic_drive_writer.py \
+            --month "$STAGING_MONTH" \
+            --semantic-dir semantic_artifacts \
+            --storage-registry config/storage_registry.json \
+            --shop-registry config/shop_registry.json \
+            --run-id "${{ github.run_id }}"
+
+      - name: Build explicit-source business context calendar
+        if: env.STAGING_MODE == 'normal' && steps.semantic_drive_writer.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: context
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_context_runner.py \
+            --month "$STAGING_MONTH" \
+            --contract config/business_context_contract.json \
+            --calendar config/business_context_calendar.json \
+            --output-dir context_artifacts
+
+      - name: Find latest prior shadow-state artifact
+        if: env.STAGING_MODE == 'normal' && steps.context.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: previous_shadow
+        uses: actions/github-script@v7
+        env:
+          SHADOW_ARTIFACT_NAME: multi-shop-history-${{ env.STAGING_MONTH }}
+        with:
+          script: |
+            const current = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: current.data.workflow_id,
+              branch: context.ref.replace('refs/heads/', ''),
+              status: 'completed',
+              per_page: 20,
+            });
+            for (const run of runs.data.workflow_runs) {
+              if (run.id === context.runId || run.conclusion !== 'success') continue;
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+                per_page: 100,
+              });
+              const match = artifacts.data.artifacts.find(
+                artifact => artifact.name === process.env.SHADOW_ARTIFACT_NAME && !artifact.expired
+              );
+              if (match) {
+                core.setOutput('run_id', String(run.id));
+                return;
+              }
+            }
+            core.setOutput('run_id', '');
+
+      - name: Download latest prior shadow-state artifact
+        if: env.STAGING_MODE == 'normal' && steps.previous_shadow.outputs.run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-history-${{ env.STAGING_MONTH }}
+          path: previous_history_artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.previous_shadow.outputs.run_id }}
+
+      - name: Build historical intelligence foundation
+        if: env.STAGING_MODE == 'normal' && steps.semantic_drive_writer.outcome == 'success' && steps.context.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: history
+        continue-on-error: true
+        shell: bash
+        run: |
+          previous_args=()
+          previous_state="previous_history_artifact/$STAGING_MONTH/shadow_mode_state.json"
+          if [[ -f "$previous_state" ]]; then
+            previous_args+=(--previous-shadow-state "$previous_state")
+          fi
+          python automation/multi_shop_history_runner.py \
+            --month "$STAGING_MONTH" \
+            --registry config/shop_registry.json \
+            --storage-registry config/storage_registry.json \
+            --contract config/historical_intelligence_contract.json \
+            --context-dir "context_artifacts/$STAGING_MONTH" \
+            --output-dir history_artifacts \
+            --refresh-id "${{ github.run_id }}-${{ github.run_attempt }}" \
+            "${previous_args[@]}"
+
+      - name: Build Product Intelligence foundation
+        if: env.STAGING_MODE == 'normal' && steps.semantic_drive_writer.outcome == 'success' && steps.history.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: product_intelligence
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_product_intelligence_runner.py \
+            --month "$STAGING_MONTH" \
+            --registry config/shop_registry.json \
+            --storage-registry config/storage_registry.json \
+            --contract config/product_intelligence_contract.json \
+            --output-dir product_intelligence_artifacts
+
+      - name: Build Ads Intelligence foundation
+        if: env.STAGING_MODE == 'normal' && steps.semantic_drive_writer.outcome == 'success' && steps.history.outcome == 'success' && steps.product_intelligence.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: ads_intelligence
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_ads_intelligence_runner.py \
+            --month "$STAGING_MONTH" \
+            --registry config/shop_registry.json \
+            --storage-registry config/storage_registry.json \
+            --contract config/ads_intelligence_contract.json \
+            --output-dir ads_intelligence_artifacts
+
+      - name: Build Recommendation / Action Authorization sidecar
+        if: env.STAGING_MODE == 'normal' && steps.ads_intelligence.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: action_authorization
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_ads_action_authorization_runner.py \
+            --month "$STAGING_MONTH" \
+            --ads-intelligence-dir ads_intelligence_artifacts \
+            --contract config/ads_action_authorization_contract.json \
+            --authorization-events ops/ads_action_authorization_events.json
+
+      - name: Build pre-production multi-shop UI payload
+        if: env.STAGING_MODE == 'normal' && steps.semantic_drive_writer.outcome == 'success' && steps.history.outcome == 'success' && steps.product_intelligence.outcome == 'success' && steps.ads_intelligence.outcome == 'success' && steps.action_authorization.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: payload
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_payload_runner.py \
+            --month "$STAGING_MONTH" \
+            --semantic-dir semantic_artifacts \
+            --history-dir "history_artifacts/$STAGING_MONTH" \
+            --product-intelligence-dir "product_intelligence_artifacts/$STAGING_MONTH" \
+            --ads-intelligence-dir "ads_intelligence_artifacts/$STAGING_MONTH" \
+            --output-dir payload_artifacts \
+            --contract config/ui_payload_contract.json
+
+      - name: Build native V2 multi-shop pre-production template
+        if: env.STAGING_MODE == 'normal' && steps.payload.outcome == 'success' && env.STAGING_SHOP_KEY == 'all'
+        id: native_v2
+        continue-on-error: true
+        shell: bash
+        run: |
+          python automation/multi_shop_native_v2_runner.py \
+            --month "$STAGING_MONTH" \
+            --payload-dir payload_artifacts \
+            --output-dir native_v2_artifacts \
+            --v2-template automation/command_center_v2_template.html
+
+      - name: Upload processed/control candidate evidence
+        if: env.STAGING_MODE == 'normal' && steps.stage.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-processed-${{ env.STAGING_SHOP_KEY }}-${{ env.STAGING_MONTH }}
+          path: processed_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload semantic mart candidate evidence
+        if: env.STAGING_MODE == 'normal' && steps.semantic.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-semantic-${{ env.STAGING_SHOP_KEY }}-${{ env.STAGING_MONTH }}
+          path: semantic_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload business context calendar evidence
+        if: env.STAGING_MODE == 'normal' && steps.context.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-business-context-${{ env.STAGING_MONTH }}
+          path: context_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload historical intelligence evidence
+        if: env.STAGING_MODE == 'normal' && steps.history.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-history-${{ env.STAGING_MONTH }}
+          path: history_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Product Intelligence evidence
+        if: env.STAGING_MODE == 'normal' && steps.product_intelligence.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-product-intelligence-${{ env.STAGING_MONTH }}
+          path: product_intelligence_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Ads Intelligence evidence
+        if: env.STAGING_MODE == 'normal' && steps.ads_intelligence.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-ads-intelligence-${{ env.STAGING_MONTH }}
+          path: ads_intelligence_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload multi-shop UI payload evidence
+        if: env.STAGING_MODE == 'normal' && steps.payload.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-ui-payload-${{ env.STAGING_MONTH }}
+          path: payload_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload native V2 multi-shop pre-production template
+        if: env.STAGING_MODE == 'normal' && steps.native_v2.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-shop-ui-native-v2-${{ env.STAGING_MONTH }}
+          path: native_v2_artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Enforce Product history backfill gates
+        if: always() && env.STAGING_MODE == 'product_history_backfill' && steps.product_history_backfill.outcome != 'success'
+        run: |
+          echo "Product-domain historical Semantic backfill did not PASS."
+          echo "Full-shop Processed/Semantic and production remain untouched."
+          exit 1
+
+      - name: Enforce normal pre-production gates
+        if: env.STAGING_MODE == 'normal' && (steps.stage.outcome != 'success' || steps.processed.outcome != 'success' || steps.drive_writer.outcome != 'success' || steps.semantic.outcome != 'success' || (env.STAGING_SHOP_KEY == 'all' && (steps.semantic_drive_writer.outcome != 'success' || steps.context.outcome != 'success' || steps.history.outcome != 'success' || steps.product_intelligence.outcome != 'success' || steps.ads_intelligence.outcome != 'success' || steps.action_authorization.outcome != 'success' || steps.payload.outcome != 'success' || steps.native_v2.outcome != 'success')))
+        run: |
+          echo "Staging, processed/control, Drive publish, semantic QA/persistence, business context, historical foundation, Product Intelligence, Ads Intelligence, Action Authorization, UI payload QA, or native V2 QA did not PASS."
+          echo "Production Data Mart/UI promotion remains blocked."
+          exit 1

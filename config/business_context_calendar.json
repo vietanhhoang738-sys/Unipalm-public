@@ -1,0 +1,485 @@
+{
+  "version": "2026.09.25",
+  "market": "VN",
+  "checked_at": "2026-09-25",
+  "source_hierarchy": [
+    "A1_PLATFORM_SELLER_OFFICIAL",
+    "A2_PLATFORM_CONSUMER_OFFICIAL",
+    "B1_GOVERNMENT_OFFICIAL",
+    "C1_INDUSTRY_ANALYTICS"
+  ],
+  "notes": [
+    "Platform-official sources decide exact campaign dates.",
+    "Metric/industry analytics may qualify market seasonality but may not manufacture exact campaign windows.",
+    "Image-only campaign calendars are source references until dates are independently readable/verified.",
+    "Search-result snippets are research leads only and are not stored as canonical evidence."
+  ],
+  "sources": [
+    {
+      "source_id": "shopee_77_landing_2026",
+      "source_tier": "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "publisher": "Shopee Việt Nam",
+      "platform": "shopee",
+      "title": "7.7 Siêu Sale Đón Hè",
+      "url": "https://shopee.vn/m/77-sieu-sale-don-he",
+      "published_at": "",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official Shopee landing page states the 7.7 campaign runs from 26/06/2026 through 09/07/2026."
+    },
+    {
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "source_tier": "A1_PLATFORM_SELLER_OFFICIAL",
+      "publisher": "Dịch vụ Hiển thị Shopee Việt Nam",
+      "platform": "shopee",
+      "title": "Tính năng Tối Ưu Giá thầu Ngày Sale",
+      "url": "https://ads.shopee.vn/news/557",
+      "published_at": "",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official seller-facing Shopee Ads page lists August 2026 Super Sale windows: 8.8 from 05-08/08, 15.8 on 15/08, and 25.8 from 24-25/08."
+    },
+    {
+      "source_id": "shopee_99_landing_2026",
+      "source_tier": "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "publisher": "Shopee Việt Nam",
+      "platform": "shopee",
+      "title": "9.9 Ngày Siêu Mua Sắm",
+      "url": "https://shopee.vn/m/ngay-hoi-voucher",
+      "published_at": "",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official Shopee campaign landing page states 9.9 Ngày Siêu Mua Sắm runs from 26/08/2026 through 11/09/2026."
+    },
+    {
+      "source_id": "shopee_sale_calendar_2026",
+      "source_tier": "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "publisher": "Shopee Blog",
+      "platform": "shopee",
+      "title": "Khi nào Shopee Sale? Lịch sale Shopee hàng tháng cập nhật mới nhất",
+      "url": "https://shopee.vn/blog/?p=59588",
+      "published_at": "2026-06-27",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official Shopee Blog defines recurring double-day, mid-month day 15, and payday/end-month day 25 sale cadence."
+    },
+    {
+      "source_id": "shopee_mid_autumn_2026",
+      "source_tier": "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "publisher": "Shopee Việt Nam",
+      "platform": "shopee",
+      "title": "Siêu Hội Trăng Rằm",
+      "url": "https://shopee.vn/m/ngay-hoi-chinh-hang",
+      "published_at": "",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official Shopee landing content states Siêu Hội Trăng Rằm runs 16/09/2026 through 18/09/2026."
+    },
+    {
+      "source_id": "shopee_259_landing_2026",
+      "source_tier": "A2_PLATFORM_CONSUMER_OFFICIAL",
+      "publisher": "Shopee Việt Nam",
+      "platform": "shopee",
+      "title": "25.9 Sale Cuối Tháng Lương Về",
+      "url": "https://shopee.vn/m/ngay-hoi-mua-sam-gia-dinh",
+      "published_at": "",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official Shopee page identifies 25.9 as Sale Cuối Tháng/Lương Về campaign. Only the peak day is encoded because the accessible page does not state a canonical full date window."
+    },
+    {
+      "source_id": "tiktok_campaign_calendar_2026",
+      "source_tier": "A1_PLATFORM_SELLER_OFFICIAL",
+      "publisher": "TikTok Shop Việt Nam",
+      "platform": "tiktok_shop",
+      "title": "Lịch Chiến Dịch TikTok Shop 2026",
+      "url": "https://seller-vn.tiktok.com/university/essay?knowledge_id=6210902215264001&lang=vi-VN",
+      "published_at": "2026-09-24",
+      "checked_at": "2026-09-25",
+      "machine_readability": "IMAGE_ONLY_FOR_MONTHLY_CALENDAR",
+      "evidence": "Official TikTok Shop Academy page publishes the September 2026 campaign calendar as an image. The image is retained as an authoritative reference, but unread dates are not auto-transcribed."
+    },
+    {
+      "source_id": "tiktok_policy_88_2026",
+      "source_tier": "A1_PLATFORM_SELLER_OFFICIAL",
+      "publisher": "TikTok Shop Việt Nam",
+      "platform": "tiktok_shop",
+      "title": "Latest Policy Updates - 8.8 Campaign Prep",
+      "url": "https://seller-vn.tiktok.com/university/essay?knowledge_id=8831988245645057&lang=vi-VN",
+      "published_at": "2026-07-01",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official policy update explicitly references preparation for the 8.8 campaign. Only the named 8.8 peak day is encoded; no wider window is inferred."
+    },
+    {
+      "source_id": "tiktok_policy_99_2026",
+      "source_tier": "A1_PLATFORM_SELLER_OFFICIAL",
+      "publisher": "TikTok Shop Việt Nam",
+      "platform": "tiktok_shop",
+      "title": "Cập nhật chính sách mới nhất - Chiến dịch 9.9",
+      "url": "https://seller-vn.tiktok.com/university/essay?knowledge_id=4242906912278289&lang=vi-VN",
+      "published_at": "2026-09-17",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official TikTok Shop policy page explicitly references the 9.9 campaign and seller preparation. Only the named 9.9 peak day is encoded; no wider campaign window is inferred."
+    },
+    {
+      "source_id": "tiktok_live_marathon_sep_2026",
+      "source_tier": "A1_PLATFORM_SELLER_OFFICIAL",
+      "publisher": "TikTok Shop Việt Nam",
+      "platform": "tiktok_shop",
+      "title": "LIVESTREAM MARATHON 2026 - Càng LIVE Càng Cháy",
+      "url": "https://seller-vn.tiktok.com/university/essay?knowledge_id=681561863276308&lang=vi-VN",
+      "published_at": "2026-09-14",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official TikTok Shop page states the LIVE Marathon runs for 11 days from 17/09/2026 through 27/09/2026."
+    },
+    {
+      "source_id": "gov_national_day_2026",
+      "source_tier": "B1_GOVERNMENT_OFFICIAL",
+      "publisher": "Báo Điện tử Chính phủ / Bộ Nội vụ",
+      "platform": "market",
+      "title": "Lịch nghỉ Quốc khánh năm 2026",
+      "url": "https://baochinhphu.vn/quoc-khanh-2026-cong-chuc-vien-chuc-nghi-5-ngay-lien-tiep-lam-bu-vao-thu-bay-22-8-102260728182643819.htm",
+      "published_at": "2026-07-28",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Official government notice states the public-sector National Day break runs 29/08/2026 through 02/09/2026."
+    },
+    {
+      "source_id": "metric_h1_2026_q3_outlook",
+      "source_tier": "C1_INDUSTRY_ANALYTICS",
+      "publisher": "Metric.vn",
+      "platform": "market",
+      "title": "Báo cáo thương mại điện tử Việt Nam 6 tháng đầu năm 2026",
+      "url": "https://metric.vn/resource/blog/metric-bao-cao-thuong-mai-dien-tu-viet-nam-6-thang-dau-nam-2026",
+      "published_at": "2026-07-29",
+      "checked_at": "2026-09-25",
+      "machine_readability": "TEXT",
+      "evidence": "Metric identifies July summer demand and August-September Back-to-School as Q3 seasonal marketing inflection points. These are market-season context, not exact platform campaign dates."
+    }
+  ],
+  "events": [
+    {
+      "context_id": "shopee_2026_07_77",
+      "label": "Shopee 7.7 Siêu Sale Đón Hè",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MEGA_SALE",
+      "context_family": "DOUBLE_DAY_MEGA_SALE",
+      "start_date": "2026-06-26",
+      "end_date": "2026-07-09",
+      "peak_dates": [
+        "2026-07-07"
+      ],
+      "window_type": "CONSUMER_CAMPAIGN",
+      "source_id": "shopee_77_landing_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "vn_2026_july_summer",
+      "label": "Mùa cao điểm du lịch hè",
+      "platform": "market",
+      "scope_type": "MARKET",
+      "shop_id": "",
+      "context_type": "MARKET_SEASON",
+      "context_family": "SUMMER_SEASON",
+      "start_date": "2026-07-01",
+      "end_date": "2026-07-31",
+      "peak_dates": [],
+      "window_type": "MONTH_LEVEL_MARKET_SEASON",
+      "source_id": "metric_h1_2026_q3_outlook",
+      "verification_status": "VERIFIED_ANALYTICS",
+      "exact_date_verified": false,
+      "matching_eligible": false
+    },
+    {
+      "context_id": "vn_2026_back_to_school",
+      "label": "Mùa tựu trường / Back-to-School",
+      "platform": "market",
+      "scope_type": "MARKET",
+      "shop_id": "",
+      "context_type": "MARKET_SEASON",
+      "context_family": "BACK_TO_SCHOOL",
+      "start_date": "2026-08-01",
+      "end_date": "2026-09-30",
+      "peak_dates": [],
+      "window_type": "MONTH_LEVEL_MARKET_SEASON",
+      "source_id": "metric_h1_2026_q3_outlook",
+      "verification_status": "VERIFIED_ANALYTICS",
+      "exact_date_verified": false,
+      "matching_eligible": false
+    },
+    {
+      "context_id": "shopee_2026_08_01",
+      "label": "Shopee 1.8 Sale Mở Màn",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PLATFORM_PROGRAM",
+      "context_family": "MONTH_OPENING",
+      "start_date": "2026-08-01",
+      "end_date": "2026-08-01",
+      "peak_dates": [
+        "2026-08-01"
+      ],
+      "window_type": "PEAK_DAY",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_08_88",
+      "label": "Shopee 8.8 Siêu Sale",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MEGA_SALE",
+      "context_family": "DOUBLE_DAY_MEGA_SALE",
+      "start_date": "2026-08-05",
+      "end_date": "2026-08-08",
+      "peak_dates": [
+        "2026-08-08"
+      ],
+      "window_type": "SELLER_ADS_SUPER_SALE",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "tiktok_2026_08_88_peak",
+      "label": "TikTok Shop 8.8 Campaign",
+      "platform": "tiktok_shop",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MEGA_SALE",
+      "context_family": "DOUBLE_DAY_MEGA_SALE",
+      "start_date": "2026-08-08",
+      "end_date": "2026-08-08",
+      "peak_dates": [
+        "2026-08-08"
+      ],
+      "window_type": "PEAK_DAY_ONLY",
+      "source_id": "tiktok_policy_88_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_08_member_09_10",
+      "label": "Shopee Ngày Hội Thành Viên",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PLATFORM_PROGRAM",
+      "context_family": "MEMBER_DAY",
+      "start_date": "2026-08-09",
+      "end_date": "2026-08-10",
+      "peak_dates": [],
+      "window_type": "SELLER_ADS_SUPER_SALE",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_08_15",
+      "label": "Shopee 15.8 Sale Giữa Tháng",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MID_MONTH_SALE",
+      "context_family": "MID_MONTH",
+      "start_date": "2026-08-15",
+      "end_date": "2026-08-15",
+      "peak_dates": [
+        "2026-08-15"
+      ],
+      "window_type": "PEAK_DAY",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_08_member_20",
+      "label": "Shopee Ngày Hội Thành Viên",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PLATFORM_PROGRAM",
+      "context_family": "MEMBER_DAY",
+      "start_date": "2026-08-20",
+      "end_date": "2026-08-20",
+      "peak_dates": [
+        "2026-08-20"
+      ],
+      "window_type": "PEAK_DAY",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_08_25",
+      "label": "Shopee 25.8 Lương Về Sale To",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PAYDAY_SALE",
+      "context_family": "PAYDAY",
+      "start_date": "2026-08-24",
+      "end_date": "2026-08-25",
+      "peak_dates": [
+        "2026-08-25"
+      ],
+      "window_type": "SELLER_ADS_SUPER_SALE",
+      "source_id": "shopee_ads_sale_days_aug_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_09_99",
+      "label": "Shopee 9.9 Ngày Siêu Mua Sắm",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MEGA_SALE",
+      "context_family": "DOUBLE_DAY_MEGA_SALE",
+      "start_date": "2026-08-26",
+      "end_date": "2026-09-11",
+      "peak_dates": [
+        "2026-09-09"
+      ],
+      "window_type": "CONSUMER_CAMPAIGN",
+      "source_id": "shopee_99_landing_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "vn_2026_national_day_break",
+      "label": "Nghỉ lễ Quốc khánh 2026",
+      "platform": "market",
+      "scope_type": "MARKET",
+      "shop_id": "",
+      "context_type": "HOLIDAY",
+      "context_family": "PUBLIC_HOLIDAY",
+      "start_date": "2026-08-29",
+      "end_date": "2026-09-02",
+      "peak_dates": [
+        "2026-09-02"
+      ],
+      "window_type": "PUBLIC_HOLIDAY_WINDOW",
+      "source_id": "gov_national_day_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "tiktok_2026_09_99_peak",
+      "label": "TikTok Shop 9.9 Campaign",
+      "platform": "tiktok_shop",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MEGA_SALE",
+      "context_family": "DOUBLE_DAY_MEGA_SALE",
+      "start_date": "2026-09-09",
+      "end_date": "2026-09-09",
+      "peak_dates": [
+        "2026-09-09"
+      ],
+      "window_type": "PEAK_DAY_ONLY",
+      "source_id": "tiktok_policy_99_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_09_15",
+      "label": "Shopee 15.9 Sale Giữa Tháng",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "MID_MONTH_SALE",
+      "context_family": "MID_MONTH",
+      "start_date": "2026-09-15",
+      "end_date": "2026-09-15",
+      "peak_dates": [
+        "2026-09-15"
+      ],
+      "window_type": "PEAK_DAY",
+      "source_id": "shopee_sale_calendar_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_09_mid_autumn",
+      "label": "Shopee Siêu Hội Trăng Rằm",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PLATFORM_PROGRAM",
+      "context_family": "FESTIVAL_CAMPAIGN",
+      "start_date": "2026-09-16",
+      "end_date": "2026-09-18",
+      "peak_dates": [],
+      "window_type": "CONSUMER_CAMPAIGN",
+      "source_id": "shopee_mid_autumn_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "tiktok_2026_09_live_marathon",
+      "label": "TikTok Shop LIVE Marathon - Càng LIVE Càng Cháy",
+      "platform": "tiktok_shop",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PLATFORM_PROGRAM",
+      "context_family": "LIVE_COMMERCE_PROGRAM",
+      "start_date": "2026-09-17",
+      "end_date": "2026-09-27",
+      "peak_dates": [],
+      "window_type": "SELLER_PROGRAM",
+      "source_id": "tiktok_live_marathon_sep_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    },
+    {
+      "context_id": "shopee_2026_09_25",
+      "label": "Shopee 25.9 Lương Về Sale To",
+      "platform": "shopee",
+      "scope_type": "PLATFORM",
+      "shop_id": "",
+      "context_type": "PAYDAY_SALE",
+      "context_family": "PAYDAY",
+      "start_date": "2026-09-25",
+      "end_date": "2026-09-25",
+      "peak_dates": [
+        "2026-09-25"
+      ],
+      "window_type": "PEAK_DAY",
+      "source_id": "shopee_259_landing_2026",
+      "verification_status": "VERIFIED_OFFICIAL",
+      "exact_date_verified": true,
+      "matching_eligible": true
+    }
+  ],
+  "reference_only": [
+    {
+      "source_id": "tiktok_campaign_calendar_2026",
+      "period": "2026-09",
+      "reason": "Official monthly campaign calendar is image-only in the accessible source. Retained as authoritative reference; no unread dates are auto-transcribed."
+    }
+  ]
+}

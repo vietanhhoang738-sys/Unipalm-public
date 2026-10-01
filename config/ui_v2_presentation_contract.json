@@ -1,0 +1,181 @@
+{
+  "version": "1.7",
+  "status": "UI_V2_HARD_CONTRACT",
+  "typography": {
+    "primary_font": "Inter",
+    "native_extension_must_inherit_v2_typography": true,
+    "native_extension_must_not_define_font_family": true,
+    "operator_readability": {
+      "principle": "Typography must optimize scan speed and hierarchy before decoration.",
+      "tabular_numerals_for_metrics": true,
+      "hero_metric_px_range": [28, 32],
+      "intelligence_headline_px_range": [22, 26],
+      "supporting_text_min_px": 10,
+      "preferred_supporting_text_px_range": [10.5, 12.5],
+      "long_operator_copy_should_be_structured_not_paragraph_heavy": true
+    }
+  },
+  "language_system": {
+    "principle": "Vietnamese-first operator language with established e-commerce jargon retained where natural.",
+    "reference_style": ["Metric", "Bộ Công Thương / iDEA"],
+    "allowed_industry_terms": ["GMV", "AOV", "CVR", "ROAS", "SKU", "LTV", "Ads", "CTR", "MTD"],
+    "forbidden_visible_phrases": [
+      "Performance summary", "Revenue quality", "Cost structure", "Ads performance",
+      "Traffic & conversion mix", "Ads product / SKU concentration", "Product portfolio · Business MTD",
+      "Business comparison", "Right vs Left", "aligned window", "aligned", "source files", "operating view",
+      "winner tổng thể", "Shop-local identity", "cross-shop", "<th>Metric</th>", "Chi phí platform",
+      "Tỷ lệ hủy theo sales", "So sánh cùng cửa sổ dữ liệu", "Product Clicks", "Business Pulse",
+      "Driver lớn nhất", "historical baseline", "factual", "full ngày", "decomposition driver",
+      "Shapley decomposition", "campaign chính thức", "rule hiện tại", "Portfolio bắt đầu",
+      "Supporting signal", "Ads Spend", "Data healthy", "Core data healthy", "Giá trị đơn hàng trung bình",
+      "Tín hiệu hỗ trợ", "freshness + DQ threshold", "Loaded đến", "DQ: core blocking", "Coverage:",
+      "triệu đồng", "tỷ đồng", "nghìn đồng"
+    ],
+    "preferred_labels": {
+      "performance_summary": "Tổng quan so sánh",
+      "revenue_quality": "Chất lượng doanh thu",
+      "cost_structure": "Cơ cấu chi phí",
+      "ads_performance": "Hiệu quả quảng cáo",
+      "traffic_mix": "Nguồn truy cập & chuyển đổi",
+      "ads_product": "Hiệu quả quảng cáo theo sản phẩm",
+      "product_mix": "Cơ cấu doanh số sản phẩm · Tháng này",
+      "aligned_period": "cùng kỳ dữ liệu",
+      "metric_header": "Chỉ số",
+      "platform_cost": "Chi phí nền tảng",
+      "cancel_sales_ratio": "Tỷ lệ doanh thu hủy",
+      "product_clicks": "Lượt nhấp sản phẩm",
+      "business_pulse": "Diễn biến kinh doanh",
+      "driver": "Yếu tố tác động",
+      "recommended_check": "Nên kiểm tra",
+      "comparison_basis": "Cơ sở so sánh",
+      "aov": "AOV",
+      "supporting_signal": "Cơ sở phân tích",
+      "ads_spend": "Chi tiêu Ads",
+      "data_health": "Dữ liệu đạt chuẩn",
+      "operating_summary": "Tóm tắt vận hành",
+      "attention": "Cần chú ý",
+      "primary_metrics": "Chỉ số chính",
+      "product_summary": "Tóm tắt sản phẩm",
+      "portfolio_structure": "Cơ cấu danh mục",
+      "product_funnel": "Hiệu quả funnel sản phẩm",
+      "product_table": "Chi tiết sản phẩm"
+    },
+    "currency_format": {
+      "locale": "vi-VN",
+      "full_example": "2.100.000 đ",
+      "compact_example": "4,1tr đ",
+      "grouping_separator": ".",
+      "currency_suffix": " đ",
+      "show_full_amount": true,
+      "full_amount_contexts": ["command_center_primary_period_cards", "shop_compare_primary_period_cards"],
+      "compact_amount_contexts": [
+        "business_pulse_copy", "driver_decomposition", "secondary_kpi_cards", "comparison_tables",
+        "product_lists", "legacy_dense_surfaces", "intelligence_first_summary", "product_intelligence_summary"
+      ],
+      "compact_units_allowed": true,
+      "compact_units": ["tr đ", "tỷ đ"],
+      "currency_symbol_allowed": false,
+      "word_units_allowed": false
+    }
+  },
+  "product_naming_system": {
+    "primary_field": "productName",
+    "primary_rule": "Commercial product name is always the visible primary label.",
+    "secondary_fields": ["resolvedParentSku", "productSkuObserved"],
+    "technical_only_fields": ["productId", "variationId"],
+    "missing_name_label": "Chưa xác định tên sản phẩm",
+    "sku_may_never_replace_existing_product_name": true,
+    "product_id_may_never_be_primary_label": true,
+    "cross_shop_product_merge": false
+  },
+  "destination_scope_doctrine": {
+    "principle": "Command Center may orchestrate shops; domain destinations are single-shop diagnostic workspaces and their global time scope is constrained by canonical source grain.",
+    "domain_destination_single_shop_only": true,
+    "domain_destination_compare_forbidden": true,
+    "time_scope_must_follow_canonical_source_grain": true,
+    "synthetic_finer_grain_derivation_forbidden": true,
+    "daily_grain_allowed_scopes": ["day", "week", "month", "year"],
+    "monthly_grain_allowed_scopes": ["oneMonth", "threeMonths", "sixMonths", "year"],
+    "customer_lifetime_first": true,
+    "customer_global_time_selector": false,
+    "canonical_contract": "config/destination_scope_contract.json"
+  },
+  "design_language": {
+    "principle": "One shared V2 design language across destinations; information architecture may differ by destination.",
+    "shared_foundation": [
+      "Inter typography", "V2 color tokens", "V2 spacing rhythm", "V2 radius and shadow system",
+      "V2 dark mode", "V2 sidebar/navigation grammar", "V2 card and hierarchy grammar"
+    ],
+    "destinations": {
+      "command_center": {
+        "purpose": "Fast monitoring of Portfolio or one Shop",
+        "scopes": ["portfolio", "shop"],
+        "shared_v2_renderer": true,
+        "intelligence_first": {
+          "principle": "Interpretation precedes metric inspection: what is happening, why, evidence boundary, what needs attention, then detailed numbers.",
+          "priority_order": [
+            "operating_summary", "context_and_evidence_boundary", "driver_attribution",
+            "smart_issue_attention", "human_review_option", "primary_metrics", "deep_analysis"
+          ],
+          "rules": {
+            "intelligence_is_first_class_surface": true,
+            "metric_cards_must_not_be_the_only_interpretation_layer": true,
+            "driver_effects_must_remain_non_causal": true,
+            "smart_issue_must_remain_evidence_gated": true,
+            "review_option_requires_smart_issue": true,
+            "no_action_copy_when_evidence_insufficient": true,
+            "no_platform_mutation_control": true,
+            "paragraph_heavy_driver_explanation": false,
+            "structured_driver_rows_preferred": true
+          }
+        }
+      },
+      "compare": {
+        "purpose": "Deep two-shop business comparison",
+        "scopes": ["compare"],
+        "shared_v2_renderer": false,
+        "must_reuse_v2_visual_primitives": true
+      },
+      "product": {
+        "purpose": "Single-shop product performance diagnosis and Product Intelligence",
+        "scopes": ["shop"],
+        "compare_allowed": false,
+        "shared_v2_renderer": false,
+        "must_reuse_v2_visual_primitives": true,
+        "canonical_source_grain": "MONTHLY",
+        "time_scopes": ["oneMonth", "threeMonths", "sixMonths", "year"],
+        "day_week_scope_allowed": false,
+        "information_priority": [
+          "product_intelligence_summary", "attention_and_history_state", "portfolio_structure",
+          "product_funnel", "ads_support", "product_detail_table"
+        ],
+        "rules": {
+          "intelligence_first": true,
+          "unavailable_horizon_must_be_disabled": true,
+          "partial_history_must_not_masquerade_as_complete": true,
+          "supporting_daily_ads_may_not_create_daily_product_scope": true,
+          "product_name_is_primary_label": true,
+          "cross_shop_merge_forbidden": true
+        }
+      }
+    },
+    "future_domain_rules": {
+      "ads": {"single_shop_only": true, "canonical_grain": "DAILY", "time_scopes": ["day", "week", "month", "year"]},
+      "traffic": {"single_shop_only": true, "canonical_grain": "DAILY", "time_scopes": ["day", "week", "month", "year"]},
+      "customer": {"single_shop_only": true, "canonical_grain": "LIFETIME", "time_scopes": ["lifetime"], "global_time_selector": false}
+    },
+    "rules": {
+      "custom_destination_font_family": false,
+      "custom_destination_color_palette": false,
+      "destination_specific_information_architecture": true,
+      "production_v2_foundation_read_only": true,
+      "modernization_should_reduce_visual_noise_not_reduce_evidence": true
+    },
+    "allowed_foundation_color_literals": ["#fff", "#b7e0cc", "#ee4d2d", "#d0011b"],
+    "platform_identity_badges": {
+      "preferred": {"label": "Shop Yêu Thích", "accent": "#ee4d2d"},
+      "mall": {"label": "Shopee Mall", "accent": "#d0011b"},
+      "rule": "Platform identity accents are metadata badges only; they must not theme a destination."
+    }
+  }
+}

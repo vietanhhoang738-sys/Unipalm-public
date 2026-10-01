@@ -1,0 +1,8 @@
+{
+  "run_id": "PUBLIC_SNAPSHOT_NOT_RUN",
+  "build_id": "PUBLIC_SNAPSHOT_NOT_RUN",
+  "candidate_reliable_end": "",
+  "qa": "NOT_RUN",
+  "production_url": "https://example.invalid/",
+  "generated_at": null
+}

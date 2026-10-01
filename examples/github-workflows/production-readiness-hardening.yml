@@ -1,0 +1,311 @@
+name: Production Readiness Hardening PREPRODUCTION
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - "automation/modules/production_readiness_hardening.py"
+      - "automation/multi_shop_production_readiness_runner.py"
+      - "automation/tests/test_production_readiness_hardening.py"
+      - "automation/tests/test_legacy_dependency_inventory.py"
+      - "automation/tests/test_ui_artifact.py"
+      - "automation/source_processor.py"
+      - "automation/run_pipeline.py"
+      - "automation/backfill_product_ads.py"
+      - "automation/verify_deploy.py"
+      - "automation/validate_config.py"
+      - "config/production_readiness_hardening_contract.json"
+      - "config/legacy_pipeline_dependencies.json"
+      - ".github/workflows/production-readiness-hardening.yml"
+  workflow_dispatch:
+    inputs:
+      upstream_run_id:
+        description: "Optional successful Multi-Shop staging run ID; blank uses latest compatible successful run"
+        required: false
+        default: ""
+        type: string
+      month:
+        description: "Artifact month YYYY-MM; blank uses current staging request month"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: production-readiness-hardening-preproduction
+  cancel-in-progress: false
+
+jobs:
+  readiness-hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      UNIPALM_STATE_SHEET_ID: "PUBLIC_RESOURCE_LIVE_002"
+      UNIPALM_DATA_MART_SHEET_ID: "PUBLIC_RESOURCE_LIVE_001"
+      UNIPALM_CONTROL_CENTER_SHEET_ID: "PUBLIC_RESOURCE_LIVE_004"
+      UNIPALM_SKU_MASTER_SHEET_ID: "PUBLIC_RESOURCE_LIVE_003"
+      UNIPALM_PRODUCTION_URL: "https://example.invalid/"
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      UNIPALM_DASHBOARD_ACCESS_KEY: ${{ secrets.UNIPALM_DASHBOARD_ACCESS_KEY }}
+      GOOGLE_DRIVE_SOURCE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_SOURCE_FOLDER_ID }}
+    steps:
+      - name: Checkout readiness-control code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r automation/requirements.txt
+
+      - name: Resolve target month
+        id: month
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.month }}" ]; then
+            MONTH="${{ inputs.month }}"
+          else
+            MONTH="$(python -c 'import json; print(json.load(open("ops/staging_request.json"))["month"])')"
+          fi
+          if ! [[ "$MONTH" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+            echo "Invalid readiness month: $MONTH" >&2
+            exit 2
+          fi
+          echo "month=$MONTH" >> "$GITHUB_OUTPUT"
+          echo "READINESS_MONTH=$MONTH" >> "$GITHUB_ENV"
+
+      - name: Resolve compatible successful staging run
+        id: upstream
+        uses: actions/github-script@v7
+        env:
+          REQUESTED_RUN_ID: ${{ inputs.upstream_run_id }}
+          MONTH: ${{ steps.month.outputs.month }}
+        with:
+          script: |
+            const requiredArtifact = `multi-shop-ui-native-v2-${process.env.MONTH}`;
+            const requested = String(process.env.REQUESTED_RUN_ID || '').trim();
+            async function validate(runId) {
+              const run = await github.rest.actions.getWorkflowRun({owner: context.repo.owner, repo: context.repo.repo, run_id: Number(runId)});
+              if (run.data.name !== 'Multi-Shop Core CI & Staging QA') throw new Error(`Unexpected upstream workflow: ${run.data.name}`);
+              if (run.data.status !== 'completed' || run.data.conclusion !== 'success') throw new Error(`Upstream run not successful: ${run.data.status}/${run.data.conclusion}`);
+              if (run.data.head_branch !== 'multi-shop-catalog-resolver') throw new Error(`Unexpected upstream branch: ${run.data.head_branch}`);
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({owner: context.repo.owner, repo: context.repo.repo, run_id: run.data.id, per_page: 100});
+              const match = artifacts.data.artifacts.find(a => a.name === requiredArtifact && !a.expired);
+              if (!match) throw new Error(`Missing required artifact ${requiredArtifact} in run ${run.data.id}`);
+              return run.data;
+            }
+            let selected = null;
+            if (requested) {
+              selected = await validate(requested);
+            } else {
+              const runs = await github.rest.actions.listWorkflowRuns({owner: context.repo.owner, repo: context.repo.repo, workflow_id: 'multi-shop-staging.yml', branch: 'multi-shop-catalog-resolver', status: 'completed', per_page: 30});
+              for (const run of runs.data.workflow_runs) {
+                if (run.conclusion !== 'success') continue;
+                try { selected = await validate(run.id); break; } catch (err) { core.info(String(err)); }
+              }
+            }
+            if (!selected) throw new Error(`No compatible successful staging run found for ${requiredArtifact}`);
+            core.setOutput('run_id', String(selected.id));
+            core.setOutput('head_sha', selected.head_sha);
+            core.info(`Using staging run ${selected.id} @ ${selected.head_sha}`);
+
+      - name: Download validated Native V2 candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ui-native-v2-${{ env.READINESS_MONTH }}
+          path: readiness_inputs/native
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.upstream.outputs.run_id }}
+
+      - name: Capture exact current production repository baseline and rollback worktree
+        id: production_baseline
+        shell: bash
+        run: |
+          mkdir -p readiness_inputs
+          git fetch origin main --depth=1
+          MAIN_SHA="$(git rev-parse origin/main)"
+          echo "main_sha=$MAIN_SHA" >> "$GITHUB_OUTPUT"
+          git show origin/main:index.html > readiness_inputs/current_production_index.html
+          git show origin/main:automation/pipeline_state.json > readiness_inputs/current_pipeline_state.json
+          git worktree add --detach readiness_inputs/legacy_main "$MAIN_SHA"
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p=Path('readiness_inputs/current_production_index.html')
+          state=json.loads(Path('readiness_inputs/current_pipeline_state.json').read_text(encoding='utf-8'))
+          print(json.dumps({'baselineSha256': hashlib.sha256(p.read_bytes()).hexdigest(), 'baselineBytes': p.stat().st_size, 'buildId': state.get('build_id'), 'reliableEnd': state.get('candidate_reliable_end')}, ensure_ascii=False))
+          PY
+
+      - name: Validate production credential configuration
+        id: config_probe
+        continue-on-error: true
+        run: python automation/validate_config.py
+
+      - name: Compile exact retained production rollback runtime
+        id: legacy_compile
+        continue-on-error: true
+        run: |
+          python -m py_compile readiness_inputs/legacy_main/automation/source_processor.py
+          python -m py_compile readiness_inputs/legacy_main/automation/run_pipeline.py
+          python -m py_compile readiness_inputs/legacy_main/automation/backfill_product_ads.py
+          python -m py_compile readiness_inputs/legacy_main/automation/verify_deploy.py
+
+      - name: Run retained rollback inventory and artifact tests
+        id: legacy_tests
+        continue-on-error: true
+        working-directory: automation
+        run: python -m unittest tests.test_legacy_dependency_inventory tests.test_ui_artifact -v
+
+      - name: Probe exact production rollback data path read-only
+        id: legacy_dry_run
+        continue-on-error: true
+        env:
+          DRY_RUN: "true"
+          FORCE_FULL_REBUILD: "false"
+          GITHUB_EVENT_NAME: "workflow_dispatch"
+        working-directory: readiness_inputs/legacy_main
+        run: python automation/source_processor.py --dry-run
+
+      - name: Probe live fixed production URL and exact current build marker
+        id: monitor_probe
+        continue-on-error: true
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          import requests
+          state=json.loads(Path('readiness_inputs/current_pipeline_state.json').read_text(encoding='utf-8'))
+          build=str(state.get('build_id') or '').strip()
+          url=os.environ['UNIPALM_PRODUCTION_URL'].rstrip('/') + '/'
+          needle=f'<meta name="unipalm-build" content="{build}">'
+          rows=[]
+          for i in range(3):
+              try:
+                  r=requests.get(url+f'?readiness_probe={build}-{i}', timeout=20, headers={'Cache-Control':'no-cache','Pragma':'no-cache'})
+                  rows.append({'attempt':i+1,'httpStatus':r.status_code,'ok':bool(r.ok),'marker':needle in r.text})
+              except Exception as exc:
+                  rows.append({'attempt':i+1,'httpStatus':0,'ok':False,'marker':False,'error':str(exc)})
+              time.sleep(1)
+          success=sum(1 for x in rows if x['ok'] and x['marker'])
+          result={'status':'PASS' if success==3 and bool(build) else 'FAIL','buildId':build,'successfulHttpProbes':success,'lastHttpStatus':rows[-1]['httpStatus'] if rows else 0,'exactCurrentBuildMarkerPresent':all(x.get('marker') for x in rows) and bool(rows),'rows':rows}
+          Path('readiness_inputs/monitor_probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False))
+          if result['status']!='PASS': raise SystemExit(2)
+          PY
+
+      - name: Observe server-side production branch protection
+        id: branch_guard
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = await github.rest.repos.getBranch({owner: context.repo.owner, repo: context.repo.repo, branch: 'main'});
+            const protectedBranch = branch.data.protected === true;
+            core.setOutput('production_branch', 'main');
+            core.setOutput('protected', protectedBranch ? 'true' : 'false');
+            core.setOutput('server_restricted', protectedBranch ? 'true' : 'false');
+            core.info(`main protected=${protectedBranch}`);
+
+      - name: Build external readiness observation
+        shell: bash
+        env:
+          CONFIG_OUTCOME: ${{ steps.config_probe.outcome }}
+          LEGACY_COMPILE_OUTCOME: ${{ steps.legacy_compile.outcome }}
+          LEGACY_TESTS_OUTCOME: ${{ steps.legacy_tests.outcome }}
+          LEGACY_DRY_RUN_OUTCOME: ${{ steps.legacy_dry_run.outcome }}
+          MONITOR_OUTCOME: ${{ steps.monitor_probe.outcome }}
+          PRODUCTION_BRANCH: ${{ steps.branch_guard.outputs.production_branch }}
+          MAIN_PROTECTED: ${{ steps.branch_guard.outputs.protected }}
+          SERVER_RESTRICTED: ${{ steps.branch_guard.outputs.server_restricted }}
+          LEGACY_MAIN_SHA: ${{ steps.production_baseline.outputs.main_sha }}
+        run: |
+          python - <<'PY'
+          import datetime as dt, json, os
+          from pathlib import Path
+          def status(name): return 'PASS' if os.environ.get(name)=='success' else 'FAIL'
+          monitor={}
+          p=Path('readiness_inputs/monitor_probe.json')
+          if p.exists(): monitor=json.loads(p.read_text(encoding='utf-8'))
+          legacy={}
+          q=Path('readiness_inputs/legacy_main/automation/source_processor_result.json')
+          if q.exists(): legacy=json.loads(q.read_text(encoding='utf-8'))
+          result={
+              'observedAt':dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+              'legacyRollbackHeadSha':os.environ.get('LEGACY_MAIN_SHA',''),
+              'legacyCompileStatus':status('LEGACY_COMPILE_OUTCOME'),
+              'legacyDependencyTestsStatus':status('LEGACY_TESTS_OUTCOME'),
+              'legacySourceProcessorDryRunStatus':status('LEGACY_DRY_RUN_OUTCOME'),
+              'legacySourceProcessorProductionWritePerformed':False,
+              'legacyReliableEnd':str(legacy.get('reliable_end') or ''),
+              'configurationValidationStatus':status('CONFIG_OUTCOME'),
+              'readOnlyProductionSourceAccessStatus':status('LEGACY_DRY_RUN_OUTCOME'),
+              'secretValuesPersisted':False,
+              'productionUrlHealthStatus':status('MONITOR_OUTCOME'),
+              'successfulHttpProbes':int(monitor.get('successfulHttpProbes') or 0),
+              'productionHttpStatus':int(monitor.get('lastHttpStatus') or 0),
+              'exactCurrentBuildMarkerPresent':monitor.get('exactCurrentBuildMarkerPresent') is True,
+              'productionBranch':os.environ.get('PRODUCTION_BRANCH','main'),
+              'mainBranchProtected':os.environ.get('MAIN_PROTECTED','false')=='true',
+              'serverSideDirectPushRestricted':os.environ.get('SERVER_RESTRICTED','false')=='true',
+          }
+          Path('readiness_inputs/external_probe.json').write_text(json.dumps(result,ensure_ascii=False,indent=2,sort_keys=True),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False))
+          PY
+
+      - name: Compile and test Production Readiness Hardening
+        run: |
+          python -m py_compile automation/modules/production_readiness_hardening.py
+          python -m py_compile automation/multi_shop_production_readiness_runner.py
+          cd automation
+          python -m unittest tests.test_production_readiness_hardening -v
+
+      - name: Build Production Readiness evidence candidate
+        run: |
+          python automation/multi_shop_production_readiness_runner.py \
+            --month "$READINESS_MONTH" \
+            --source-run-id "${{ steps.upstream.outputs.run_id }}" \
+            --source-head-sha "${{ steps.upstream.outputs.head_sha }}" \
+            --native-v2-dir readiness_inputs/native \
+            --production-baseline readiness_inputs/current_production_index.html \
+            --external-probe readiness_inputs/external_probe.json \
+            --contract config/production_readiness_hardening_contract.json \
+            --output-dir production_readiness_artifacts
+
+      - name: Enforce hardening safety invariants
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          month=os.environ['READINESS_MONTH']
+          d=json.loads((Path('production_readiness_artifacts')/f'multi_shop_production_readiness_summary_{month}.json').read_text(encoding='utf-8'))
+          assert d['status']=='PASS', d
+          assert d['qa_status']=='PASS', d
+          assert d['production_write_performed'] is False, d
+          assert d['repository_write_performed'] is False, d
+          assert d['execution_enabled'] is False, d
+          assert d['execution_permit_issued'] is False, d
+          assert d['production_activation_enabled'] is False, d
+          print(json.dumps({'readinessStatus':d['production_readiness_hardening_status'],'passCount':d['pass_count'],'blockedCount':d['blocked_count'],'blockedGates':d['blocked_gates'],'productionWrite':d['production_write_performed']},ensure_ascii=False))
+          PY
+
+      - name: Upload Production Readiness Hardening evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-readiness-hardening-${{ env.READINESS_MONTH }}
+          path: |
+            production_readiness_artifacts/
+            readiness_inputs/external_probe.json
+            readiness_inputs/monitor_probe.json
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,210 @@
+name: Production Cutover Control PREPRODUCTION
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - "automation/modules/production_cutover_control.py"
+      - "automation/multi_shop_production_cutover_control_runner.py"
+      - "automation/production_cutover_authorization_command.py"
+      - "automation/tests/test_production_cutover_control.py"
+      - "config/production_cutover_control_contract.json"
+      - "ops/production_cutover_evidence.json"
+      - "ops/production_cutover_authorization_events.json"
+      - ".github/workflows/production-cutover-control.yml"
+  workflow_dispatch:
+    inputs:
+      upstream_run_id:
+        description: "Optional successful Multi-Shop staging run ID; blank uses latest compatible successful run"
+        required: false
+        default: ""
+        type: string
+      month:
+        description: "Artifact month YYYY-MM"
+        required: true
+        default: "2026-09"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: production-cutover-control-preproduction
+  cancel-in-progress: false
+
+jobs:
+  cutover-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout control-plane code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r automation/requirements.txt
+
+      - name: Resolve target month
+        id: target
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MONTH="${{ inputs.month }}"
+          else
+            MONTH="$(python -c 'import json; print(json.load(open("config/staging_request.json"))["month"])')"
+          fi
+          if ! [[ "$MONTH" =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+            echo "Invalid target month: $MONTH" >&2
+            exit 2
+          fi
+          echo "month=$MONTH" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and validate upstream staging run
+        id: upstream
+        uses: actions/github-script@v7
+        env:
+          REQUESTED_RUN_ID: ${{ inputs.upstream_run_id || '' }}
+          TARGET_MONTH: ${{ steps.target.outputs.month }}
+        with:
+          script: |
+            const requested = (process.env.REQUESTED_RUN_ID || '').trim();
+            const month = process.env.TARGET_MONTH;
+            const requiredArtifacts = [
+              `multi-shop-ads-intelligence-${month}`,
+              `multi-shop-ui-native-v2-${month}`,
+            ];
+
+            async function validateRun(run) {
+              if (run.name !== 'Multi-Shop Core CI & Staging QA') return false;
+              if (run.status !== 'completed' || run.conclusion !== 'success') return false;
+              if (run.head_branch !== 'multi-shop-catalog-resolver') return false;
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+                per_page: 100,
+              });
+              const names = new Set(artifacts.data.artifacts.filter(x => !x.expired).map(x => x.name));
+              return requiredArtifacts.every(name => names.has(name));
+            }
+
+            let selected = null;
+            if (requested) {
+              const runId = Number(requested);
+              if (!Number.isInteger(runId) || runId <= 0) {
+                core.setFailed('upstream_run_id must be a positive integer when supplied');
+                return;
+              }
+              const response = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: runId,
+              });
+              if (!(await validateRun(response.data))) {
+                core.setFailed(`Requested upstream run ${runId} is not a compatible successful staging run with required ${month} artifacts`);
+                return;
+              }
+              selected = response.data;
+            } else {
+              const runs = await github.rest.actions.listWorkflowRunsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: 'multi-shop-catalog-resolver',
+                status: 'completed',
+                per_page: 50,
+              });
+              for (const run of runs.data.workflow_runs) {
+                if (await validateRun(run)) {
+                  selected = run;
+                  break;
+                }
+              }
+            }
+            if (!selected) {
+              core.setFailed(`No compatible successful staging run with required ${month} artifacts was found`);
+              return;
+            }
+            core.setOutput('head_sha', selected.head_sha);
+            core.setOutput('run_id', String(selected.id));
+            core.info(`Using staging run ${selected.id} at ${selected.head_sha}`);
+
+      - name: Download validated Ads Intelligence / Action Authorization artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ads-intelligence-${{ steps.target.outputs.month }}
+          path: replay_ads
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.upstream.outputs.run_id }}
+
+      - name: Download validated Native V2 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ui-native-v2-${{ steps.target.outputs.month }}
+          path: replay_native
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.upstream.outputs.run_id }}
+
+      - name: Compile Production Cutover Control
+        run: |
+          python -m py_compile automation/modules/production_cutover_control.py
+          python -m py_compile automation/multi_shop_production_cutover_control_runner.py
+          python -m py_compile automation/production_cutover_authorization_command.py
+
+      - name: Run Production Cutover Control unit tests
+        working-directory: automation
+        run: python -m unittest tests.test_production_cutover_control -v
+
+      - name: Build PREPRODUCTION cutover control artifact
+        run: |
+          python automation/multi_shop_production_cutover_control_runner.py \
+            --month "${{ steps.target.outputs.month }}" \
+            --ads-intelligence-dir replay_ads \
+            --native-v2-dir replay_native \
+            --output-dir production_cutover_artifacts \
+            --contract config/production_cutover_control_contract.json \
+            --readiness-evidence ops/production_cutover_evidence.json \
+            --authorization-events ops/production_cutover_authorization_events.json \
+            --repo-root . \
+            --head-sha "${{ steps.upstream.outputs.head_sha }}" \
+            --staging-run-id "${{ steps.upstream.outputs.run_id }}"
+
+      - name: Enforce non-execution safety boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          month = "${{ steps.target.outputs.month }}"
+          p = Path("production_cutover_artifacts") / f"multi_shop_production_cutover_control_summary_{month}.json"
+          d = json.loads(p.read_text(encoding="utf-8"))
+          assert d["status"] == "PASS", d
+          assert d["qa_status"] == "PASS", d
+          assert d["authenticated_executor_bound"] is False, d
+          assert d["execution_enabled"] is False, d
+          assert d["execution_permit_issued"] is False, d
+          assert d["platform_mutation_allowed"] is False, d
+          assert d["production_activation_enabled"] is False, d
+          print(json.dumps({
+              "controlStatus": d["production_cutover_control_status"],
+              "blockerCount": d["blocker_count"],
+              "rollbackDrillStatus": d["rollback_drill_status"],
+              "executionEnabled": d["execution_enabled"],
+              "productionActivationEnabled": d["production_activation_enabled"],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Upload Production Cutover Control evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-cutover-control-${{ steps.target.outputs.month }}
+          path: production_cutover_artifacts/
+          if-no-files-found: error
+          retention-days: 30

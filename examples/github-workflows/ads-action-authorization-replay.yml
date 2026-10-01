@@ -1,0 +1,124 @@
+name: Ads Action Authorization Replay
+
+on:
+  push:
+    branches:
+      - multi-shop-catalog-resolver
+    paths:
+      - ".github/workflows/ads-action-authorization-replay.yml"
+      - "automation/multi_shop_ads_action_authorization_runner.py"
+      - "automation/modules/ads_action_authorization.py"
+      - "automation/ads_action_authorization_command.py"
+      - "automation/tests/test_ads_action_authorization.py"
+      - "config/ads_action_authorization_contract.json"
+      - "ops/ads_action_authorization_events.json"
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful full staging run containing validated Ads/Review/Alert artifacts"
+        required: true
+        default: "36805799727"
+        type: string
+      month:
+        description: "Artifact month YYYY-MM"
+        required: true
+        default: "2026-09"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay-action-authorization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      REPLAY_RUN_ID: ${{ inputs.source_run_id || '36805799727' }}
+      REPLAY_MONTH: ${{ inputs.month || '2026-09' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+
+      - name: Download validated real Ads artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-shop-ads-intelligence-${{ env.REPLAY_MONTH }}
+          path: ads_intelligence_artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ env.REPLAY_RUN_ID }}
+
+      - name: Build Action Authorization v1 from real Smart Issue state
+        run: |
+          python automation/multi_shop_ads_action_authorization_runner.py \
+            --month "$REPLAY_MONTH" \
+            --ads-intelligence-dir ads_intelligence_artifacts \
+            --contract config/ads_action_authorization_contract.json \
+            --authorization-events ops/ads_action_authorization_events.json
+
+      - name: Enforce Action Authorization replay invariants
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          month = os.environ["REPLAY_MONTH"]
+          root = Path("ads_intelligence_artifacts")
+          summary = json.loads((root / f"multi_shop_ads_action_authorization_summary_{month}.json").read_text(encoding="utf-8"))
+          artifact = json.loads((root / month / "ads_action_authorization.json").read_text(encoding="utf-8"))
+          locked_ads = "234cfc09d01a2418384bf23ea7dabbaf641f92e26cf8d2765ac32e12f50b1448"
+          expected = {
+              "status": "PASS",
+              "ads_intelligence_fingerprint": locked_ads,
+              "ads_smart_issue_registry_fingerprint": locked_ads,
+              "action_authorization_status": "PASS",
+              "proposal_count": 0,
+              "suppressed_issue_count": 0,
+              "authenticated_executor_bound": False,
+              "execution_enabled": False,
+              "platform_mutation_allowed": False,
+          }
+          failed = []
+          for key, value in expected.items():
+              if summary.get(key) != value:
+                  failed.append(f"{key}: expected {value!r}, got {summary.get(key)!r}")
+          if artifact.get("status") != "READY_EMPTY":
+              failed.append(f"artifact status expected READY_EMPTY, got {artifact.get('status')!r}")
+          if artifact.get("doesNotModifyAdsIntelligenceFingerprint") is not True:
+              failed.append("doesNotModifyAdsIntelligenceFingerprint must be true")
+          if artifact.get("sourceReviewWorkflowFingerprint") != "314921dc35393c169454559b7378effbfb1d2f0c35b2b5b82f663bcc97c4bc9a":
+              failed.append("Operator Review Workflow fingerprint changed")
+          if artifact.get("sourceAlertPolicyFingerprint") != "77f76da906dfc74af010dbc8abb60233b6721e125cb5f2f9992ec7a85841dcd5":
+              failed.append("Alert Policy fingerprint changed")
+          execution = artifact.get("executionBoundary") or {}
+          for key in ("authenticatedExecutorBound", "executionEnabled", "providerBindingEnabled", "platformMutationAllowed", "productionActivationEnabled"):
+              if execution.get(key) is not False:
+                  failed.append(f"unsafe execution boundary flag {key}={execution.get(key)!r}")
+          if failed:
+              raise SystemExit("Action Authorization replay gate failed:\n- " + "\n- ".join(failed))
+          print(json.dumps({
+              "status": "PASS",
+              "source_run_id": os.environ["REPLAY_RUN_ID"],
+              "month": month,
+              "ads_fingerprint": summary["ads_intelligence_fingerprint"],
+              "action_authorization_fingerprint": summary["ads_action_authorization_fingerprint"],
+              "authorization_ledger_fingerprint": summary["authorization_ledger_fingerprint"],
+              "proposal_count": summary["proposal_count"],
+              "execution_enabled": summary["execution_enabled"],
+          }, ensure_ascii=False))
+          PY
+
+      - name: Upload Action Authorization replay evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ads-action-authorization-replay-${{ env.REPLAY_MONTH }}
+          path: ads_intelligence_artifacts/
+          if-no-files-found: error
+          retention-days: 14

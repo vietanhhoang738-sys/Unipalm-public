@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "status": "HARD_CONTRACT_PREPRODUCTION",
+  "principle": "Domain destinations are single-shop diagnostic workspaces. Global time scope must never imply finer granularity than the canonical business source supports.",
+  "cross_shop_policy": {
+    "command_center_may_orchestrate_multiple_shops": true,
+    "compare_destination_may_compare_shops": true,
+    "domain_destinations_single_shop_only": true,
+    "domain_destinations_compare_forbidden": true
+  },
+  "time_grain_policy": {
+    "DAILY": {
+      "allowed_scopes": ["day", "week", "month", "year"],
+      "forbidden_scopes": [],
+      "rule": "Daily-grain canonical sources may aggregate upward to week, month and year."
+    },
+    "MONTHLY": {
+      "allowed_scopes": ["oneMonth", "threeMonths", "sixMonths", "year"],
+      "forbidden_scopes": ["day", "week"],
+      "rule": "Monthly-grain canonical sources may aggregate upward only. Day/week views are forbidden even when a supporting source is daily."
+    },
+    "LIFETIME": {
+      "allowed_scopes": ["lifetime"],
+      "forbidden_scopes": ["day", "week", "month", "oneMonth", "threeMonths", "sixMonths", "year"],
+      "rule": "Lifetime destinations do not expose a global time selector. Dates remain analytical attributes only."
+    }
+  },
+  "mixed_source_policy": {
+    "canonical_domain_grain_controls_global_scope": true,
+    "supporting_finer_grain_source_may_not_upgrade_destination_grain": true,
+    "synthetic_finer_grain_derivation_forbidden": true,
+    "ratio_aggregation": "RECOMPUTE_FROM_ADDITIVE_NUMERATORS_DENOMINATORS",
+    "non_additive_metrics_must_not_be_summed": true
+  },
+  "destinations": {
+    "product": {
+      "shop_scope": "SINGLE_SHOP",
+      "compare_allowed": false,
+      "canonical_source": "product_performance",
+      "canonical_grain": "MONTHLY",
+      "allowed_time_scopes": ["oneMonth", "threeMonths", "sixMonths", "year"],
+      "supporting_sources": ["ads_product_daily", "listing_catalog"],
+      "supporting_daily_data_may_not_enable_day_week": true
+    },
+    "ads": {
+      "shop_scope": "SINGLE_SHOP",
+      "compare_allowed": false,
+      "canonical_source": "ads",
+      "canonical_grain": "DAILY",
+      "allowed_time_scopes": ["day", "week", "month", "year"]
+    },
+    "traffic": {
+      "shop_scope": "SINGLE_SHOP",
+      "compare_allowed": false,
+      "canonical_source": "business_insights_traffic",
+      "canonical_grain": "DAILY",
+      "allowed_time_scopes": ["day", "week", "month", "year"]
+    },
+    "customer": {
+      "shop_scope": "SINGLE_SHOP",
+      "compare_allowed": false,
+      "canonical_source": "customer_lifetime",
+      "canonical_grain": "LIFETIME",
+      "allowed_time_scopes": ["lifetime"],
+      "global_time_selector": false,
+      "dates_are_attributes_not_global_filters": true
+    }
+  },
+  "availability_policy": {
+    "requested_horizon_requires_complete_trusted_source_coverage": true,
+    "unavailable_horizon_must_be_explicitly_disabled": true,
+    "partial_data_must_not_be_presented_as_complete_horizon": true,
+    "shop_lifecycle_may_define_valid_year_start": true
+  }
+}

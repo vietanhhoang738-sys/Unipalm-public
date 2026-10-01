@@ -1,0 +1,12 @@
+# Local OAuth/bootstrap secrets
+client_secret*.json
+drive_oauth_secret*.json
+token*.json
+
+# Local pipeline artifacts
+staging_artifacts/
+processed_artifacts/
+
+# Python
+__pycache__/
+*.pyc

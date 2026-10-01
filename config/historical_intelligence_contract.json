@@ -1,0 +1,532 @@
+{
+  "version": "2.1",
+  "layer_name": "multi_shop_historical_intelligence_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_semantic_v1",
+  "inventory_policy": {
+    "trusted_history_source": "PUBLISHED_SEMANTIC_QA_PASS",
+    "raw_source_presence_role": "BACKFILL_CANDIDATE_ONLY",
+    "processed_source_role": "INTERMEDIATE_READINESS_ONLY",
+    "core_daily_domains": [
+      "orders",
+      "ads",
+      "business_insights"
+    ],
+    "product_domain": "product_performance"
+  },
+  "comparator_policy": {
+    "previous_day": {
+      "horizon": "latestDay",
+      "required_current_days": 1,
+      "required_reference_days": 1
+    },
+    "previous_7d": {
+      "horizon": "last7",
+      "required_current_days": 7,
+      "required_reference_days": 7
+    },
+    "previous_month_mtd": {
+      "horizon": "mtd",
+      "match_day_of_month": true,
+      "require_complete_matched_windows": true
+    },
+    "same_weekday": {
+      "horizon": "latestDay",
+      "lookback_weeks": 8,
+      "min_samples": 4,
+      "statistic": "median"
+    },
+    "same_day_of_month": {
+      "horizon": "latestDay",
+      "lookback_months": 6,
+      "min_samples": 3,
+      "statistic": "median"
+    }
+  },
+  "baseline_policy": {
+    "metrics": [
+      "placedGmv",
+      "placedOrders",
+      "productClicks",
+      "placedAov",
+      "placedCvr",
+      "adsSpend",
+      "adsAttributedSales",
+      "roas",
+      "cancelledSales",
+      "netSalesAfterCancel",
+      "orderFees",
+      "totalPlatformCostRatio"
+    ],
+    "statistics": [
+      "median",
+      "mean",
+      "min",
+      "max",
+      "mad"
+    ],
+    "ratio_policy": "RECOMPUTE_FROM_ADDITIVE_COMPONENTS",
+    "alerting_enabled": false,
+    "diagnosis_enabled": false
+  },
+  "minimum_history": {
+    "history_ready_min_complete_months": 3,
+    "six_month_intelligence_min_complete_months": 6,
+    "same_weekday_min_samples": 4,
+    "same_day_of_month_min_samples": 3
+  },
+  "context_policy": {
+    "dimensions": [
+      "campaign_id",
+      "campaign_type",
+      "mega_sale",
+      "payday",
+      "holiday",
+      "promotion",
+      "price_change"
+    ],
+    "source_policy": "EXPLICIT_ONLY",
+    "missing_value": "UNKNOWN",
+    "missing_context_blocks_context_matched_claims": true,
+    "source_layer": "multi_shop_business_context_v1",
+    "required_status_when_bound": "CONTEXT_AVAILABLE",
+    "exact_date_matching_only": true,
+    "industry_analytics_role": "MARKET_SEASON_CONTEXT_ONLY",
+    "context_matched_baseline_enabled": true,
+    "qualification_enabled": true,
+    "qualification_statuses": [
+      "CONTEXT_COMPATIBLE",
+      "CONTEXT_DIFFERENT",
+      "CONTEXT_UNKNOWN"
+    ],
+    "exact_matching_source": "matching_eligible=true",
+    "matching_dimensions": [
+      "scope_type",
+      "platform",
+      "context_family",
+      "day_count",
+      "peak_day_count"
+    ],
+    "broad_market_season_role": "DISPLAY_ONLY_NOT_QUALIFICATION",
+    "no_exact_event_on_both_sides": "CONTEXT_UNKNOWN",
+    "exact_event_on_one_side_only": "CONTEXT_DIFFERENT",
+    "exact_profiles_equal": "CONTEXT_COMPATIBLE",
+    "exact_profiles_different": "CONTEXT_DIFFERENT",
+    "unequal_window_length": "CONTEXT_UNKNOWN",
+    "sample_baseline_policy": "QUALIFY_EACH_SAMPLE_DO_NOT_FILTER_BASELINE",
+    "causal_claims_enabled": false
+  },
+  "statuses": [
+    "READY",
+    "INSUFFICIENT_HISTORY",
+    "PARTIAL_COVERAGE",
+    "CONTEXT_UNAVAILABLE",
+    "LIFECYCLE_HISTORY",
+    "CONTEXT_AVAILABLE",
+    "CONTEXT_COMPATIBLE",
+    "CONTEXT_DIFFERENT",
+    "CONTEXT_UNKNOWN",
+    "INSUFFICIENT_CONTEXT_MATCHED_HISTORY",
+    "ANOMALY_ELIGIBLE",
+    "ANOMALY_BLOCKED",
+    "NORMAL",
+    "DEVIATION_CANDIDATE",
+    "NOT_EVALUATED",
+    "NOT_ASSESSED",
+    "LOW",
+    "MEDIUM",
+    "HIGH",
+    "ATTRIBUTED",
+    "ASSOCIATION_ONLY",
+    "NOT_DIAGNOSED",
+    "ISSUE_READY",
+    "NO_ISSUE",
+    "ACTION_OPTIONS_READY",
+    "NO_ACTION_OPTIONS",
+    "REVIEW_OPTION"
+  ],
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "publish_legacy_payload": false,
+    "enable_historical_alerts": false,
+    "enable_diagnosis": false
+  },
+  "fingerprint_policy": {
+    "deterministic": true,
+    "volatile_fields_forbidden": true,
+    "inputs": [
+      "contract_version",
+      "as_of_period",
+      "trusted_semantic_fingerprints",
+      "source_inventory",
+      "baseline_payload"
+    ]
+  },
+  "lifecycle_policy": {
+    "registry_field": "history_lifecycle",
+    "launch_origin": "SHOP_LAUNCH",
+    "launch_start_policy": "FIRST_TRUSTED_SEMANTIC_DATE",
+    "pre_launch_dates_are_missing": false,
+    "readiness_interpretation": "SEPARATE_HISTORY_DEPTH_FROM_DATA_GAP",
+    "portfolio_origin": "ALL_ENABLED_SHOPS_ACTIVE"
+  },
+  "context_matched_baseline_policy": {
+    "enabled": true,
+    "applies_to": [
+      "same_weekday",
+      "same_day_of_month"
+    ],
+    "source_sample_qualification": "CONTEXT_COMPATIBLE_ONLY",
+    "minimum_sample_policy": "SAME_AS_ORIGINAL_COMPARATOR",
+    "insufficient_status": "INSUFFICIENT_CONTEXT_MATCHED_HISTORY",
+    "preserve_all_history_baseline": true,
+    "silent_fallback_forbidden": true,
+    "publish_statistics_only_when_ready": true,
+    "causal_claims_enabled": false,
+    "alerting_enabled": false,
+    "diagnosis_enabled": false
+  },
+  "anomaly_eligibility_policy": {
+    "enabled": true,
+    "statuses": [
+      "ANOMALY_ELIGIBLE",
+      "ANOMALY_BLOCKED"
+    ],
+    "metric_scope": "PER_COMPARATOR_PER_KPI",
+    "metric_names": [
+      "placedGmv",
+      "placedOrders",
+      "productClicks",
+      "placedAov",
+      "placedCvr",
+      "adsSpend",
+      "adsAttributedSales",
+      "roas",
+      "cancelledSales",
+      "netSalesAfterCancel",
+      "orderFees",
+      "totalPlatformCostRatio"
+    ],
+    "statistical_baseline_comparators": [
+      "sameWeekday",
+      "sameDayOfMonth"
+    ],
+    "factual_window_comparators": [
+      "previousDay",
+      "previous7d",
+      "previousMonthMtd"
+    ],
+    "required_gates": [
+      "COMPARATOR_READY",
+      "HISTORY_DEPTH_READY",
+      "CONTEXT_LINEAGE_READY",
+      "CONTEXT_MATCHED_BASELINE_READY",
+      "METRIC_BASELINE_READY"
+    ],
+    "reason_codes": [
+      "COMPARATOR_NOT_READY",
+      "DATA_WINDOW_INCOMPLETE",
+      "INSUFFICIENT_HISTORY_DEPTH",
+      "SHOP_LIFECYCLE_HISTORY_TOO_SHORT",
+      "PORTFOLIO_LIFECYCLE_HISTORY_TOO_SHORT",
+      "CONTEXT_LINEAGE_UNAVAILABLE",
+      "CONTEXT_DIFFERENT",
+      "CONTEXT_UNKNOWN",
+      "INSUFFICIENT_CONTEXT_MATCHED_HISTORY",
+      "NO_STATISTICAL_BASELINE_METHOD",
+      "METRIC_BASELINE_UNAVAILABLE"
+    ],
+    "anomaly_detection_enabled": false,
+    "severity_enabled": false,
+    "alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "anomaly_detection_foundation": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "operational_anomaly_detection_enabled": false,
+    "statuses": [
+      "NORMAL",
+      "DEVIATION_CANDIDATE",
+      "NOT_EVALUATED"
+    ],
+    "statistical_method": "MODIFIED_Z_SCORE_MAD",
+    "modified_z_constant": 0.67448975,
+    "absolute_z_threshold": 3.5,
+    "zero_mad_behavior": "NOT_EVALUATED",
+    "zero_median_effect_behavior": "NOT_EVALUATED",
+    "baseline_source": "CONTEXT_MATCHED_BASELINE_ONLY",
+    "current_observation": "LATEST_TRUSTED_DAY",
+    "eligibility_source": "ANOMALY_ELIGIBILITY_PER_KPI",
+    "minimum_effect_pct": {
+      "placedGmv": 0.15,
+      "placedOrders": 0.15,
+      "productClicks": 0.15,
+      "placedAov": 0.1,
+      "placedCvr": 0.1,
+      "adsSpend": 0.2,
+      "adsAttributedSales": 0.15,
+      "roas": 0.15,
+      "cancelledSales": 0.25,
+      "netSalesAfterCancel": 0.15,
+      "orderFees": 0.2,
+      "totalPlatformCostRatio": 0.15
+    },
+    "directionality": {
+      "placedGmv": "LOWER_ONLY",
+      "placedOrders": "LOWER_ONLY",
+      "productClicks": "LOWER_ONLY",
+      "placedAov": "LOWER_ONLY",
+      "placedCvr": "LOWER_ONLY",
+      "adsSpend": "TWO_SIDED",
+      "adsAttributedSales": "LOWER_ONLY",
+      "roas": "LOWER_ONLY",
+      "cancelledSales": "HIGHER_ONLY",
+      "netSalesAfterCancel": "LOWER_ONLY",
+      "orderFees": "TWO_SIDED",
+      "totalPlatformCostRatio": "HIGHER_ONLY"
+    },
+    "not_evaluated_reasons": [
+      "ANOMALY_ELIGIBILITY_BLOCKED",
+      "BASELINE_STATISTICS_UNAVAILABLE",
+      "ROBUST_SCALE_ZERO",
+      "RELATIVE_EFFECT_UNDEFINED"
+    ],
+    "deviation_candidate_is_not_alert": true,
+    "severity_enabled": false,
+    "alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "anomaly_severity_confidence": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "source_state": "DEVIATION_CANDIDATE_ONLY",
+    "non_candidate_status": "NOT_ASSESSED",
+    "severity_meaning": "STATISTICAL_AND_RELATIVE_MAGNITUDE_ONLY_NOT_BUSINESS_IMPACT",
+    "severity_levels": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "severity_score": {
+      "method": "WEIGHTED_SIGNAL_STRENGTH",
+      "statistical_component": "min(abs(modified_z)/(z_threshold*2),1)",
+      "effect_component": "min(abs(effect_pct)/(minimum_effect_pct*3),1)",
+      "statistical_weight": 0.5,
+      "effect_weight": 0.5,
+      "low_max_exclusive": 0.55,
+      "high_min_inclusive": 0.8
+    },
+    "confidence_levels": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "confidence_score": {
+      "method": "WEIGHTED_EVIDENCE_QUALITY",
+      "sample_depth_component": "min(context_matched_sample_count/(required_sample_count*2),1)",
+      "sample_depth_weight": 0.5,
+      "context_lineage_weight": 0.2,
+      "history_readiness_weight": 0.15,
+      "robust_scale_weight": 0.15,
+      "low_max_exclusive": 0.6,
+      "high_min_inclusive": 0.85
+    },
+    "no_severity_for": [
+      "NORMAL",
+      "NOT_EVALUATED"
+    ],
+    "automatic_alerts_enabled": false,
+    "diagnosis_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "driver_attribution_foundation": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "source_detector_state": "DEVIATION_CANDIDATE_ONLY",
+    "minimum_confidence_level": "MEDIUM",
+    "statuses": [
+      "ATTRIBUTED",
+      "ASSOCIATION_ONLY",
+      "NOT_DIAGNOSED"
+    ],
+    "supported_identities": {
+      "placedGmv": {
+        "identity": "GMV = Product Clicks × CVR × AOV",
+        "drivers": [
+          "productClicks",
+          "placedCvr",
+          "placedAov"
+        ]
+      },
+      "placedOrders": {
+        "identity": "Orders = Product Clicks × CVR",
+        "drivers": [
+          "productClicks",
+          "placedCvr"
+        ]
+      },
+      "roas": {
+        "identity": "ROAS = Ads Attributed Sales / Ads Spend",
+        "drivers": [
+          "adsAttributedSales",
+          "adsSpend"
+        ]
+      },
+      "netSalesAfterCancel": {
+        "identity": "Net Sales = Placed GMV - Cancelled Sales",
+        "drivers": [
+          "placedGmv",
+          "cancelledSales"
+        ]
+      },
+      "totalPlatformCostRatio": {
+        "identity": "Platform Cost Ratio = (Order Fees + Ads Spend) / Net Sales After Cancel",
+        "drivers": [
+          "orderFees",
+          "adsSpend",
+          "netSalesAfterCancel"
+        ]
+      }
+    },
+    "attribution_method": "EXACT_SHAPLEY_ON_BUSINESS_IDENTITY",
+    "reference_source": "CONTEXT_MATCHED_BASELINE_MEDIANS",
+    "max_baseline_alignment_residual_pct": 0.25,
+    "association_source": "CO_MOVING_DEVIATION_CANDIDATES_ONLY",
+    "identity_contribution_is_causal_claim": false,
+    "operational_diagnosis_enabled": false,
+    "automatic_alerts_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "smart_issues_foundation": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_EVIDENCE_ONLY",
+    "issue_type": "PERFORMANCE_DEVIATION",
+    "statuses": [
+      "ISSUE_READY",
+      "NO_ISSUE"
+    ],
+    "source_detector_state": "DEVIATION_CANDIDATE_ONLY",
+    "minimum_severity_level": "MEDIUM",
+    "minimum_confidence_level": "MEDIUM",
+    "allowed_attribution_statuses": [
+      "ATTRIBUTED",
+      "ASSOCIATION_ONLY"
+    ],
+    "max_issues_per_comparator": 1,
+    "max_issues_per_scope": 5,
+    "dedupe_key": "AFFECTED_METRIC",
+    "ranking": [
+      "ATTRIBUTION_STATUS",
+      "BUSINESS_KPI_PRIORITY",
+      "SEVERITY_SCORE",
+      "CONFIDENCE_SCORE",
+      "ABS_EFFECT_PCT"
+    ],
+    "attribution_priority": {
+      "ATTRIBUTED": 2,
+      "ASSOCIATION_ONLY": 1
+    },
+    "issue_surface": "LATEST_TRUSTED_OBSERVATION",
+    "required_uncertainty": [
+      "CAUSALITY_NOT_ESTABLISHED",
+      "AUTOMATIC_ALERTS_DISABLED",
+      "HUMAN_REVIEW_REQUIRED",
+      "PLATFORM_MUTATION_DISABLED"
+    ],
+    "operational_alerts_enabled": false,
+    "action_recommendations_enabled": false,
+    "operational_diagnosis_enabled": false,
+    "causal_claims_enabled": false,
+    "business_metric_priority": {
+      "placedGmv": 100,
+      "placedOrders": 90,
+      "roas": 85,
+      "netSalesAfterCancel": 80,
+      "totalPlatformCostRatio": 75,
+      "placedCvr": 70,
+      "placedAov": 65,
+      "productClicks": 60,
+      "adsAttributedSales": 55,
+      "cancelledSales": 50,
+      "adsSpend": 45,
+      "orderFees": 40
+    }
+  },
+  "operator_action_policy_foundation": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_REVIEW_OPTIONS_ONLY",
+    "source_issue_state": "ISSUE_READY_ONLY",
+    "statuses": [
+      "ACTION_OPTIONS_READY",
+      "NO_ACTION_OPTIONS"
+    ],
+    "option_status": "REVIEW_OPTION",
+    "max_options_per_issue": 2,
+    "max_options_per_scope": 6,
+    "generic_validation_option": true,
+    "targeted_review_requires_attributed_driver": true,
+    "targeted_driver_rules": {
+      "productClicks": "REVIEW_TRAFFIC_AND_LISTING_VISIBILITY",
+      "placedCvr": "REVIEW_CONVERSION_FUNNEL_AND_OFFER",
+      "placedAov": "REVIEW_AOV_PRICE_PROMOTION_MIX",
+      "adsSpend": "REVIEW_ADS_SPEND_EFFICIENCY",
+      "adsAttributedSales": "REVIEW_ADS_ATTRIBUTED_SALES",
+      "cancelledSales": "REVIEW_CANCELLATION_AND_FULFILLMENT",
+      "orderFees": "REVIEW_FEE_AND_PROMOTION_COST",
+      "netSalesAfterCancel": "REVIEW_NET_SALES_QUALITY"
+    },
+    "forbidden_directives": [
+      "CHANGE_BID",
+      "CHANGE_BUDGET",
+      "CHANGE_PRICE",
+      "CHANGE_PROMOTION",
+      "PAUSE_CAMPAIGN",
+      "PUBLISH_LISTING_CHANGE",
+      "CONTACT_CUSTOMER_AUTOMATICALLY"
+    ],
+    "requires_human_review": true,
+    "platform_mutation_allowed": false,
+    "automatic_execution_enabled": false,
+    "automatic_alerts_enabled": false,
+    "causal_claims_enabled": false
+  },
+  "production_cutover_shadow_mode_v1": {
+    "enabled": true,
+    "mode": "PREPRODUCTION_OBSERVE_ONLY",
+    "statuses": [
+      "SHADOW_OBSERVING",
+      "READY_FOR_HUMAN_CUTOVER_REVIEW",
+      "CUTOVER_BLOCKED"
+    ],
+    "minimum_consecutive_safe_refreshes": 3,
+    "minimum_consecutive_stable_refreshes": 3,
+    "max_retained_refresh_records": 10,
+    "required_readiness_gates": [
+      "TRUSTED_LINEAGE_COMPLETE",
+      "LINEAGE_CONTINUITY",
+      "ALL_ENABLED_SCOPES_PRESENT",
+      "FAIL_CLOSED_SAFETY",
+      "ISSUE_ACTION_TRANSITIONS_VALID",
+      "MINIMUM_SAFE_REFRESHES",
+      "MINIMUM_STABLE_REFRESHES",
+      "HUMAN_VISUAL_BASELINE_RETAINED"
+    ],
+    "issue_action_states": [
+      "APPEARED",
+      "PERSISTED",
+      "DISAPPEARED"
+    ],
+    "approved_visual_baseline_run": 216,
+    "cutover_requires_explicit_human_approval": true,
+    "automatic_cutover_enabled": false,
+    "production_activation_enabled": false,
+    "production_writes_enabled": false,
+    "platform_mutation_allowed": false,
+    "automatic_alerts_enabled": false,
+    "rollback_required": true
+  }
+}

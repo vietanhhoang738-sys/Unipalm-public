@@ -1,0 +1,294 @@
+{
+  "version": "0.2",
+  "audited_at": "2026-09-21",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "horizons": {
+    "yesterday_full_day": {
+      "comparison": "D-1 full day vs D-2 full day",
+      "status": "READY"
+    },
+    "mtd_same_day_count": {
+      "comparison": "month start through D vs previous month start through D",
+      "status": "READY"
+    },
+    "prior_week": {
+      "comparison": "selected 7-day window vs prior comparable 7-day window",
+      "status": "DERIVABLE"
+    },
+    "prior_month": {
+      "comparison": "selected month vs prior comparable month",
+      "status": "DERIVABLE"
+    },
+    "today_matched_hour_optional": {
+      "comparison": "latest rebuilt current-day Orders through latest complete available hour vs prior day through same hour",
+      "status": "OPTIONAL"
+    }
+  },
+  "kpis": {
+    "gmv": {
+      "stage": "placed",
+      "authority": "Business Insights placed.gross_sales",
+      "historical": "READY",
+      "today_optional": "Orders placed-sales proxy"
+    },
+    "orders": {
+      "stage": "placed",
+      "authority": "Business Insights placed.order_count",
+      "historical": "READY",
+      "today_optional": "Orders order_created_at count"
+    },
+    "conversion_rate": {
+      "stage": "placed",
+      "authority": "Business Insights placed.order_conversion_rate",
+      "historical": "READY",
+      "today_optional": "NO_HOURLY_CVR"
+    },
+    "aov": {
+      "stage": "placed",
+      "authority": "placed.gross_sales / placed.order_count",
+      "historical": "READY",
+      "today_optional": "Orders placed-sales proxy / created orders"
+    },
+    "roas": {
+      "authority": "Ads attributed_sales / ad_spend",
+      "historical": "READY",
+      "today_optional": "LATEST_REBUILT_ADS"
+    },
+    "ad_spend": {
+      "authority": "Ads ad_spend",
+      "historical": "READY",
+      "today_optional": "LATEST_REBUILT_ADS"
+    }
+  },
+  "proposed_tables": [
+    "dm_shop_hourly"
+  ],
+  "driver_identity": "placed GMV = placed visits * (placed product_clicks/placed visits) * (placed orders/placed product_clicks) * (placed gross_sales/placed orders)",
+  "diagnosis_policy": "statistics/rules detect; analytical engine proves; language layer explains",
+  "orientation": "historical_first",
+  "operating_workflow": "update_sources -> rebuild_data_mart -> open_command_center",
+  "canonical_commercial_stage": "placed",
+  "realtime_infrastructure_required": false,
+  "freshness_policy": "dataset cutoff reflects latest intentional rebuild; do not classify as stale solely from wall-clock date",
+  "driver_engine": {
+    "version": "1.1",
+    "method": "SHAPLEY_3_FACTOR",
+    "identity": "GMV = ProductClicks * CVR * AOV",
+    "factors": [
+      "productClicks",
+      "cvr",
+      "aov"
+    ],
+    "exact_additive": true,
+    "upstream_click_bridge": {
+      "identity": "ProductClicks = Visits * DerivedClickRate",
+      "derived_click_rate_user_facing": false,
+      "note": "DerivedClickRate is not a Shopee Center KPI; keep it diagnostic-only."
+    }
+  },
+  "historical_baseline": {
+    "version": "1.0",
+    "method": "ROBUST_HISTORICAL_CHANGE_BASELINE",
+    "metrics": [
+      "gmv",
+      "orders",
+      "visits",
+      "productClicks",
+      "productClickRate",
+      "cvr",
+      "aov",
+      "adsSpend",
+      "roas"
+    ],
+    "robust_stats": [
+      "medianDelta",
+      "p10Delta",
+      "p25Delta",
+      "p75Delta",
+      "p90Delta",
+      "mad",
+      "robustZ"
+    ],
+    "context_tags": [
+      "doubleDay",
+      "payday",
+      "monthStart"
+    ],
+    "min_context_matched_samples": 4,
+    "suppress_alert_when_context_mismatch_and_no_matched_history": true
+  },
+  "smart_issue_engine": {
+    "version": "1.0",
+    "scope": "whole_shop_commercial_drivers",
+    "candidate_metrics": [
+      "productClicks",
+      "cvr",
+      "aov"
+    ],
+    "required_conditions": [
+      "negative_shapley_effect",
+      "historical_baseline_LOW",
+      "baseline_alert_eligible",
+      "context_not_suppressed",
+      "persistence_gate_passed",
+      "score_gte_50"
+    ],
+    "score": {
+      "method": "weighted_geometric_mean",
+      "formula": "100 * impact^0.30 * deviation^0.25 * persistence^0.20 * confidence^0.15 * context^0.10",
+      "high_threshold": 70,
+      "medium_threshold": 50,
+      "no_info_filler": true
+    },
+    "actionability_gate": {
+      "total_gmv_normal_requires_stronger_persistence": true,
+      "one_day_bypass_robust_z_abs_gte": 2.5,
+      "high_severity_requires_total_gmv_alert_eligible_low": true
+    },
+    "persistence": {
+      "same_weekday_history_weeks": 12,
+      "yesterday_full_strength_days": 3,
+      "rolling7_combines_low_day_count_and_tail": true,
+      "mtd_combines_density_and_tail": true
+    },
+    "stable_anomaly_id": true,
+    "note": "Visits is an upstream supporting signal for Product Clicks, not a simultaneous top-level GMV driver."
+  },
+  "product_signal_engine": {
+    "version": "1.0",
+    "scope": "product_structural_history",
+    "method": "STRUCTURAL_6M_3V3_WITH_MTD_CORROBORATION",
+    "completed_months_required": 6,
+    "minimum_positive_history_coverage": 0.83,
+    "recent_window_months": 3,
+    "previous_window_months": 3,
+    "minimum_recent_product_gmv_share": 0.02,
+    "minimum_abs_gmv_change": 0.35,
+    "minimum_supporting_metrics": 2,
+    "minimum_score": 70,
+    "scoring_weights": {
+      "trend": 0.28,
+      "materiality": 0.24,
+      "supporting_metrics": 0.18,
+      "persistence": 0.15,
+      "current_mtd_corroboration": 0.15
+    },
+    "current_mtd_is_primary_baseline": false,
+    "allow_no_signal": true,
+    "gift_products_excluded": true
+  },
+  "diagnostic_drawer": {
+    "version": "1.0",
+    "dynamic": true,
+    "shop_issue": {
+      "key": "anomalyId",
+      "chart": "30d_actual_vs_expected_p10_p90",
+      "fields": [
+        "metric",
+        "severity",
+        "score",
+        "confidence",
+        "gmvImpact",
+        "baseline",
+        "persistence",
+        "context",
+        "nextChecks"
+      ],
+      "unsupported_cause_assertions_prohibited": true
+    },
+    "product_signal": {
+      "key": "signalId",
+      "chart": "6_complete_months_placed_gmv",
+      "fields": [
+        "productName",
+        "category",
+        "recent3m",
+        "previous3m",
+        "productClicks",
+        "cvr",
+        "aov",
+        "currentMtdCorroboration",
+        "adsSupport",
+        "nextChecks"
+      ]
+    },
+    "lifecycle": [
+      "OPEN",
+      "MONITORING",
+      "RESOLVED"
+    ],
+    "stable_id_across_rebuilds": true
+  },
+  "product_root_cause": {
+    "version": "1.0",
+    "evidence_first": true,
+    "user_language": "vietnam_marketplace_operator",
+    "direct_findings_metrics": [
+      "gmv",
+      "orders",
+      "views",
+      "productClicks",
+      "ctr",
+      "visits",
+      "bounceRate",
+      "addToCart",
+      "visitToAtcRate",
+      "cvr",
+      "aov",
+      "unitsPerOrder",
+      "productPaidExposure"
+    ],
+    "hypotheses_require_label": true,
+    "hypotheses_require_verification_step": true,
+    "prohibit_unproven_causal_claims": true,
+    "product_ads_limit": "current product ads mart has exposure/click/conversion/attributed sales but no spend/ROAS"
+  },
+  "product_ads_diagnosis": {
+    "version": "1.1",
+    "aggregation_key": "product_id",
+    "campaign_policy": "SUM_ALL_CAMPAIGNS_FOR_PRODUCT",
+    "primary_comparison": "recent_3_complete_months_vs_prior_3_complete_months",
+    "recent_28d_role": "secondary_recency_context_only",
+    "never_use_single_campaign_as_product_history": true,
+    "overlap_rule": "sum overlapping campaign rows before period aggregation",
+    "metrics": [
+      "impressions",
+      "clicks",
+      "conversions",
+      "attributedSales",
+      "adSpend",
+      "roas",
+      "ctr",
+      "cvr",
+      "cpc",
+      "cpa",
+      "acos"
+    ]
+  },
+  "product_signal_ranking": {
+    "version": "1.0",
+    "eligibility_precedes_ranking": true,
+    "formula": "100 * (impact * deviation * persistence * confidence)^(1/4)",
+    "components": {
+      "impact": "normalized structural GMV impact; full scale at 5% recent shop product GMV",
+      "deviation": "absolute recent3m vs prior3m GMV change; full scale at 60%",
+      "persistence": "month-tail persistence + current MTD corroboration",
+      "confidence": "history coverage + supporting evidence agreement"
+    },
+    "ranking_outputs": [
+      "globalRank",
+      "rankWithinType",
+      "priorityScore",
+      "structuralImpactValue",
+      "structuralImpactShare",
+      "priorityComponents"
+    ],
+    "home_selection": "top_problem_plus_top_opportunity",
+    "allow_missing_side": true,
+    "ranked_summary_limits": {
+      "problems": 10,
+      "opportunities": 10,
+      "all": 20
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_production_readiness_hardening_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_production_cutover_control_v1",
+  "production_readiness_hardening": {
+    "enabled": true,
+    "mode": "PRODUCTION_READINESS_HARDENING_V1",
+    "required_check_order": [
+      "production_data_binding_validated",
+      "production_ui_binding_validated",
+      "deployment_dry_run_validated",
+      "rollback_drill_validated",
+      "legacy_rollback_runtime_verified",
+      "production_credentials_verified",
+      "monitoring_readiness_validated",
+      "repository_deployment_guard_verified"
+    ],
+    "automatically_verifiable_checks": [
+      "production_data_binding_validated",
+      "production_ui_binding_validated",
+      "deployment_dry_run_validated",
+      "rollback_drill_validated",
+      "legacy_rollback_runtime_verified",
+      "production_credentials_verified",
+      "monitoring_readiness_validated"
+    ],
+    "external_governance_checks": [
+      "repository_deployment_guard_verified"
+    ],
+    "native_release_candidate": {
+      "target_path": "index.html",
+      "required_composition_version": "native-v2-extension-composition-v1.3",
+      "required_extension": "ads_action_authorization",
+      "required_selected_shop_minimum": 2,
+      "required_inline_markers": [
+        "UNIPALM_SCOPE_BUNDLE",
+        "UNIPALM_NATIVE_SCOPE",
+        "native-v2-extension-composition-v1.3",
+        "ads-action-authorization-ui-v1"
+      ],
+      "forbidden_runtime_network_primitives": [
+        "fetch(",
+        "XMLHttpRequest"
+      ],
+      "release_meta_names": [
+        "unipalm-release-candidate",
+        "unipalm-native-build",
+        "unipalm-semantic-build",
+        "unipalm-cutover-source-run"
+      ],
+      "single_file_static_binding_required": true,
+      "production_write_allowed": false
+    },
+    "deployment_rehearsal": {
+      "isolated_workspace_required": true,
+      "baseline_backup_required": true,
+      "candidate_byte_verification_required": true,
+      "rollback_exact_baseline_hash_required": true,
+      "repository_write_allowed": false,
+      "production_write_allowed": false
+    },
+    "legacy_runtime_probe": {
+      "source_processor_dry_run_required": true,
+      "legacy_compile_required": true,
+      "legacy_dependency_tests_required": true,
+      "production_sheet_write_allowed": false
+    },
+    "credential_probe": {
+      "configuration_validation_required": true,
+      "read_only_production_source_access_required": true,
+      "secret_values_must_not_be_persisted": true
+    },
+    "monitoring_probe": {
+      "fixed_production_url_required": true,
+      "minimum_successful_http_probes": 3,
+      "exact_current_build_marker_required": true,
+      "candidate_release_marker_required": true,
+      "production_write_allowed": false
+    },
+    "repository_guard": {
+      "production_branch": "main",
+      "branch_protection_required": true,
+      "soft_workflow_only_guard_is_insufficient": true,
+      "direct_push_must_be_server_side_restricted": true
+    },
+    "evidence": {
+      "candidate_only": true,
+      "canonical_state_path": "ops/production_cutover_evidence.json",
+      "automatic_reviewer": "automation:production-readiness-hardening-v1",
+      "ready_requires_concrete_evidence": true,
+      "blocked_gate_must_remain_false": true
+    },
+    "production_activation_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "modify_production_index": false,
+    "production_deployment_allowed": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "authenticated_executor_bound": false,
+    "execution_enabled": false,
+    "execution_permit_issued": false,
+    "automatic_cutover_enabled": false,
+    "automatic_rollback_enabled": false
+  }
+}

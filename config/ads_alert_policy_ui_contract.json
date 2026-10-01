@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "status": "PREPRODUCTION_UI_CONTRACT",
+  "layer_name": "ads_smart_issue_alert_policy_ui_v1",
+  "alert_policy_ui": {
+    "enabled": true,
+    "input_source": "ads_alert_policy.json",
+    "presentation_only": true,
+    "read_only": true,
+    "selected_shop_only": true,
+    "alert_policy_fingerprint_required": true,
+    "review_workflow_fingerprint_match_required": true,
+    "registry_fingerprint_match_required": true,
+    "operator_ledger_fingerprint_match_required": true,
+    "delivery_ledger_fingerprint_required": true,
+    "provider_binding_enabled": false,
+    "ui_delivery_enabled": false,
+    "automatic_delivery_enabled": false,
+    "automatic_promotion_enabled": false,
+    "automatic_state_transition_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false,
+    "production_activation_enabled": false,
+    "raw_ads_signal_binding_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "provider_delivery_allowed": false,
+    "production_activation_enabled": false
+  }
+}

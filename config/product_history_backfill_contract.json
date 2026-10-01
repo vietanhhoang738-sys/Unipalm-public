@@ -1,0 +1,62 @@
+{
+  "version": "1.1",
+  "layer_name": "product_history_semantic_v1",
+  "status": "PREPRODUCTION",
+  "purpose": "Persist trustworthy historical Product semantic facts plus BI-authoritative shop commercial context without weakening unrelated shop-level QA gates.",
+  "source_policy": {
+    "input_layer": "LOCAL_STAGING_ARTIFACT",
+    "allowed_when_full_shop_staging_fails": true,
+    "failure_domain": "PRODUCT_ONLY",
+    "canonical_output_mart": "dm_product_monthly",
+    "canonical_grain": ["shop_id", "data_month", "product_id"],
+    "supporting_shop_metric_mart": "dm_shop_commercial_monthly",
+    "supporting_shop_metric_source": "BUSINESS_INSIGHTS_SHOP_LEVEL",
+    "supporting_shop_metric_grain": ["shop_id", "data_month"],
+    "full_shop_processed_promotion_implied": false,
+    "full_shop_semantic_promotion_implied": false
+  },
+  "required_staging_checks": [
+    "shop_id_isolation",
+    "product_month_unique",
+    "product_performance_target_month_present",
+    "product_variation_referential",
+    "product_ads_all_campaign_aggregation",
+    "catalog_resolution_observability",
+    "source_schema_guard"
+  ],
+  "schema_policy": {
+    "relevant_contracts": ["product_performance", "ads_metadata", "ads_rows", "listing_catalog", "business_insights_daily"],
+    "fail_status_forbidden": true,
+    "warn_status_allowed_with_lineage": true,
+    "unknown_columns_allowed_only_when_schema_audit_is_warn_not_fail": true
+  },
+  "required_staging_files": [
+    "fact_product_performance_monthly.jsonl",
+    "fact_shop_performance_daily.jsonl",
+    "dm_ads_product_daily_candidate.jsonl",
+    "catalog_resolution_staging.jsonl",
+    "listing_catalog_products_snapshot.jsonl",
+    "staging_qa_report.json",
+    "schema_drift_report.json"
+  ],
+  "history_identity_policy": {
+    "product_identity": ["shop_id", "product_id"],
+    "missing_current_listing_status": "HISTORICAL_NO_CURRENT_LISTING",
+    "infer_cross_shop_identity": false,
+    "infer_missing_sku_from_name": false
+  },
+  "shop_metric_policy": {
+    "order_count_source": "BUSINESS_INSIGHTS_PLACED_STAGE",
+    "aov_formula": "sum(BI placed gross_sales) / sum(BI placed order_count)",
+    "product_order_occurrences_are_shop_orders": false,
+    "zero_gmv_product_order_occurrences_must_not_reduce_shop_aov": true
+  },
+  "safety": {
+    "write_legacy_processed": false,
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "publish_canonical_portfolio_semantic": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "version": "1.1",
+  "layer_name": "multi_shop_processed_v1",
+  "safety": {
+    "production_data_mart_write": false,
+    "production_ui_write": false,
+    "legacy_processed_write": false
+  },
+  "required_ready_domains": [
+    "orders",
+    "ads",
+    "product_performance",
+    "business_insights"
+  ],
+  "domains": {
+    "orders": {
+      "required": true,
+      "files": [
+        {
+          "source": "fact_orders.jsonl",
+          "target": "orders/fact_orders.jsonl",
+          "drop_fields": [
+            "loaded_at"
+          ]
+        },
+        {
+          "source": "fact_order_items.jsonl",
+          "target": "orders/fact_order_items.jsonl",
+          "drop_fields": [
+            "loaded_at"
+          ]
+        }
+      ],
+      "verified_through": {
+        "source": "fact_orders.jsonl",
+        "field": "order_created_at",
+        "mode": "date_prefix_max"
+      }
+    },
+    "ads": {
+      "required": true,
+      "files": [
+        {
+          "source": "fact_ads_performance_daily.jsonl",
+          "target": "ads/fact_ads_performance_daily.jsonl"
+        },
+        {
+          "source": "dm_ads_product_daily_candidate.jsonl",
+          "target": "ads/fact_ads_product_daily.jsonl"
+        }
+      ],
+      "verified_through": {
+        "source": "fact_ads_performance_daily.jsonl",
+        "field": "data_date",
+        "mode": "max"
+      }
+    },
+    "product_performance": {
+      "required": true,
+      "files": [
+        {
+          "source": "fact_product_performance_monthly.jsonl",
+          "target": "product_performance/fact_product_performance_monthly.jsonl"
+        },
+        {
+          "source": "fact_product_variations_monthly.jsonl",
+          "target": "product_performance/fact_product_variations_monthly.jsonl"
+        }
+      ],
+      "verified_through": {
+        "source": "fact_product_performance_monthly.jsonl",
+        "field": "data_month",
+        "mode": "max"
+      }
+    },
+    "business_insights": {
+      "required": true,
+      "files": [
+        {
+          "source": "fact_shop_performance_daily.jsonl",
+          "target": "business_insights/fact_shop_performance_daily.jsonl"
+        },
+        {
+          "source": "fact_traffic_source_daily.jsonl",
+          "target": "business_insights/fact_traffic_source_daily.jsonl"
+        },
+        {
+          "source": "fact_traffic_source_monthly.jsonl",
+          "target": "business_insights/fact_traffic_source_monthly.jsonl"
+        }
+      ],
+      "verified_through": {
+        "source": "fact_shop_performance_daily.jsonl",
+        "field": "data_date",
+        "mode": "max"
+      }
+    },
+    "catalog_resolution": {
+      "required": false,
+      "files": [
+        {
+          "source": "catalog_resolution_staging.jsonl",
+          "target": "catalog/catalog_resolution.jsonl"
+        }
+      ]
+    },
+    "listing_catalog": {
+      "required": false,
+      "files": [
+        {
+          "source": "listing_catalog_products_snapshot.jsonl",
+          "target": "listing_catalog/products_snapshot.jsonl"
+        },
+        {
+          "source": "listing_catalog_variations_snapshot.jsonl",
+          "target": "listing_catalog/variations_snapshot.jsonl"
+        }
+      ]
+    }
+  },
+  "schema_contract_domain_map": {
+    "orders": "orders",
+    "ads_metadata": "ads",
+    "ads_rows": "ads",
+    "product_performance": "product_performance",
+    "business_insights_daily": "business_insights",
+    "business_insights_traffic": "business_insights",
+    "listing_catalog_machine": "listing_catalog"
+  }
+}

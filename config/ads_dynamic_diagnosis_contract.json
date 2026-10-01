@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "layer_name": "multi_shop_ads_dynamic_diagnosis_v1",
+  "status": "PREPRODUCTION",
+  "source_layer": "multi_shop_ads_intelligence_v1",
+  "dynamic_diagnosis_policy": {
+    "enabled": true,
+    "mode": "DYNAMIC_ADS_DIAGNOSIS_V1",
+    "input_signal_source": "qualifiedSignals",
+    "context_gate": "CONTEXT_COMPATIBLE_ONLY",
+    "max_diagnosis_items": 6,
+    "priority_high_min": 75,
+    "priority_medium_min": 55,
+    "confidence_high_min": 0.85,
+    "diagnosis_types": ["PROBLEM", "OPPORTUNITY"],
+    "operator_copy_vietnamese_first": true,
+    "evidence_fields": [
+      "roasDelta", "spendShare", "spendDelta", "salesDelta",
+      "currentRoas", "currentSpend", "currentAttributedSales", "confidence"
+    ],
+    "review_focus_is_operator_check_not_platform_action": true,
+    "raw_evidence_remains_available_when_diagnosis_blocked": true,
+    "causal_claims_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "production_activation_enabled": false,
+    "automatic_alerts_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false
+  }
+}

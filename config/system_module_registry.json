@@ -1,0 +1,1105 @@
+{
+  "version": "1.0",
+  "status": "PREPRODUCTION_GOVERNANCE",
+  "purpose": "Canonical machine-readable ownership, dependency and maintenance registry for the Unipalm system.",
+  "policy": {
+    "immutable_upstream_on_downstream_change": true,
+    "contract_change_requires_explicit_versioning": true,
+    "locked_refactor_requires_behavioral_equivalence": true,
+    "generic_core_forbids_concrete_shop_identity": true,
+    "new_domain_must_register_module": true,
+    "operational_state_root": "ops/",
+    "production_mutation_requires_explicit_human_approval": true,
+    "fail_closed_on_contract_or_dependency_violation": true
+  },
+  "layers": [
+    {
+      "id": "governance",
+      "order": 0
+    },
+    {
+      "id": "instance_config",
+      "order": 10
+    },
+    {
+      "id": "source_boundary",
+      "order": 20
+    },
+    {
+      "id": "staging",
+      "order": 30
+    },
+    {
+      "id": "processed",
+      "order": 40
+    },
+    {
+      "id": "durable_storage",
+      "order": 50
+    },
+    {
+      "id": "semantic",
+      "order": 60
+    },
+    {
+      "id": "context",
+      "order": 70
+    },
+    {
+      "id": "intelligence",
+      "order": 80
+    },
+    {
+      "id": "diagnosis",
+      "order": 90
+    },
+    {
+      "id": "issue",
+      "order": 100
+    },
+    {
+      "id": "operator",
+      "order": 110
+    },
+    {
+      "id": "presentation",
+      "order": 120
+    },
+    {
+      "id": "deployment_control",
+      "order": 130
+    },
+    {
+      "id": "legacy",
+      "order": 900
+    }
+  ],
+  "modules": [
+    {
+      "id": "shop_registry",
+      "lane": "core",
+      "layer": "instance_config",
+      "status": "LOCKED_V1",
+      "replication_role": "INSTANCE_CONFIG",
+      "dependencies": [],
+      "implementation_paths": [
+        "automation/modules/shop_registry.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [],
+      "config_paths": [
+        "config/shop_registry.json"
+      ],
+      "doc_paths": [
+        "docs/multi-shop-architecture-audit-2026-09.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_shop_registry.py",
+        "automation/tests/test_multi_shop_architecture.py"
+      ],
+      "failure_boundary": "Invalid identity, duplicate identity or invalid raw-root configuration blocks selection before business data is processed.",
+      "change_entrypoints": [
+        "config/shop_registry.json"
+      ],
+      "do_not_change": [
+        "Do not add concrete current Shop IDs to generic runtime modules."
+      ]
+    },
+    {
+      "id": "source_schema_guard",
+      "lane": "core",
+      "layer": "source_boundary",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_PLATFORM_CONFIG",
+      "dependencies": [],
+      "implementation_paths": [
+        "automation/modules/schema_registry.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [],
+      "config_paths": [
+        "config/source_schema_registry.json"
+      ],
+      "doc_paths": [
+        "docs/source-schema-drift-guard.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_schema_registry.py"
+      ],
+      "failure_boundary": "Breaking source drift fails closed before normalization; reviewed non-breaking drift remains observable.",
+      "change_entrypoints": [
+        "config/source_schema_registry.json"
+      ],
+      "do_not_change": [
+        "Do not hide semantic source-column renames inside parser aliases without registry review."
+      ]
+    },
+    {
+      "id": "catalog_resolver",
+      "lane": "core",
+      "layer": "staging",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "shop_registry"
+      ],
+      "implementation_paths": [
+        "automation/modules/catalog_resolver.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/multi-shop-catalog-resolver.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_catalog_resolver.py"
+      ],
+      "failure_boundary": "Ambiguous or conflicting catalog evidence stays unresolved instead of creating a false cross-shop identity.",
+      "change_entrypoints": [
+        "automation/modules/catalog_resolver.py"
+      ],
+      "do_not_change": [
+        "Do not infer product identity from display-name similarity alone."
+      ]
+    },
+    {
+      "id": "multi_shop_staging",
+      "lane": "core",
+      "layer": "staging",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "shop_registry",
+        "source_schema_guard",
+        "catalog_resolver"
+      ],
+      "implementation_paths": [
+        "automation/modules/multi_shop_staging.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_staging_runner.py"
+      ],
+      "contract_paths": [],
+      "config_paths": [
+        "config/shop_registry.json",
+        "config/source_schema_registry.json"
+      ],
+      "doc_paths": [
+        "docs/multi-shop-ingestion-staging-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_multi_shop_staging.py",
+        "automation/tests/test_staging_xlsx_reader.py"
+      ],
+      "failure_boundary": "Each shop is normalized and QA'd independently; any selected-shop failure blocks promotion without merging shops.",
+      "change_entrypoints": [
+        "automation/modules/multi_shop_staging.py",
+        "config/source_schema_registry.json"
+      ],
+      "do_not_change": [
+        "Do not write production marts or UI from staging."
+      ]
+    },
+    {
+      "id": "processed_v2",
+      "lane": "core",
+      "layer": "processed",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "multi_shop_staging"
+      ],
+      "implementation_paths": [
+        "automation/modules/processed_layer.py",
+        "automation/modules/pipeline_state.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_processed_runner.py"
+      ],
+      "contract_paths": [
+        "config/processed_layer_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/multi-shop-processed-control-plane.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_processed_layer.py",
+        "automation/tests/test_pipeline_state.py"
+      ],
+      "failure_boundary": "One shop + one period is the rebuild unit; invalid processed QA blocks persistence.",
+      "change_entrypoints": [
+        "config/processed_layer_contract.json",
+        "automation/modules/processed_layer.py"
+      ],
+      "do_not_change": [
+        "Do not broaden overwrite scope beyond one shop + one period without a new contract version."
+      ]
+    },
+    {
+      "id": "processed_v2_storage",
+      "lane": "core",
+      "layer": "durable_storage",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_INSTANCE_STORAGE",
+      "dependencies": [
+        "processed_v2"
+      ],
+      "implementation_paths": [
+        "automation/modules/drive_partition_writer.py",
+        "automation/modules/drive_auth.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_drive_writer.py"
+      ],
+      "contract_paths": [],
+      "config_paths": [
+        "config/storage_registry.json"
+      ],
+      "doc_paths": [
+        "docs/processed-v2-drive-oauth-setup.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_drive_partition_writer.py",
+        "automation/tests/test_drive_auth.py"
+      ],
+      "failure_boundary": "Atomic partition swap preserves the prior partition until verified upload succeeds; same fingerprint is NOOP.",
+      "change_entrypoints": [
+        "config/storage_registry.json",
+        "automation/modules/drive_partition_writer.py"
+      ],
+      "do_not_change": [
+        "Do not point PREPRODUCTION writers at forbidden production roots."
+      ]
+    },
+    {
+      "id": "semantic_v2",
+      "lane": "core",
+      "layer": "semantic",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "shop_registry",
+        "processed_v2_storage"
+      ],
+      "implementation_paths": [
+        "automation/modules/semantic_mart.py",
+        "automation/modules/semantic_drive_writer.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_semantic_runner.py",
+        "automation/multi_shop_semantic_drive_writer.py"
+      ],
+      "contract_paths": [
+        "config/semantic_mart_contract.json"
+      ],
+      "config_paths": [
+        "config/storage_registry.json"
+      ],
+      "doc_paths": [
+        "docs/multi-shop-semantic-mart-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_semantic_mart.py",
+        "automation/tests/test_semantic_drive_writer.py"
+      ],
+      "failure_boundary": "Canonical portfolio persistence requires all enabled shops and semantic QA PASS; ratios are recomputed from additive facts.",
+      "change_entrypoints": [
+        "config/semantic_mart_contract.json",
+        "automation/modules/semantic_mart.py"
+      ],
+      "do_not_change": [
+        "Do not re-derive semantic facts in UI adapters."
+      ]
+    },
+    {
+      "id": "business_context",
+      "lane": "core",
+      "layer": "context",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_CURATED_EVIDENCE",
+      "dependencies": [
+        "shop_registry"
+      ],
+      "implementation_paths": [
+        "automation/modules/business_context_calendar.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_context_runner.py"
+      ],
+      "contract_paths": [
+        "config/business_context_contract.json"
+      ],
+      "config_paths": [
+        "config/business_context_calendar.json"
+      ],
+      "doc_paths": [
+        "docs/business-context-calendar-foundation-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_business_context_calendar.py"
+      ],
+      "failure_boundary": "Unverified or inexact evidence cannot qualify exact-date campaign context; unknown context remains explicit.",
+      "change_entrypoints": [
+        "config/business_context_calendar.json",
+        "config/business_context_contract.json"
+      ],
+      "do_not_change": [
+        "Do not promote search snippets or inferred dates into canonical exact campaign evidence."
+      ]
+    },
+    {
+      "id": "historical_intelligence",
+      "lane": "core",
+      "layer": "intelligence",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "semantic_v2",
+        "business_context"
+      ],
+      "implementation_paths": [
+        "automation/modules/historical_intelligence.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_history_runner.py"
+      ],
+      "contract_paths": [
+        "config/historical_intelligence_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/historical-intelligence-foundation-v1.md",
+        "docs/context-aware-comparator-qualification-v1.md",
+        "docs/context-matched-historical-baseline-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_historical_intelligence.py"
+      ],
+      "failure_boundary": "Insufficient or context-incompatible history emits explicit insufficient states; no silent baseline fallback.",
+      "change_entrypoints": [
+        "config/historical_intelligence_contract.json",
+        "automation/modules/historical_intelligence.py"
+      ],
+      "do_not_change": [
+        "Refactor only behind a compatibility facade until output/fingerprint equivalence is proven."
+      ]
+    },
+    {
+      "id": "product_intelligence",
+      "lane": "core",
+      "layer": "intelligence",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "semantic_v2",
+        "historical_intelligence"
+      ],
+      "implementation_paths": [
+        "automation/modules/product_intelligence.py",
+        "automation/modules/product_intelligence_shop_metrics.py",
+        "automation/modules/product_shop_metrics.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_product_intelligence_runner.py"
+      ],
+      "contract_paths": [
+        "config/product_intelligence_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/product-intelligence-v2-foundation.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_product_intelligence.py",
+        "automation/tests/test_product_shop_metrics.py"
+      ],
+      "failure_boundary": "Unsupported horizons remain insufficient instead of fabricating product trends.",
+      "change_entrypoints": [
+        "config/product_intelligence_contract.json",
+        "automation/modules/product_intelligence.py"
+      ],
+      "do_not_change": [
+        "Do not mix cross-shop product identity without shop-scoped catalog evidence."
+      ]
+    },
+    {
+      "id": "ads_intelligence",
+      "lane": "core",
+      "layer": "intelligence",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "semantic_v2",
+        "business_context"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_intelligence.py",
+        "automation/modules/ads_context_qualification.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_ads_intelligence_runner.py"
+      ],
+      "contract_paths": [
+        "config/ads_intelligence_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-intelligence-v2-foundation.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_intelligence.py",
+        "automation/tests/test_ads_context_qualification.py"
+      ],
+      "failure_boundary": "Ads comparison and context qualification fail closed when source history or compatible context is unavailable.",
+      "change_entrypoints": [
+        "config/ads_intelligence_contract.json",
+        "automation/modules/ads_intelligence.py",
+        "automation/modules/ads_context_qualification.py"
+      ],
+      "do_not_change": [
+        "Do not bypass qualified comparisons to populate the UI."
+      ]
+    },
+    {
+      "id": "ads_dynamic_diagnosis",
+      "lane": "core",
+      "layer": "diagnosis",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "ads_intelligence"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_dynamic_diagnosis.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [
+        "config/ads_dynamic_diagnosis_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-dynamic-diagnosis-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_dynamic_diagnosis.py",
+        "automation/tests/test_ui_v2_ads_dynamic_diagnosis.py"
+      ],
+      "failure_boundary": "Diagnosis consumes only qualified evidence and emits no diagnosis when context/comparison gates are blocked.",
+      "change_entrypoints": [
+        "config/ads_dynamic_diagnosis_contract.json",
+        "automation/modules/ads_dynamic_diagnosis.py"
+      ],
+      "do_not_change": [
+        "Do not consume raw snap.signals directly in diagnosis presentation."
+      ]
+    },
+    {
+      "id": "ads_diagnosis_persistence",
+      "lane": "core",
+      "layer": "diagnosis",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "ads_dynamic_diagnosis"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_diagnosis_persistence.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [
+        "config/ads_diagnosis_persistence_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-diagnosis-persistence-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_diagnosis_persistence.py",
+        "automation/tests/test_ui_v2_ads_diagnosis_persistence.py"
+      ],
+      "failure_boundary": "Persistence confirmation uses independent compatible windows; blocked context is excluded rather than counted as evidence.",
+      "change_entrypoints": [
+        "config/ads_diagnosis_persistence_contract.json",
+        "automation/modules/ads_diagnosis_persistence.py"
+      ],
+      "do_not_change": [
+        "Do not convert persistence into materiality or issue creation."
+      ]
+    },
+    {
+      "id": "ads_smart_issue_candidate",
+      "lane": "core",
+      "layer": "issue",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "ads_diagnosis_persistence"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_smart_issue_candidates.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [
+        "config/ads_smart_issue_candidate_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-candidate-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_smart_issue_candidates.py",
+        "automation/tests/test_ui_v2_ads_smart_issue_candidates.py"
+      ],
+      "failure_boundary": "Only confirmed, current and materially exposed evidence becomes a candidate; thresholds are not lowered to force population.",
+      "change_entrypoints": [
+        "config/ads_smart_issue_candidate_contract.json",
+        "automation/modules/ads_smart_issue_candidates.py"
+      ],
+      "do_not_change": [
+        "Do not treat candidate eligibility as issue creation."
+      ]
+    },
+    {
+      "id": "ads_smart_issue_registry",
+      "lane": "core",
+      "layer": "issue",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "ads_smart_issue_candidate"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_smart_issue_registry.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [
+        "config/ads_smart_issue_registry_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-registry-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_smart_issue_registry.py",
+        "automation/tests/test_ui_v2_ads_smart_issue_registry.py"
+      ],
+      "failure_boundary": "Issue creation and transitions require explicit append-only human review events; candidate disappearance never auto-resolves an issue.",
+      "change_entrypoints": [
+        "config/ads_smart_issue_registry_contract.json",
+        "automation/modules/ads_smart_issue_registry.py"
+      ],
+      "do_not_change": [
+        "Do not enable automatic promotion, transition, resolution, alerts or actions."
+      ]
+    },
+    {
+      "id": "ads_operator_review_workflow",
+      "lane": "core",
+      "layer": "operator",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "ads_smart_issue_registry"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_smart_issue_review_workflow.py"
+      ],
+      "runner_paths": [
+        "automation/ads_smart_issue_review_command.py"
+      ],
+      "contract_paths": [
+        "config/ads_smart_issue_review_workflow_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-operator-review-workflow-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_smart_issue_review_workflow.py"
+      ],
+      "failure_boundary": "Review writes require explicit apply and the expected current ledger fingerprint; stale review views fail closed.",
+      "change_entrypoints": [
+        "config/ads_smart_issue_review_workflow_contract.json",
+        "automation/modules/ads_smart_issue_review_workflow.py"
+      ],
+      "do_not_change": [
+        "Do not let presentation code write review events directly."
+      ]
+    },
+    {
+      "id": "ads_smart_issue_alert_policy",
+      "lane": "core",
+      "layer": "operator",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "ads_operator_review_workflow"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_alert_policy.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_ads_alert_policy_runner.py",
+        "automation/multi_shop_ads_intelligence_runner.py"
+      ],
+      "contract_paths": [
+        "config/ads_alert_policy_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-alert-policy-v1.md",
+        "docs/audits/ads-smart-issue-alert-policy-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_alert_policy.py"
+      ],
+      "failure_boundary": "Only explicit human-promoted OPEN PROBLEM Smart Issues with a valid PROMOTE/REOPEN trigger can become alert intents; invalid lineage or delivery ledger state fails closed and delivery remains disabled.",
+      "change_entrypoints": [
+        "config/ads_alert_policy_contract.json",
+        "automation/modules/ads_alert_policy.py"
+      ],
+      "do_not_change": [
+        "Do not alert raw Diagnosis or Candidates; do not enable a notification provider or automatic delivery inside this policy; do not lower Smart Issue thresholds to manufacture alerts."
+      ]
+    },
+    {
+      "id": "ads_action_authorization",
+      "lane": "core",
+      "layer": "operator",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "ads_operator_review_workflow",
+        "ads_smart_issue_alert_policy"
+      ],
+      "implementation_paths": [
+        "automation/modules/ads_action_authorization.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_ads_action_authorization_runner.py",
+        "automation/ads_action_authorization_command.py"
+      ],
+      "contract_paths": [
+        "config/ads_action_authorization_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/recommendation-action-authorization-v1.md",
+        "docs/audits/recommendation-action-authorization-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ads_action_authorization.py"
+      ],
+      "failure_boundary": "Only explicit human-promoted active Smart Issues can produce bounded review proposals; targeted review requires quantified ATTRIBUTED evidence, stale proposal/ledger bindings fail closed, and even APPROVE remains review-only while the authenticated executor is unbound.",
+      "change_entrypoints": [
+        "config/ads_action_authorization_contract.json",
+        "automation/modules/ads_action_authorization.py",
+        "automation/ads_action_authorization_command.py"
+      ],
+      "do_not_change": [
+        "Do not treat Alert Policy eligibility as authorization; do not convert APPROVED_REVIEW_ONLY into an execution permit; do not bind provider credentials or platform mutation inside this v1 module."
+      ]
+    },
+    {
+      "id": "ui_payload",
+      "lane": "core",
+      "layer": "presentation",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE",
+      "dependencies": [
+        "semantic_v2",
+        "historical_intelligence",
+        "product_intelligence",
+        "ads_operator_review_workflow"
+      ],
+      "implementation_paths": [
+        "automation/modules/semantic_payload.py",
+        "automation/modules/semantic_product_payload.py",
+        "automation/modules/semantic_ads_payload.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_payload_runner.py"
+      ],
+      "contract_paths": [
+        "config/ui_payload_contract.json",
+        "config/destination_scope_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/multi-shop-ui-payload-contract-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_semantic_payload.py"
+      ],
+      "failure_boundary": "Presentation payload consumes canonical upstream outputs; missing capability is explicit and business facts are not redefined locally.",
+      "change_entrypoints": [
+        "config/ui_payload_contract.json",
+        "automation/modules/semantic_payload.py"
+      ],
+      "do_not_change": [
+        "Do not reimplement semantic KPI definitions in destination adapters; keep operator sidecars out of canonical business facts unless a new payload contract explicitly requires them."
+      ]
+    },
+    {
+      "id": "ads_smart_issue_review_console",
+      "lane": "core",
+      "layer": "presentation",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_PRESENTATION",
+      "dependencies": [
+        "ads_operator_review_workflow",
+        "ui_payload"
+      ],
+      "implementation_paths": [
+        "automation/modules/ui_v2_ads_smart_issue_review_console.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_native_v2_runner.py"
+      ],
+      "contract_paths": [
+        "config/ads_smart_issue_review_console_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-review-console-v1.md",
+        "docs/audits/ads-smart-issue-review-console-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ui_v2_ads_smart_issue_review_console.py",
+        "automation/tests/test_ui_v2_extension_composition_canonical.py"
+      ],
+      "failure_boundary": "Workflow/payload lineage mismatch, unsafe workflow flags, invalid state-action pairs or shop-scope mismatch block the Native build; the console never writes the review ledger.",
+      "change_entrypoints": [
+        "config/ads_smart_issue_review_console_contract.json",
+        "automation/modules/ui_v2_ads_smart_issue_review_console.py"
+      ],
+      "do_not_change": [
+        "Do not add direct browser or presentation-layer ledger writes; do not duplicate Candidate/Registry business rules; render only actions supplied and validated by the Operator Review Workflow."
+      ]
+    },
+    {
+      "id": "ads_smart_issue_alert_policy_ui",
+      "lane": "core",
+      "layer": "presentation",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_PRESENTATION",
+      "dependencies": [
+        "ads_smart_issue_alert_policy",
+        "ads_smart_issue_review_console",
+        "ui_payload"
+      ],
+      "implementation_paths": [
+        "automation/modules/ui_v2_ads_alert_policy.py",
+        "automation/modules/ui_v2_extension_composition_alerts.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_native_v2_runner.py"
+      ],
+      "contract_paths": [
+        "config/ads_alert_policy_ui_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ads-smart-issue-alert-policy-v1.md",
+        "docs/audits/ads-smart-issue-alert-policy-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ui_v2_ads_alert_policy.py",
+        "automation/tests/test_ui_v2_extension_composition_alerts.py"
+      ],
+      "failure_boundary": "Alert Policy/workflow/payload lineage mismatch, unsafe delivery flags or invalid shop scope block the Native build; the panel is read-only and never delivers an alert.",
+      "change_entrypoints": [
+        "config/ads_alert_policy_ui_contract.json",
+        "automation/modules/ui_v2_ads_alert_policy.py",
+        "automation/modules/ui_v2_extension_composition_alerts.py"
+      ],
+      "do_not_change": [
+        "Do not add direct provider/browser notification calls or delivery ledger writes; do not bind raw Ads signals; do not fold the Alert Policy sidecar into canonical UI Payload without an explicit new contract version."
+      ]
+    },
+    {
+      "id": "ads_action_authorization_ui",
+      "lane": "core",
+      "layer": "presentation",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_PRESENTATION",
+      "dependencies": [
+        "ads_action_authorization",
+        "ads_smart_issue_alert_policy_ui",
+        "ads_smart_issue_review_console",
+        "ui_payload"
+      ],
+      "implementation_paths": [
+        "automation/modules/ui_v2_ads_action_authorization.py",
+        "automation/modules/ui_v2_extension_composition_action_authorization.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_native_v2_runner.py"
+      ],
+      "contract_paths": [
+        "config/ads_action_authorization_ui_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/recommendation-action-authorization-v1.md",
+        "docs/audits/recommendation-action-authorization-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ui_v2_ads_action_authorization.py",
+        "automation/tests/test_ui_v2_extension_composition_action_authorization.py"
+      ],
+      "failure_boundary": "Authorization/workflow/alert/payload lineage mismatch, missing issue-epoch/proposal binding, unsafe execution flags or invalid shop scope block the Native build; the panel is read-only and cannot write the authorization ledger or call an executor.",
+      "change_entrypoints": [
+        "config/ads_action_authorization_ui_contract.json",
+        "automation/modules/ui_v2_ads_action_authorization.py",
+        "automation/modules/ui_v2_extension_composition_action_authorization.py"
+      ],
+      "do_not_change": [
+        "Do not add browser ledger writes, executor/provider calls or platform mutation; do not bind raw Ads signals; do not fold mutable authorization state into canonical UI Payload without a new explicit payload contract version."
+      ]
+    },
+    {
+      "id": "native_v2",
+      "lane": "core",
+      "layer": "presentation",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_BRAND_PRESENTATION",
+      "dependencies": [
+        "ui_payload",
+        "ads_smart_issue_review_console",
+        "ads_smart_issue_alert_policy_ui",
+        "ads_action_authorization_ui"
+      ],
+      "implementation_paths": [
+        "automation/modules/ui_v2_native.py",
+        "automation/modules/ui_v2_compat.py",
+        "automation/modules/ui_v2_extension_composition.py",
+        "automation/modules/ui_v2_extension_composition_canonical.py",
+        "automation/modules/ui_v2_extension_composition_alerts.py",
+        "automation/modules/ui_v2_extension_composition_action_authorization.py",
+        "automation/modules/ui_v2_ads_destination.py",
+        "automation/modules/ui_v2_ads_financial.py",
+        "automation/modules/ui_v2_ads_alert_policy.py",
+        "automation/modules/ui_v2_ads_action_authorization.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_native_v2_runner.py"
+      ],
+      "contract_paths": [
+        "config/ui_v2_presentation_contract.json",
+        "config/ads_alert_policy_ui_contract.json",
+        "config/ads_action_authorization_ui_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/ui-v2-destination-architecture.md",
+        "docs/ui-v2-language-product-naming-system.md",
+        "docs/native-v2-extension-composition-v1.md",
+        "docs/ads-smart-issue-review-console-v1.md",
+        "docs/ads-smart-issue-alert-policy-v1.md",
+        "docs/recommendation-action-authorization-v1.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_ui_v2_native.py",
+        "automation/tests/test_ui_v2_native_review.py",
+        "automation/tests/test_ui_v2_extension_composition.py",
+        "automation/tests/test_ui_v2_extension_composition_canonical.py",
+        "automation/tests/test_ui_v2_extension_composition_alerts.py",
+        "automation/tests/test_ui_v2_extension_composition_action_authorization.py",
+        "automation/tests/test_ui_v2_ads_alert_policy.py",
+        "automation/tests/test_ui_v2_ads_action_authorization.py"
+      ],
+      "failure_boundary": "Native build fails closed on payload/patch/lineage/sidecar incompatibility; canonical v1.3 composition uses one base compatibility bridge, reuses all locked validators and never mutates the frozen production source template during PREPRODUCTION.",
+      "change_entrypoints": [
+        "automation/modules/ui_v2_extension_composition_action_authorization.py",
+        "automation/multi_shop_native_v2_runner.py",
+        "config/ui_v2_presentation_contract.json",
+        "config/ads_action_authorization_ui_contract.json"
+      ],
+      "do_not_change": [
+        "Do not add another nested Native builder wrapper or a second compatibility bridge; do not create a destination-specific parallel design language; do not turn Review Console, Alert Policy or Action Authorization presentation into a browser writer/sender/executor."
+      ]
+    },
+    {
+      "id": "production_cutover_control",
+      "lane": "core",
+      "layer": "deployment_control",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "ads_action_authorization",
+        "native_v2"
+      ],
+      "implementation_paths": [
+        "automation/modules/production_cutover_control.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_production_cutover_control_runner.py",
+        "automation/production_cutover_authorization_command.py"
+      ],
+      "contract_paths": [
+        "config/production_cutover_control_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/production-cutover-preparation-execution-control-v1.md",
+        "docs/audits/production-cutover-preparation-execution-control-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_production_cutover_control.py"
+      ],
+      "failure_boundary": "Any upstream lineage/safety mismatch, missing legacy rollback surface, stale authorization ledger, changed exact plan fingerprint or unreviewed production-readiness gate blocks advancement; plan approval never issues an execution permit in v1.",
+      "change_entrypoints": [
+        "config/production_cutover_control_contract.json",
+        "automation/modules/production_cutover_control.py",
+        ".github/workflows/production-cutover-control.yml"
+      ],
+      "do_not_change": [
+        "Do not bind an authenticated executor or enable platform/production mutation inside v1; do not treat readiness or human plan approval as deployment permission; do not remove the legacy rollback surface before an explicitly accepted cutover and rollback window."
+      ]
+    },
+    {
+      "id": "production_readiness_hardening",
+      "lane": "core",
+      "layer": "deployment_control",
+      "status": "LOCKED_V1",
+      "replication_role": "CORE_PLUS_OPERATOR_STATE",
+      "dependencies": [
+        "production_cutover_control",
+        "native_v2"
+      ],
+      "implementation_paths": [
+        "automation/modules/production_readiness_hardening.py"
+      ],
+      "runner_paths": [
+        "automation/multi_shop_production_readiness_runner.py"
+      ],
+      "contract_paths": [
+        "config/production_readiness_hardening_contract.json"
+      ],
+      "config_paths": [],
+      "doc_paths": [
+        "docs/production-readiness-hardening-v1.md",
+        "docs/audits/production-readiness-hardening-v1-checkpoint.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_production_readiness_hardening.py"
+      ],
+      "failure_boundary": "Missing or incompatible release lineage, rollback runtime, production credentials/read access, live monitoring or server-side repository governance keeps the affected readiness gate blocked; the hardening module never writes production or rewrites validated upstream artifacts.",
+      "change_entrypoints": [
+        "config/production_readiness_hardening_contract.json",
+        "automation/modules/production_readiness_hardening.py",
+        ".github/workflows/production-readiness-hardening.yml"
+      ],
+      "do_not_change": [
+        "Do not infer repository protection from workflow conventions; do not use a development compatibility copy as proof of the exact active production rollback target; do not add production write/deploy/executor behavior to this PREPRODUCTION hardening layer."
+      ]
+    },
+    {
+      "id": "legacy_production",
+      "lane": "legacy",
+      "layer": "legacy",
+      "status": "ACTIVE_LEGACY",
+      "replication_role": "DO_NOT_CLONE",
+      "dependencies": [],
+      "implementation_paths": [
+        "automation/source_processor.py",
+        "automation/run_pipeline.py",
+        "automation/modules/ui_artifact.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [],
+      "config_paths": [
+        "config/legacy_pipeline_dependencies.json"
+      ],
+      "doc_paths": [
+        "docs/legacy-upstream-dependency-audit.md",
+        "docs/system-cleanup-audit-2026-09.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_legacy_dependency_inventory.py",
+        "automation/tests/test_ui_artifact.py"
+      ],
+      "failure_boundary": "Legacy publisher remains single-shop-per-run and must fail closed on zero or mixed shop identity.",
+      "change_entrypoints": [
+        "automation/source_processor.py",
+        "automation/run_pipeline.py"
+      ],
+      "do_not_change": [
+        "Do not generalize by cloning the legacy stack per shop; retire after approved cutover."
+      ]
+    },
+    {
+      "id": "legacy_production_recovery",
+      "lane": "legacy",
+      "layer": "legacy",
+      "status": "ACTIVE_LEGACY",
+      "replication_role": "DO_NOT_CLONE",
+      "dependencies": [
+        "legacy_production"
+      ],
+      "implementation_paths": [
+        "automation/backfill_product_ads.py"
+      ],
+      "runner_paths": [],
+      "contract_paths": [],
+      "config_paths": [
+        "config/legacy_pipeline_dependencies.json"
+      ],
+      "doc_paths": [
+        "docs/system-cleanup-audit-2026-09.md"
+      ],
+      "test_paths": [
+        "automation/tests/test_legacy_dependency_inventory.py"
+      ],
+      "failure_boundary": "Recovery tooling is scoped to the legacy production mart and refuses mismatched shop identity.",
+      "change_entrypoints": [
+        "automation/backfill_product_ads.py"
+      ],
+      "do_not_change": [
+        "Do not reuse legacy recovery tooling as the N-shop production architecture."
+      ]
+    }
+  ],
+  "operational_state": {
+    "canonical_root": "ops/",
+    "paths": [
+      "ops/staging_request.json",
+      "ops/ads_smart_issue_review_events.json",
+      "ops/ads_alert_delivery_events.json",
+      "ops/ads_action_authorization_events.json",
+      "ops/production_cutover_evidence.json",
+      "ops/production_cutover_authorization_events.json"
+    ],
+    "legacy_exceptions": [
+      {
+        "path": "automation/pipeline_state.json",
+        "reason": "Active legacy production deployment state; move only during approved production cutover."
+      }
+    ]
+  },
+  "known_refactor_candidates": [
+    {
+      "path": "automation/modules/historical_intelligence.py",
+      "risk": "HIGH",
+      "reason": "Large multi-responsibility validated facade; future split must preserve contract and fingerprints."
+    },
+    {
+      "path": "automation/modules/semantic_payload.py",
+      "risk": "MEDIUM",
+      "reason": "Large presentation-adapter surface; split only behind canonical payload compatibility tests."
+    },
+    {
+      "path": ".github/workflows/multi-shop-staging.yml",
+      "risk": "MEDIUM",
+      "reason": "Large orchestration workflow; reusable-job split is desirable after architecture registry is enforced."
+    },
+    {
+      "path": "automation/modules/ui_v2_native.py",
+      "risk": "MEDIUM",
+      "reason": "Composition v1.3 preserves one temporary base compatibility bridge; remove only through a separately validated first-class hook migration."
+    }
+  ]
+}

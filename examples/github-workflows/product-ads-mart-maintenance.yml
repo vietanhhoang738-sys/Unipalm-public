@@ -1,0 +1,62 @@
+name: Legacy Product Ads Mart Audit / Backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply repair to the current legacy single-shop Product Ads mart"
+        required: false
+        default: false
+        type: boolean
+      start_month:
+        description: "First month to inspect/backfill (YYYY-MM)"
+        required: false
+        default: "2025-11"
+        type: string
+      end_month:
+        description: "Last month to inspect/backfill (YYYY-MM, blank = latest discovered)"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unipalm-legacy-product-ads-mart-maintenance
+  cancel-in-progress: false
+
+jobs:
+  audit-backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Legacy production recovery resources. This workflow is not used to onboard new shops.
+      UNIPALM_DATA_MART_SHEET_ID: "PUBLIC_RESOURCE_LIVE_001"
+      UNIPALM_PROCESSED_ADS_FOLDER_ID: "1Ebizcb9mElfgExvAj6iiy8Jt7dbjp54b"
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - run: pip install -r automation/requirements.txt
+      - name: Audit / backfill guarded legacy Product Ads mart
+        run: |
+          CMD=(python automation/backfill_product_ads.py --start-month "${{ inputs.start_month }}")
+          if [ -n "${{ inputs.end_month }}" ]; then
+            CMD+=(--end-month "${{ inputs.end_month }}")
+          fi
+          if [ "${{ inputs.apply }}" = "true" ]; then
+            CMD+=(--apply)
+          fi
+          "${CMD[@]}"
+      - name: Upload maintenance result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-product-ads-mart-result
+          path: automation/product_ads_backfill_result.json
+          if-no-files-found: warn

@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "status": "PREPRODUCTION_UI_CONTRACT",
+  "layer_name": "ads_action_authorization_ui_v1",
+  "action_authorization_ui": {
+    "enabled": true,
+    "input_source": "ads_action_authorization.json",
+    "presentation_only": true,
+    "read_only": true,
+    "selected_shop_only": true,
+    "action_authorization_fingerprint_required": true,
+    "review_workflow_fingerprint_match_required": true,
+    "alert_policy_fingerprint_match_required": true,
+    "registry_fingerprint_match_required": true,
+    "ads_intelligence_fingerprint_match_required": true,
+    "authorization_ledger_fingerprint_required": true,
+    "issue_epoch_binding_required": true,
+    "proposal_fingerprint_required": true,
+    "attributed_driver_required_for_targeted_review": true,
+    "authenticated_executor_bound": false,
+    "execution_enabled": false,
+    "ui_execution_enabled": false,
+    "provider_binding_enabled": false,
+    "platform_mutation_allowed": false,
+    "automatic_execution_enabled": false,
+    "automatic_issue_transition_enabled": false,
+    "automatic_issue_resolution_enabled": false,
+    "automatic_actions_enabled": false,
+    "causal_claims_enabled": false,
+    "production_activation_enabled": false,
+    "raw_ads_signal_binding_enabled": false
+  },
+  "safety": {
+    "write_production_data_mart": false,
+    "modify_production_ui": false,
+    "platform_mutation_allowed": false,
+    "provider_execution_allowed": false,
+    "authenticated_executor_bound": false,
+    "execution_enabled": false,
+    "production_activation_enabled": false
+  }
+}

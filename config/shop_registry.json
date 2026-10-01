@@ -1,0 +1,62 @@
+{
+  "version": "2.0",
+  "shops": [
+    {
+      "shop_key": "syt_plus",
+      "shop_id": "SHP_VN_1000000001",
+      "shopee_shop_id": "1000000001",
+      "display_name": "SYT+",
+      "platform": "shopee",
+      "enabled": true,
+      "listing_catalog_enabled": true,
+      "raw_root_candidates": [
+        {
+          "type": "folder_id",
+          "folder_id": "PUBLIC_RESOURCE_SHOP_01",
+          "priority": 100
+        },
+        {
+          "type": "folder_id",
+          "folder_id": "PUBLIC_RESOURCE_SHOP_02",
+          "priority": 10
+        }
+      ],
+      "shop_badge": {
+        "kind": "preferred",
+        "label": "Shop Yêu Thích"
+      },
+      "history_lifecycle": {
+        "origin": "PREEXISTING_BEFORE_TRUSTED_WINDOW",
+        "start_policy": "UNKNOWN_BEFORE_TRUSTED_WINDOW",
+        "pre_start_dates_are_missing": null,
+        "note": "Trusted multi-shop history starts after this shop was already operating."
+      }
+    },
+    {
+      "shop_key": "mall",
+      "shop_id": "SHP_VN_1000000002",
+      "shopee_shop_id": "1000000002",
+      "display_name": "Mall",
+      "platform": "shopee",
+      "enabled": true,
+      "listing_catalog_enabled": true,
+      "raw_root_candidates": [
+        {
+          "type": "folder_id",
+          "folder_id": "PUBLIC_RESOURCE_SHOP_03",
+          "priority": 100
+        }
+      ],
+      "shop_badge": {
+        "kind": "mall",
+        "label": "Shopee Mall"
+      },
+      "history_lifecycle": {
+        "origin": "SHOP_LAUNCH",
+        "start_policy": "FIRST_TRUSTED_SEMANTIC_DATE",
+        "pre_start_dates_are_missing": false,
+        "note": "Shop began operating during the trusted-history window; dates before the first trusted Semantic date are pre-launch, not missing data."
+      }
+    }
+  ]
+}

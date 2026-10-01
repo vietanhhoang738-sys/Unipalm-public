@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "snapshotVersion": "unipalm-public-source-snapshot-v1",
+  "sourceCompleteOperationsEmpty": true,
+  "blockerCount": 0,
+  "blockers": [],
+  "warningCount": 0,
+  "warnings": [],
+  "checks": {
+    "productionArtifactAbsent": true,
+    "gitHistoryAbsent": true,
+    "highConfidencePlaintextSecretCount": 0,
+    "privateLiteralLeakCount": 0,
+    "trackedDataFileCount": 0,
+    "scheduledWorkflowCount": 0,
+    "pipelineStateReset": true,
+    "cutoverReadyCheckCount": 0
+  },
+  "sourceBranch": "multi-shop-catalog-resolver",
+  "excludedPaths": [
+    "index.html",
+    ".github/workflows/public-snapshot-export.yml",
+    ".github/workflows/public-snapshot-preflight.yml"
+  ],
+  "privateIdentifierCountSanitized": 27
+}
