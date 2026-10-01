@@ -83,12 +83,20 @@ Validate locally with:
 
 ```bash
 python -m compileall -q automation
-python automation/validate_architecture.py
-cd automation
-python -m unittest discover -s tests -p "test_*.py" -v
+python automation/validate_public_repository.py
+python automation/run_public_tests.py
 ```
 
-GitHub also runs `Architecture & Contract Guard` for broad automation/config/ops changes.
+GitHub runs `Public Repository Guard` for every pull request and every update to
+`main`. The workflow is read-only, uses immutable action revisions, receives no
+secrets and performs no deployment. It verifies that the repository still
+descends from the audited public root, remains operations-empty and contains
+only pseudonymized identifiers before running the public-compatible unit suite.
+
+The private production workflows and production UI artifact are intentionally
+absent from this repository. Their private-only validators are therefore not
+part of the public CI suite; their absence is itself enforced by the public
+repository validator.
 
 ## Production safety
 
